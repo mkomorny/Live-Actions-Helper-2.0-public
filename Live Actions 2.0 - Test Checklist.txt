@@ -1,0 +1,1011 @@
+LIVE ACTIONS HELPER 2.0 -- HANDS-ON TEST CHECKLIST (after the redesign)
+========================================================================
+Written for v1.0.66.  Covers ONLY what the automated suites cannot prove.
+
+
+WHAT THIS IS
+------------
+The WebView2 redesign ("Layout A Workbench") is feature-complete and every
+automated check passes -- 416 unit tests, 199/199 end-to-end, 12/12 instance
+checks, 12/12 Breakdowns theme-persistence checks, and per-kit screenshot
+fidelity of 0.00-0.18% against a 2% limit.
+
+All of that ran against a MOCK Ableton and a MOCK language model.  Nothing in
+this app has ever touched real Ableton, a real API key, the real Cartesia
+network, or the real installer.  That gap is what this document tests.
+
+Already proven by automation -- DO NOT re-test by hand:
+  * the theme picker's mechanics, every kit's layout integrity, and the shell's
+    own theme surviving a restart
+  * every Preferences control as a real round trip, with settings.json read
+    back as the source of truth
+  * the slot picker's logic, the overwrite confirm, Escape/cancel, and the
+    native Save As being driven for real
+  * the three dialogs opening, being driven through their own buttons, and
+    Cancel/X writing nothing
+  * Launch Live Actions.bat starting the shell, the liveactions:// argument,
+    and the preflight message box
+  * Genius streaming, tool-call chips, Stop closing the turn, and the markdown
+    escaping
+
+
+HOW TO USE IT
+-------------
+1. Save your own copy (e.g. "Live Actions 2.0 - Test Checklist FILLED IN.txt")
+   and type into that one, so the blank original stays blank.
+2. Work top to bottom.  Section A needs nothing but the PC.  Section B onwards
+   needs Ableton Live 12 open with the Live Actions Bridge device loaded.
+3. Under each item, replace the RESULT line with one of:
+      PASS
+      FAIL: <exactly what you saw>
+      SKIP: <why>
+   For Genius items, paste the model's FULL raw reply, not a summary.
+4. Replace anything in [BRACKETS] with the real track / slot / clip from your
+   Set before you send it.
+5. Errors are data.  If something errors or refuses, paste that too.
+6. Screenshots help for anything visual -- save them beside this file and write
+   the filename in the RESULT block.
+
+Track numbers are always "as Live shows them" (1-based), per the app's own
+convention.
+
+When you are done, send the filled-in file back and it gets triaged the same
+way as last time: confirmed, new findings, and anything needing more data.
+
+
+========================================================================
+SECTION 0 -- BEFORE YOU START  (read this, it prevents false failures)
+========================================================================
+
+0a. USE THE RIGHT LAUNCHER.  In
+    C:\Users\<you>\My Apps\Live Actions Helper Redesign
+    double-click:
+
+        Launch Live Actions.bat          <-- USE THIS ONE
+
+    Do NOT use "Launch Redesign Shell.bat" for any test in this document.
+    That one runs the app as the isolated "redesign" instance: it listens on
+    UDP 12025/12024 instead of 11925/11924, and the Max device only ever talks
+    to 11925/11924.  It also has its own empty settings file, so it has none of
+    your API keys.  Testing with it would give you a permanently offline dot,
+    an empty track list and "no API key" -- none of which would be real bugs.
+
+0b. ONLY ONE AT A TIME.  The new shell and the classic Tk app share one
+    single-instance lock.  If one is already running, launching the other just
+    raises the first window instead of opening a second.  Quit the Tk app
+    before you start.
+
+0c. SAME SETTINGS FILE.  The shell reads and writes the same
+    %APPDATA%\Live Actions\settings.json as the Tk app -- your real keys,
+    folders and TTS profiles are already there.  Anything you change in the
+    shell's Preferences also changes it for the Tk app.  That is intended.
+
+0d. USE A THROWAWAY SET with at least one AUDIO track and one MIDI track, and
+    a few clips you do not mind renaming, recolouring or overwriting.  Several
+    tests write into your Set.
+
+0e. WHAT THE WINDOW LOOKS LIKE.  Top bar: "Live Actions", the tabs Actions and
+    Genius, a connection dot that reads Online / Offline, and a gear icon
+    (Preferences).  Left column: Live Set card and Target tracks.  Middle:
+    Studio Actions cards.  Right: the inspector for whichever action you click.
+    Bottom: a status bar with Copy, Console log and Thinking log (Thinking log
+    lists what Genius reasoned and which actions it ran; v1.9.0).
+
+
+========================================================================
+SECTION A -- LAUNCH AND DESKTOP  (no Ableton needed)
+========================================================================
+
+A1. First real launch with YOUR settings
+----------------------------------------
+WHERE: the Redesign folder, in Windows Explorer.
+
+DO: double-click "Launch Live Actions.bat".  Count roughly how many seconds
+    until the window appears, and how long until it is filled in (text, cards,
+    colours) rather than blank.
+
+EXPECT: a window whose title bar starts "Live Actions" appears within a few
+    seconds, comes to the front on its own, and is fully drawn.  It opens in
+    whichever theme is saved in your settings (Riso Art Studio if you have
+    never chosen another).  No error box, no console window, nothing behind
+    other windows.  Reference timings from the test PC: window at ~1.0-1.4s,
+    fully drawn at ~2.0s.
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+    Seconds to window:
+    Seconds to fully drawn:
+    Theme it opened in:
+    Anything odd:
+
+
+
+A2. The classic Tk app still works  (the safety net)
+-----------------------------------------------------
+WHERE: the same folder.
+
+DO: close the shell window completely, then double-click
+    "Launch Live Actions (classic Tk).bat".
+
+EXPECT: the old Tk window opens and behaves exactly as it always has.  This is
+    the fallback if the redesign has to be backed out, so it matters that it
+    still runs.  Close it again afterwards.
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+
+
+
+A3. Memory after cycling the themes  (open question)
+------------------------------------------------------
+WHERE: the shell, plus Task Manager (Ctrl+Shift+Esc) -> Details, or the
+    Processes tab expanded so you can see the group of python/msedgewebview2
+    processes.
+
+DO: 1. Open the shell and leave it on Actions.  Note the total memory.
+    2. Gear icon -> Preferences -> click the "Appearance" row to expand it ->
+       click through all 11 kits, one at a time.
+    3. Note the total memory again.
+    4. Close Preferences, leave the app sitting idle for 5 minutes, note it a
+       third time.
+
+EXPECT: unknown -- this is the question.  The test run measured 459 MB after
+    cycling every kit versus 396 MB on Riso alone, and it was never established
+    whether that comes back down.  What matters is the third number: does it
+    fall back toward the first, or does it stay up?
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+    MB before cycling:
+    MB right after cycling all 11:
+    MB after 5 idle minutes:
+
+
+
+========================================================================
+SECTION B -- REAL ABLETON LIVE 12
+========================================================================
+Open Live 12 with your throwaway Set, with the Live Actions Bridge device
+loaded on an audio track, then launch the shell with Launch Live Actions.bat.
+
+
+B1. Connection and the track list
+-----------------------------------
+WHERE: the shell's top bar (the connection dot), and the left column.
+
+DO: watch the dot after both are running.  Compare the "Live Set" card and the
+    "Target tracks" list against what Live actually shows.
+
+EXPECT: the dot lights up and reads "Online" within a few seconds (its colour
+    depends on the theme you are in).  The Live
+    Set card shows your Set's name, and BPM / Sig / Tracks match Live.  The
+    Target tracks list has every track in your Set, in Live's order, numbered
+    as Live numbers them, with the right kind tag (audio / midi) on each.
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+    Seconds to Online:
+    Set name / BPM / Sig / track count shown:
+    Any track missing, out of order, or mislabelled:
+
+
+
+B2. Ticking, and the three quick picks
+----------------------------------------
+WHERE: left column, "Target tracks" -- the row of small buttons
+    All / None / Live Sel, and the checkbox rows under them.
+
+DO: 1. Click some individual track rows.  Watch the count line ("N tracks
+       targeted") and the same text in the status bar at the bottom.
+    2. Click "All", then "None".
+    3. In ABLETON, select two specific tracks (click one track's title bar,
+       Ctrl+click another).  Then in the shell click "Live Sel".
+
+EXPECT: clicking a row toggles its tick and the count updates in both places.
+    "All" ticks every track, "None" clears them.  "Live Sel" replaces the
+    ticked set with exactly the tracks you have selected in Live -- no more, no
+    fewer.
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+    Which tracks you selected in Live:
+    Which tracks "Live Sel" ticked:
+
+
+
+B3. Scope is honoured -- ticked tracks only
+---------------------------------------------
+WHERE: middle column (Studio Actions), right column (the inspector).
+
+DO: 1. Tick ONE track only -- note which.
+    2. Click the "Clip Namer" card.  In the inspector, leave the Name pattern
+       as it is and click "Run Now".
+    3. Look at the whole Set in Live.
+
+EXPECT: the note under the action title says "Runs on the 1 ticked track
+    only."  Only that one track's clips are renamed.  No clip on any other
+    track changes.  This is the single most important behaviour in the app --
+    if anything outside the ticked track changed, stop and record it.
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+    Track ticked:
+    Tracks that actually changed:
+
+
+
+B4. Set-wide actions ignore the ticks
+---------------------------------------
+WHERE: middle column.
+
+DO: 1. Tick one track.
+    2. Click "Detect Key".  Note the pill next to its name and the note under
+       the title.  Set the "Scope" field to: set
+    3. Click "Run Now".
+
+EXPECT: the pill reads "Set-Wide" and the note reads "Runs on the whole Live
+    Set -- track selection is ignored."  The result box reports a key for the
+    Set, not for the one ticked track.  Nothing is written to the Set (Detect
+    Key only reads).
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+    Result box text:
+
+
+
+B5. The catalog filters and the count
+---------------------------------------
+WHERE: middle column header -- "Studio Actions", the count line underneath,
+    and the chips All / Selected tracks / Set-wide / Dialogs.
+
+DO: click each of the four chips in turn.
+
+EXPECT: "All" shows "14 of 14 actions".  Each other chip narrows the grid and
+    the count changes to match the number of cards visible.  "Dialogs" shows
+    exactly three: Arrangement Helper, BBenCut, Breakdowns.  "Set-wide" shows
+    Detect Key and Arrangement Skeleton.  Clicking a card while a filter is on
+    still opens it in the inspector on the right; the grid does not disappear
+    or navigate away.
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+    Counts you saw -- All / Selected tracks / Set-wide / Dialogs:
+
+
+
+B6. Four real actions, and Undo
+---------------------------------
+WHERE: middle column -> click the card -> right column -> "Run Now".
+    Do these one at a time, and after EACH one press Ctrl+Z in ABLETON (click
+    into Live first so it has focus) and watch what Undo actually undoes.
+
+DO (a): "Clip Namer" -- tick one track with clips on it.  Set Name pattern to:
+        {track} {bar} take
+        Run.  Look at the clip names in Live.  Ctrl+Z in Live.
+
+DO (b): "Empty Clips" -- tick one MIDI track.  Length in beats: 4.
+        Clip name: Empty
+        Run.  Look for a new empty MIDI clip in the first empty slot.
+        Ctrl+Z in Live.
+
+DO (c): "Color Clips" -- tick one track with clips.  Color: #3b82f6
+        Also color those scenes?: no
+        Run.  Look at the clip colours in Live.  Ctrl+Z in Live.
+
+DO (d): "Track Batch" -- tick one track.  Action: rename
+        Rename pattern: {name} TEST
+        Run.  Look at the track name in Live.  Ctrl+Z in Live.
+
+EXPECT for each: the result box on the right goes from "running" to a green
+    Done with a sensible message; the change is visible in Live; the console
+    (bottom right, "Console log") shows the traffic; and Ctrl+Z behaves the
+    same way it did with the old Tk app.  NOTE: each write is its own undo
+    step -- one Ctrl+Z may only undo one clip, not the whole run.  Report what
+    you actually see rather than what you expect.
+
+RESULT (a) Clip Namer (PASS / FAIL: ... / SKIP: ...):
+    What the result box said:
+    What changed in Live:
+    What Ctrl+Z undid:
+
+
+RESULT (b) Empty Clips (PASS / FAIL: ... / SKIP: ...):
+
+
+RESULT (c) Color Clips (PASS / FAIL: ... / SKIP: ...):
+
+
+RESULT (d) Track Batch (PASS / FAIL: ... / SKIP: ...):
+
+
+
+B7. Bridge diagnostics against the real device
+------------------------------------------------
+WHERE: top bar -- click the connection dot itself (the "Online" pill).  A small
+    "Bridge diagnostics" panel drops down with four buttons.
+
+DO: click Ping, then Status, then Sync, then Reset -- with the console drawer
+    open (bottom right, "Console log") so you can see what each one does.
+
+EXPECT: the panel names the real host track ("Bridge host: <your audio track>
+    - Live Actions Bridge").  Ping gets a reply.  Status reports the Set.
+    Sync re-reads the track list (watch the left column refresh).  Reset does
+    two things and logs both -- it rebuilds the app's own listening socket and
+    sends a reset to the Max device -- and the connection comes back without
+    restarting the app; the dot may blink to Offline and back.  Nothing in your
+    Set is modified by any of the four.
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+    Host track named in the panel:
+    Ping:
+    Status:
+    Sync:
+    Reset:
+
+
+
+B8. Console and Copy with real traffic
+----------------------------------------
+WHERE: bottom status bar -- the "Console log" button and the "Copy" button.
+
+DO: click "Console log" to open the drawer, run any action from B6 again,
+    then click "Copy" and paste the clipboard into this file.
+
+EXPECT: the drawer opens above the status bar and fills with timestamped lines
+    as the action runs; it scrolls to the newest line on its own.  "Copy"
+    briefly changes to "Copied" and the clipboard has the full log as text.
+    The button then reads "Hide log" and closes the drawer again.
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+    Pasted log:
+
+
+
+B9. The three dialog tools, for real
+--------------------------------------
+WHERE: middle column -> the "Dialogs" filter chip -> click a card -> in the
+    inspector on the right click "Open Interactive Dialog".
+
+DO (a): "Arrangement Helper" -- open it, let it scan, build or adjust a small
+        layout, and complete one real run through its own buttons.
+
+DO (b): "BBenCut" -- open it, set up a small cut, and complete one real run.
+
+DO (c): "Breakdowns" -- open it and complete one real run (an Insert).
+
+EXPECT: each opens in its own window on top of the shell, its own buttons work,
+    and when it finishes the tool's result box back in the shell goes to Done
+    with the bridge's message.  Cancel, or closing the window with the X, must
+    write NOTHING and say "Dialog closed -- nothing was written".
+
+    BREAKDOWNS IS THE IMPORTANT ONE: its design is frozen.  It must look and
+    behave EXACTLY as it did in the old Tk app -- same layout, same fonts, same
+    colours, same buttons, its own built-in theme picker in the same place.  If
+    anything about it looks different from how you remember it, say so, because
+    nothing in it was supposed to change.
+
+RESULT (a) Arrangement Helper (PASS / FAIL: ... / SKIP: ...):
+
+
+RESULT (b) BBenCut (PASS / FAIL: ... / SKIP: ...):
+
+
+RESULT (c) Breakdowns -- and does it look identical to the Tk version?
+    (PASS / FAIL: ... / SKIP: ...):
+
+
+
+B10. Breakdowns remembers its own theme
+-----------------------------------------
+WHERE: inside the Breakdowns dialog -- its own theme picker, not the shell's.
+
+DO: 1. Open Breakdowns, pick a theme that is NOT the one it opened in, close
+       the dialog.
+    2. Quit the shell completely (close the main window; check Task Manager
+       that no python/msedgewebview2 processes for it are left).
+    3. Launch it again, open Breakdowns again.
+
+EXPECT: Breakdowns opens in the theme you picked.  (This was genuinely broken
+    until v1.0.64 -- pywebview was throwing away its storage on exit -- and the
+    automated check now passes 12/12.  This item confirms it on your real
+    machine and your real settings.)
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+    Theme you picked:
+    Theme it reopened in:
+
+
+
+B11. "Open desktop host" from inside the Max device
+-----------------------------------------------------
+WHERE: in Ableton, the Live Actions Bridge device -- its "Open desktop host"
+    button.
+
+DO: with the shell NOT running, press it.  Then with the shell running,
+    press it again.
+
+EXPECT -- READ THIS BEFORE MARKING IT FAILED: this button uses a
+    liveactions:// link that only gets registered by install.ps1, and
+    install.ps1 has never been run for the new shell.  So on a machine where
+    the old installer registered the OLD app, this button may open the Tk app
+    or do nothing at all.  That is EXPECTED right now, not a bug.  The real
+    test of this happens in section F, after the installer runs at merge time.
+    Just record what it does today so there is a before-and-after.
+    UPDATE 2026-09-21: install.ps1 HAS now been run from the merged tree (see F1), so the
+    liveactions:// link now points at the new shell.  Expect the button to bring the shell
+    forward or start it -- but the device in your Set must be re-dropped first (F1).
+
+RESULT (what it actually did, shell closed / shell open):
+
+
+
+========================================================================
+SECTION C -- HOST TOOLS, PLACEMENT INTO LIVE, AND REAL TTS
+========================================================================
+"Host tools" are the two that run in Python rather than over the bridge:
+Audio Sample and TTS Vocal.  Both can drop their result straight into your Set.
+
+For anything that says "Add to Live Set" you need the bridge Online AND at
+least one AUDIO track ticked -- audio clips cannot go on a MIDI track.
+
+
+C1. Audio Sample -> Add to Live Set
+-------------------------------------
+WHERE: Actions -> the "Audio Sample" card -> the inspector on the right.
+
+DO: 1. Tick ONE audio track that has at least one empty clip slot and at least
+       one slot with a clip already in it.
+    2. In the inspector pick any simple Operation (e.g. a Trim or a Fade),
+       click "Browse" and choose a short audio file.
+    3. Scroll to the bottom field, "Destination", and choose:
+          Add to Live Set
+    4. Click "Run Now".
+    5. When the "Place Audio Sample" window appears: first note which row is
+       already selected, then deliberately pick a slot that ALREADY HAS A CLIP
+       and click "Place".
+    6. Then click "Place" a second time.
+
+EXPECT: a modal appears titled "Place Audio Sample", saying "Choose a clip slot
+    on <your track>", listing that track's slots, with the FIRST EMPTY one
+    already selected.  Picking an occupied slot and clicking Place once does
+    NOT overwrite -- it warns you and waits.  The second Place click goes
+    through and the clip lands in exactly that slot.  Up/Down arrow keys move
+    the selection.
+
+    NOTE ON THE TRACK: you choose the SLOT, not the track.  The clip always
+    goes to the FIRST TICKED AUDIO TRACK -- that is why step 1 says tick only
+    one.  If you tick several audio tracks it will use the topmost, and if you
+    tick none it will refuse with "No ticked audio track -- file saved, not
+    placed" and keep the file.  Worth trying that refusal once.
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+    Slot preselected:
+    Warning text on the first Place click:
+    Where the clip actually landed:
+
+
+
+C2. Cancelling the placement keeps the file
+---------------------------------------------
+WHERE: same as C1.
+
+DO: run Audio Sample -> Add to Live Set again, and this time press Escape when
+    the Place window appears (or click Cancel, or the X).
+
+EXPECT: the window closes, nothing is written into Live, and the result box
+    ends with "Placement skipped." -- the run still counts as done and the
+    generated file is KEPT, not deleted.  The message does not print the path,
+    so go and check the file is really there: it is in the Audio Sample output
+    folder (gear icon -> Preferences -> Audio tools -> "Audio Sample output
+    folder"; blank means <your Samples folder>\Audio Samples).
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+    Message in the result box:
+    Folder you found the file in:
+
+
+
+C3. Save to PC, and the native Save As
+----------------------------------------
+WHERE: same inspector, "Destination" field.
+
+DO: run Audio Sample again with Destination set to:
+        Save to PC
+    Save it somewhere you will find it, then check the file.
+
+EXPECT: the run shows Done FIRST, then a Windows Save As dialog opens already
+    pointing at the file's own folder and name.  Choosing a name copies it
+    there and the new path appears in the result box and the log.  Cancelling
+    logs "Save As canceled -- file remains at ..." and keeps the original.
+
+    KNOWN AND EXPECTED: that Save As dialog has NO TITLE in its title bar.
+    pywebview gives no way to set one.  It is listed as a decision in G2 --
+    do not file it as a new bug, just say whether it bothers you.
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+    File saved where you asked? :
+
+
+
+C4. Real Cartesia TTS -- the network call
+-------------------------------------------
+This is the first time a real request will go to Cartesia.  It sends ONE short
+phrase, roughly 24 characters, which is about 24 credits.
+
+WHERE: gear icon -> Preferences -> "Audio tools" section -> "+ Add profile".
+
+DO: 1. In the new profile card set:
+          Profile name:  anything, e.g. Cartesia test
+          Provider:      cartesia
+          API key:       your Cartesia key (or pick one from "...or use a
+                         saved key" if it is already in the vault)
+          Voice ID:      a voice ID from your Cartesia account
+       Optionally click "Refresh voices" to pull the list and pick from it.
+    2. Close Preferences.
+    3. Open a terminal in:
+          C:\Users\<you>\My Apps\Live Actions Helper Redesign\app
+       and run:
+
+          python -m shell_dev.verify_tts_live
+
+    4. Paste everything it prints below.
+
+EXPECT: it names your profile, says how many characters it is sending, makes
+    the real call, and prints a series of PASS / FAIL lines (sample rate,
+    channels, duration, and so on).  If it prints "No Cartesia TTS profile
+    found ... nothing was sent" and stops, the profile did not save -- that
+    itself is a finding, record it.
+    Add --keep to the command if you want to keep the generated WAV and be
+    told where it is.
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+    Full output:
+
+
+
+C5. TTS Vocal in the shell, with overrides
+--------------------------------------------
+WHERE: Actions -> the "TTS Vocal" card -> the inspector.
+
+DO: 1. WITHOUT restarting the app after C4, open the "Profile" dropdown.
+    2. Pick your new Cartesia profile.
+    3. Text to speak:
+          Testing the new Live Actions shell, one two three.
+    4. Destination: Save to PC.  Run.  Listen to the file.
+    5. Run it again with Speed override set to:  fast
+       and then again with Language / pronunciation set to:  en
+    6. Finally run it once with Destination: Add to Live Set, onto a ticked
+       audio track, and listen to it in Live.
+
+EXPECT: the profile you just created is in the dropdown WITHOUT a restart
+    (this was a real bug, fixed in v1.0.64 -- worth confirming for real).  The
+    audio sounds right, is 48 kHz mono, and the speed and language overrides
+    audibly change the result.  The Add to Live Set run goes through the same
+    Place window as C1.
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+    Profile appeared without restart? :
+    How it sounded:
+    Speed override did something? :
+    Language override did something? :
+    Placed into Live OK? :
+
+
+
+========================================================================
+SECTION D -- GENIUS, WITH YOUR REAL KEY
+========================================================================
+WHERE FOR ALL OF SECTION D: the "Genius" tab in the top bar.
+
+Before you start:
+  * There is NO track panel on the Genius page.  That is deliberate -- Genius
+    finds tracks itself, by number or by name.  The header says so.
+  * The dropdowns in the Genius header are, left to right: the AGENT switcher,
+    CUSTOM INSTRUCTIONS, the API KEY (names only, grouped by provider) and, in
+    mono type, the MODEL for that key (v1.10.0).  With a reasoning model a
+    "Show thinking" checkbox follows them (v1.11.0).
+  * You can also change the model in: gear icon -> Preferences -> "AI provider"
+    -> the "Model for <key>" box.  "Refresh models" is beside it, "Test key"
+    below.  Keys are folded under one heading per provider.
+  * Your key should already be there, since the shell shares settings.json with
+    the Tk app.  If the page says "Genius has no API key yet", that is itself a
+    finding -- record it and add a key via Preferences -> AI provider ->
+    "Add key".
+
+Paste the model's FULL raw reply under each prompt, not a summary.
+
+
+D0. The key, and the model
+----------------------------
+WHERE: gear icon -> Preferences -> "AI provider".
+
+DO: check your saved keys are listed (masked, e.g. xai-........a91f), click
+    "Test key", then click "Refresh models" beside the Model box.
+    Close Preferences and look at the mono model dropdown in the Genius header.
+
+EXPECT: your keys are listed with the active one ticked, and the key is shown
+    ONLY masked -- the real characters must never appear anywhere.  "Test key"
+    returns a green Success with a message.  "Refresh models" fills the model
+    list.  The model tag in the Genius header matches what is set here.
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+    Key test said:
+    Model shown in the Genius header:
+
+
+
+D1. Plain streaming, no tools
+-------------------------------
+PROMPT:
+  In two short paragraphs, explain the difference between sidechain compression
+  and ducking. Answer from your own knowledge and do not use any tools.
+
+EXPECT: the reply streams in visibly, word by word, rather than appearing all
+    at once at the end.  While it streams the button beside the composer reads
+    "Stop"; when it finishes it goes back to "Send".  No tool-call chips.
+
+ANSWER:
+
+
+
+D2. Tool calls, and the chips
+-------------------------------
+PROMPT:
+  How many tracks are in my Set right now, and what are their names? Read the
+  Set to find out rather than guessing.
+
+EXPECT: one or more small chips appear in the reply naming the tools it called
+    (e.g. live_read_set), each ending in a tick when it succeeds.  Hovering a
+    chip shows a note.  The answer matches your actual Set.
+
+ANSWER:
+
+
+
+D3. Code blocks and bold
+--------------------------
+PROMPT:
+  Show me a short Sonic Pi code block that plays a four-on-the-floor kick. Put
+  it in a fenced code block, write the words live_loop in bold, and mention the
+  sleep function in inline backticks.
+
+EXPECT: the code block renders as a proper monospaced block, the bold renders
+    bold, and the inline backticks render as inline code.  Nothing shows up as
+    raw asterisks or raw backticks, and no markup "leaks" into the page.
+
+ANSWER:
+
+
+
+D4. Stop, mid-stream
+----------------------
+PROMPT:
+  Write a detailed 800-word guide to arranging a techno track from the intro
+  all the way to the outro, section by section.
+
+DO: about three seconds after it starts streaming, click the "Stop" button
+    beside the composer.
+
+EXPECT: the reply stops immediately where it was, and a dim "Stopped" line is
+    added underneath it.  The button goes back to "Send" straight away.
+    Nothing further appears afterwards -- no late text sneaking in seconds
+    later.  The chat is immediately usable again.
+
+ANSWER (paste what it had written, and say whether anything appeared after
+    you pressed Stop):
+
+
+
+D5. The Thinking block
+------------------------
+Only meaningful if your active model is a reasoning model.  If it is not, mark
+this SKIP and say which model you are on.
+
+PROMPT:
+  Think carefully step by step before answering: my Set is at 128 BPM in 4/4.
+  How many milliseconds long is one bar, and how long is a dotted eighth note
+  delay?
+
+EXPECT: a collapsible "Thinking" section appears above the answer.  It is open
+    while streaming, and can be collapsed once the answer arrives.  The answer
+    itself is correct (1875 ms per bar; 351.5625 ms for a dotted eighth).
+
+ANSWER:
+
+
+
+D6. The three prompt pills
+----------------------------
+WHERE: the row of small buttons just above the message box.
+
+DO: click each of the three in turn -- "Name my clips", "Build a drum fill",
+    "Find the key" -- letting each finish (or stopping it) before the next.
+
+EXPECT: clicking a pill sends its full prompt immediately, without you having
+    to type or press Send.  Each one does something sensible against your real
+    Set.  Note that these genuinely write to your Set, so use the throwaway.
+
+ANSWER (all three):
+
+
+
+D7. Genius finds the track itself -- with nothing ticked
+---------------------------------------------------------
+DO FIRST: go to the Actions tab, click "None" in the Target tracks panel so
+    that NO track is ticked, then come back to Genius.
+
+PROMPT:
+  Rename the first clip on track [MIDI TRACK #] to Genius Test Clip. Find the
+  track yourself -- I have not selected anything for you.
+
+EXPECT: it works, despite nothing being ticked anywhere.  This is the whole
+    point of the Genius page having no track panel: the ticked-track list is
+    for Actions, and Genius resolves tracks on its own.  Check in Live that the
+    right clip on the right track was renamed.
+
+ANSWER:
+
+
+
+D8. A clean failure
+---------------------
+PROMPT:
+  Read the clip in track 999, slot 999 and tell me exactly what is in it.
+
+EXPECT: a clean, readable error -- a chip with a cross on it and/or an error
+    line in the reply.  No blank bubble, no spinner stuck forever, no crash,
+    and the chat still works normally for the next message.
+
+ANSWER:
+
+
+
+D9. Clear chat
+----------------
+WHERE: the Genius header, the "Clear chat" button.
+
+DO: click it.
+
+EXPECT: the conversation empties back to the opening greeting ("I'm Producer
+    Pal Genius ...") and nothing from the old conversation is left behind.  The
+    next message starts a fresh conversation -- ask it "what did I just ask
+    you?" to confirm the history really went.
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+
+
+
+D10. The agent switcher
+-------------------------
+WHERE: the Genius header -- the dropdown (NOT the mono model tag beside it).
+
+DO: with a conversation already in progress, switch from "Stock Genius" to one
+    of your enabled agents, then send:
+
+PROMPT:
+  Which agent am I talking to right now, and which tools do you have available?
+
+EXPECT: the dropdown lists Stock Genius plus each agent you have enabled in
+    Preferences -> Agents.  Switching takes effect immediately, without
+    restarting.  The reply reflects the agent you switched to -- and if that
+    agent has a reduced tool set (Preferences -> Agents shows "N of M tools"),
+    the answer should reflect that smaller set, not all of them.
+
+ANSWER:
+
+
+
+D11. Producer Pal Local
+-------------------------
+WHERE: the Genius header, the "Producer Pal Local" button.
+
+DO: click it.
+
+EXPECT: either Producer Pal Local actually launches, OR you get a clear
+    message saying it could not be found, with an "Open Preferences" button
+    that takes you to where you can set its path
+    (Preferences -> Folders -> "Producer Pal Local shortcut (.lnk / .ps1)").
+    What must NOT happen: nothing at all, or an unexplained error.
+
+RESULT (PASS / FAIL: ... / SKIP: ...):
+    What happened:
+
+
+
+========================================================================
+SECTION E -- THE ELEVEN DESIGN KITS, BY EYE
+========================================================================
+
+E1. Step through every kit on every page
+------------------------------------------
+WHERE: gear icon -> Preferences -> click the "Appearance" row (it starts
+    collapsed) -> the grid of 11 swatches.
+
+DO: for EACH kit: pick it, close Preferences, and look at all three surfaces --
+    the Actions page (with an action open in the inspector on the right), the
+    Genius page (with a conversation in it), and the Preferences modal itself.
+    Open the console drawer on at least a couple of them too.
+
+    The eleven kits, in the order the picker shows them:
+      1. Theatre Lighting Plot       7. Charcoal Amber Pastel
+      2. Studio Patchbay             8. Broadcast On Air
+      3. Riso Art Studio             9. Aurora Borealis
+      4. Max/MSP Patcher            10. Amethyst Dusk
+      5. Cyber Neon Pink            11. Acetate Dubplate
+      6. Charcoal Lime Pastel
+
+EXPECT: every kit is usable -- nothing clipped, overlapping, cut off, or
+    unreadable.  Each kit keeps its OWN character (Riso's hard offset shadows,
+    Cyber Neon Pink's glow, Max/MSP's flat grey); choosing a theme must never
+    make a kit look like Riso.
+
+    KNOWN AND LEFT ALONE ON PURPOSE: a few kits have dim, low-contrast text in
+    their own original design -- dim track numbers, and worst of all the
+    Max/MSP "All" chip at 1.75:1.  That low contrast is in the kit's own
+    reference design, so it was not "fixed", because fixing it would make the
+    app stop matching the kit.  Your call:
+
+    DECISION -- leave the low-contrast text as the kit designed it, or have the
+    app override it for readability (which means those kits will no longer
+    exactly match their reference previews)?
+
+RESULT -- note anything broken, per kit:
+     1. Theatre Lighting Plot:
+     2. Studio Patchbay:
+     3. Riso Art Studio:
+     4. Max/MSP Patcher:
+     5. Cyber Neon Pink:
+     6. Charcoal Lime Pastel:
+     7. Charcoal Amber Pastel:
+     8. Broadcast On Air:
+     9. Aurora Borealis:
+    10. Amethyst Dusk:
+    11. Acetate Dubplate:
+
+YOUR DECISION on the low-contrast text (leave as designed / override it):
+
+
+
+========================================================================
+SECTION F -- THE INSTALLER.  (RUN 2026-09-21 -- see the update in F1.)
+========================================================================
+
+F1. install.ps1
+-----------------
+install.ps1 has NEVER been run for the new shell.  It writes to your real
+Ableton User Library, puts a shortcut on your Desktop, and registers the
+liveactions:// handler in the Windows registry -- which is what makes the Max
+device's "Open desktop host" button work (B11).
+
+Running it now would make the new shell your default Live Actions app before
+you have decided to merge.  Leave it alone until then.
+
+WHEN THE TIME COMES (after the merge is agreed and done):
+    1. Run install.ps1 from the MERGED tree, not from this folder.
+    2. Then go back and redo B11 -- "Open desktop host" should now bring the
+       shell forward, or start it if it is not running.
+
+UPDATE 2026-09-21: the merge was done (v1.0.67) and, on your say-so, install.ps1 was run from the
+merged tree (v1.0.68).  Read back from disk and the registry afterwards:
+  * the device files in A:\User Library\Presets\Audio Effects\Max Audio Effect\Live Actions
+    were refreshed (bridge JS build id 20260921T155324), host-path.txt points at
+    Launch Live Actions.bat
+  * the liveactions:// handler now starts app\shell.py (before it started the Tk helper.py)
+  * the Desktop shortcut and how-to file were rewritten
+  * the handler was tested: it opened the shell, which bound UDP 11925, and closed cleanly
+STILL FOR YOU TO DO: Live was running with the OLD device.  The installer's bridge check got
+no answer (no Live Actions device was on a track), so whether the device in your Set is the
+new build is UNVERIFIED.  Remove 'Live Actions' from its track and drag it back on, then
+redo B11.
+
+RESULT (leave blank until you have done the above):
+
+
+
+========================================================================
+SECTION G -- TWO DECISIONS THE MERGE IS WAITING ON
+========================================================================
+
+G1. The GitHub repo name
+--------------------------
+The private repo was created as:
+    https://github.com/mkomorny/Live-Actions-Helper-2.0
+(GitHub repo names cannot contain spaces, hence the hyphens.)
+
+You wrote "Live Actions Builder 2.0" twice and "Helper 2.0" once, and the app
+is called Helper, so Helper was used.  Renaming it is one command and GitHub
+redirects the old name automatically, so nothing breaks either way.
+
+YOUR DECISION (keep Helper / rename to Builder):  KEEP HELPER -- decided by the user on
+2026-09-21 ("Helper is correct, not Builder").  Closed.
+
+
+
+G2. Two known rough edges
+---------------------------
+Both are real, both are known, neither has been "fixed" because neither is
+clearly wrong:
+
+  (a) The native Save As dialog (C3) has no title in its title bar.  pywebview
+      offers no way to set one; working around it means building our own save
+      dialog instead of using Windows'.
+
+  (b) Yes/no questions inside the dialog tools (BBenCut's placement and bake
+      gates, Arrangement Helper's confirm and whole-project gates) come up as a
+      Windows OK / Cancel box rather than Yes / No.
+
+YOUR DECISION (accept both as they are / fix (a) / fix (b) / fix both):
+
+
+
+========================================================================
+APPENDIX H -- OLDER THAN THE REDESIGN.  OPTIONAL.
+========================================================================
+These are NOT part of the redesign go/no-go.  They are open items from
+"DEBUGGING TO DO LIST.md" that pre-date the redesign entirely -- they were
+already outstanding on the old Tk app.  They are here only so that if you have
+Live open anyway, you can knock some of them off in the same sitting.  Skipping
+this whole appendix does not hold up the merge.
+
+
+H1. Arrangement Helper -- the unfinished Step 5 test matrix
+-------------------------------------------------------------
+WHERE: Actions -> Dialogs -> Arrangement Helper.
+
+  D2 -- ID STABILITY.  Insert a section in the MIDDLE of the list, then swap
+     two sections that were already there.  Check their identity does not
+     change (the surviving sections must keep their original ids, so their
+     clips follow the right section).
+     RESULT:
+
+  D3 -- AUDIO FIDELITY.  Every test so far used MIDI clips only.  Take a real
+     WARPED AUDIO clip with a non-default warp mode, a non-zero start marker,
+     looping on, and non-default gain and pitch.  Move it through a swap.
+     Check ALL of that survived the move.
+     RESULT:
+
+  D4 -- CLAMP ONLY WHEN NEEDED.  In one run, have one clip SHORTER than its new
+     section (must be left completely untouched, still looping) and one clip
+     LONGER (must be un-looped and cropped, and counted as such).
+     RESULT:
+
+  D5 -- THE CAP REFUSES BEFORE THE CONFIRM.  Build a layout big enough that the
+     planned number of writes goes over the 80-write cap.  The confirm dialog
+     must never appear and nothing may be written.
+     RESULT:
+
+  D6 -- FINGERPRINT MISMATCH.  Let it compute a plan, then change a remap track
+     (add or delete a clip) BEFORE executing.  Execute must refuse with "Set
+     changed since the plan was computed. Run again." and write nothing.
+     RESULT:
+
+
+H2. Arrangement Helper -- Step 6, entirely unstarted
+------------------------------------------------------
+  * Whole Project mode: the confirm appears; "No" does nothing; group, return,
+    master and frozen tracks are skipped.
+    RESULT:
+
+  * A deleted section is handled sanely.
+    RESULT:
+
+  * A clip that straddles a section boundary.
+    RESULT:
+
+  * A clip whose audio file is offline.
+    RESULT:
+
+  * Locator re-entrancy against Arrangement Skeleton -- run both and confirm
+    one cannot stomp the other mid-run.
+    RESULT:
+
+  * "Cancel writes nothing".
+    RESULT:
+
+  * Single Ctrl+Z undo behaviour -- confirm the documented "no undo grouping,
+    every write is its own undo step" is really what happens.
+    RESULT:
+
+
+========================================================================
+END OF CHECKLIST
+========================================================================
+"Clean" means: nothing in sections A-E is left as an open FAIL, and G1 and G2
+are decided.  F1 happens at merge time.  Appendix H is optional and does not
+gate anything.
+
+Anything you SKIP stays recorded as unverified -- it will not be written up as
+though it passed.

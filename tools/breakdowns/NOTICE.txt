@@ -1,0 +1,15 @@
+Breakdowns in Live Actions
+==========================
+
+This tool ports the MIT-licensed Breakdowns fill engine and dialog from:
+
+  https://github.com/dnvsfn/ableton-breakdowns
+  Copyright (c) 2026 E. T. Carter
+  License: MIT (see LICENSE in this folder)
+
+Changes for Live Actions:
+  - Hosted as a desktop tool (Max for Live bridge), not a Suite Extension
+  - Insert destinations: New clip, Replace, Append to end, New track, At playhead
+  - Insert posts pitched MIDI notes to the Live Actions host
+
+The original musical engine (genre banks, techniques, humanize/swing) is kept.

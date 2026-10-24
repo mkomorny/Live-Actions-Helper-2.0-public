@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Actions Helper — Design 3: Glassmorphism Obsidian Pro HUD</title>
+<style>
+  :root {
+    --bg-dark: #07090e;
+    --glass-surface: rgba(18, 22, 34, 0.65);
+    --glass-surface-hover: rgba(28, 34, 52, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-border-hover: rgba(255, 255, 255, 0.16);
+    --glass-card: rgba(14, 18, 28, 0.55);
+    --accent-cyan: #06b6d4;
+    --accent-violet: #8b5cf6;
+    --accent-emerald: #10b981;
+    --accent-amber: #f59e0b;
+    --accent-rose: #f43f5e;
+    --text-main: #f8fafc;
+    --text-sub: #94a3b8;
+    --text-dim: #64748b;
+    --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+    --font-mono: "SF Mono", "Consolas", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    min-height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-image: 
+      radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.15), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(6, 182, 212, 0.12), transparent 40%),
+      radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05), transparent 60%);
+  }
+
+  /* Floating Top HUD Bar */
+  .hud-top-bar {
+    height: 60px;
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    z-index: 10;
+  }
+
+  .hud-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand-badge-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--accent-violet), var(--accent-cyan));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 900;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+  }
+  .brand-text {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: #fff;
+  }
+  .brand-sub {
+    font-size: 11px;
+    color: var(--text-sub);
+  }
+
+  /* Telemetry Capsule Pill */
+  .telemetry-capsule {
+    background: var(--glass-surface);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 40px;
+    padding: 6px 18px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .capsule-stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+  }
+  .stat-label {
+    color: var(--text-dim);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stat-val {
+    font-weight: 700;
+    color: #fff;
+    font-family: var(--font-mono);
+  }
+  .pulse-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-emerald);
+    box-shadow: 0 0 10px var(--accent-emerald);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{ opacity: 1; transform: scale(1); } 50%{ opacity: 0.5; transform: scale(0.85); } }
+
+  /* Command Search Pill */
+  .search-pill {
+    background: var(--glass-surface);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 30px;
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-dim);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .search-pill:hover {
+    border-color: var(--glass-border-hover);
+    color: var(--text-main);
+  }
+  .kbd-badge {
+    background: rgba(255,255,255,0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-family: var(--font-mono);
+  }
+
+  /* Main Workspace Grid (3 Columns) */
+  .hud-workspace {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 280px 1fr 340px;
+    gap: 16px;
+    padding: 6px 24px 20px;
+    overflow: hidden;
+  }
+
+  /* COLUMN 1: Glass Track Selector */
+  .glass-card-panel {
+    background: var(--glass-surface);
+    backdrop-filter: blur(25px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+  }
+
+  .panel-header-row {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .panel-header-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-sub);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .glass-pill-group {
+    display: flex;
+    gap: 4px;
+  }
+  .glass-pill-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    color: var(--text-sub);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .glass-pill-btn:hover {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+  }
+
+  .tracks-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .glass-track-item {
+    background: var(--glass-card);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .glass-track-item:hover {
+    background: var(--glass-surface-hover);
+    border-color: var(--glass-border-hover);
+    transform: translateX(2px);
+  }
+  .glass-track-item.active {
+    border-color: var(--accent-cyan);
+    background: rgba(6, 182, 212, 0.12);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+  }
+
+  .track-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .track-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .track-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .track-path {
+    font-size: 10px;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+  }
+
+  /* COLUMN 2: Bento Grid of Action Tools */
+  .center-bento-column {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .category-filter-bar {
+    display: flex;
+    gap: 8px;
+  }
+  .filter-chip {
+    background: var(--glass-surface);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-sub);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .filter-chip.active {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(6, 182, 212, 0.3));
+    border-color: var(--accent-cyan);
+    color: #fff;
+  }
+
+  .bento-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+  }
+
+  .bento-card {
+    background: var(--glass-surface);
+    backdrop-filter: blur(25px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+  }
+  .bento-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent-violet), var(--accent-cyan));
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .bento-card:hover {
+    border-color: var(--glass-border-hover);
+    background: var(--glass-surface-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+  }
+  .bento-card:hover::before { opacity: 1; }
+
+  .bento-card.featured {
+    grid-column: span 2;
+    background: linear-gradient(135deg, rgba(18, 22, 34, 0.8), rgba(28, 20, 48, 0.7));
+    border-color: rgba(139, 92, 246, 0.3);
+  }
+
+  .card-icon-bubble {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  .bento-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .bento-desc {
+    font-size: 11px;
+    color: var(--text-sub);
+    line-height: 1.4;
+    margin-bottom: 14px;
+  }
+
+  .bento-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--glass-border);
+    padding-top: 10px;
+  }
+  .badge-tag {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.06);
+    color: var(--text-sub);
+  }
+  .btn-run-glass {
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.1s ease;
+  }
+  .btn-run-glass:hover { opacity: 0.9; transform: scale(1.03); }
+
+  /* COLUMN 3: Genius AI Copilot Glass Drawer */
+  .genius-copilot-panel {
+    background: var(--glass-surface);
+    backdrop-filter: blur(30px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  }
+
+  .copilot-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .copilot-status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent-violet);
+    box-shadow: 0 0 10px var(--accent-violet);
+  }
+
+  .copilot-chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .chat-bubble {
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 12px;
+    line-height: 1.4;
+    max-width: 90%;
+  }
+  .chat-bubble.ai {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+  }
+  .chat-bubble.user {
+    background: linear-gradient(135deg, var(--accent-violet), #6366f1);
+    color: #fff;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+
+  .action-proposal-card {
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 10px;
+    padding: 10px;
+    margin-top: 8px;
+  }
+  .proposal-title { font-size: 11px; font-weight: bold; color: var(--accent-cyan); }
+  .proposal-diff { font-family: var(--font-mono); font-size: 10px; color: #cbd5e1; margin: 4px 0; }
+
+  .copilot-input-box {
+    padding: 12px;
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    gap: 8px;
+  }
+  .copilot-input {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    color: #fff;
+    font-size: 12px;
+    outline: none;
+  }
+  .copilot-input:focus { border-color: var(--accent-violet); }
+</style>
+</head>
+<body>
+
+  <!-- Top Floating HUD -->
+  <header class="hud-top-bar">
+    <div class="hud-brand">
+      <div class="brand-badge-icon">LA</div>
+      <div>
+        <div class="brand-text">Live Actions Pro HUD</div>
+        <div class="brand-sub">Ableton Live 12 Companion</div>
+      </div>
+    </div>
+
+    <!-- Live Telemetry Capsule -->
+    <div class="telemetry-capsule">
+      <div class="capsule-stat">
+        <span class="pulse-indicator"></span>
+        <span class="stat-val" style="color:var(--accent-emerald);">LIVE CONNECTED</span>
+      </div>
+      <div class="capsule-stat">
+        <span class="stat-label">SESSION:</span>
+        <span class="stat-val">Midnight_Groove.als</span>
+      </div>
+      <div class="capsule-stat">
+        <span class="stat-label">BPM:</span>
+        <span class="stat-val" style="color:var(--accent-cyan)">124.00</span>
+      </div>
+      <div class="capsule-stat">
+        <span class="stat-label">KEY:</span>
+        <span class="stat-val" style="color:var(--accent-violet)">D Minor (100%)</span>
+      </div>
+    </div>
+
+    <div class="search-pill" onclick="openSearch()">
+      <span>🔍 Quick Action</span>
+      <span class="kbd-badge">⌘K</span>
+    </div>
+  </header>
+
+  <!-- Main 3-Column Glass Workspace -->
+  <main class="hud-workspace">
+    <!-- Column 1: Target Tracks -->
+    <aside class="glass-card-panel">
+      <div class="panel-header-row">
+        <span class="panel-header-title">🎯 Target Tracks</span>
+        <div class="glass-pill-group">
+          <button class="glass-pill-btn" onclick="selectAllTracks()">ALL</button>
+          <button class="glass-pill-btn" onclick="clearTracks()">NONE</button>
+        </div>
+      </div>
+
+      <div class="tracks-scroll-area">
+        <div class="glass-track-item active" onclick="this.classList.toggle('active')">
+          <div class="track-meta">
+            <div class="track-dot" style="background:#ff4757;"></div>
+            <div>
+              <div class="track-title">1. Kick & Sub</div>
+              <div class="track-path">live_set tracks 0</div>
+            </div>
+          </div>
+          <span class="badge-tag" style="color:var(--accent-cyan)">MIDI</span>
+        </div>
+
+        <div class="glass-track-item active" onclick="this.classList.toggle('active')">
+          <div class="track-meta">
+            <div class="track-dot" style="background:#ffa502;"></div>
+            <div>
+              <div class="track-title">2. Acid Synth</div>
+              <div class="track-path">live_set tracks 1</div>
+            </div>
+          </div>
+          <span class="badge-tag" style="color:var(--accent-cyan)">MIDI</span>
+        </div>
+
+        <div class="glass-track-item" onclick="this.classList.toggle('active')">
+          <div class="track-meta">
+            <div class="track-dot" style="background:#2ed573;"></div>
+            <div>
+              <div class="track-title">3. Amen Break</div>
+              <div class="track-path">live_set tracks 2</div>
+            </div>
+          </div>
+          <span class="badge-tag" style="color:var(--accent-emerald)">AUDIO</span>
+        </div>
+
+        <div class="glass-track-item active" onclick="this.classList.toggle('active')">
+          <div class="track-meta">
+            <div class="track-dot" style="background:#a55eea;"></div>
+            <div>
+              <div class="track-title">4. Vocal FX Pad</div>
+              <div class="track-path">live_set tracks 3</div>
+            </div>
+          </div>
+          <span class="badge-tag" style="color:var(--accent-emerald)">AUDIO</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Column 2: Bento Grid Actions -->
+    <section class="center-bento-column">
+      <div class="category-filter-bar">
+        <div class="filter-chip active">All Tools (14)</div>
+        <div class="filter-chip">Generative MIDI</div>
+        <div class="filter-chip">Audio DSP</div>
+        <div class="filter-chip">Arrangement</div>
+        <div class="filter-chip">Neural Vocals</div>
+      </div>
+
+      <div class="bento-grid">
+        <!-- Featured Tool: Breakdowns -->
+        <div class="bento-card featured">
+          <div>
+            <div class="card-icon-bubble" style="background:rgba(139, 92, 246, 0.2); color:var(--accent-violet);">⚡</div>
+            <div class="bento-title">Breakdowns & Drum Roll Engine</div>
+            <div class="bento-desc">Generates organic snare rolls, polyrhythmic transitions, and tension risers directly into Live clip slots.</div>
+          </div>
+          <div class="bento-footer">
+            <span class="badge-tag" style="color:var(--accent-violet);">WEBVIEW INTERFACE</span>
+            <button class="btn-run-glass" onclick="simulateGlassRun('Breakdowns')">Launch Engine ↗</button>
+          </div>
+        </div>
+
+        <!-- Tool: BBenCut -->
+        <div class="bento-card">
+          <div>
+            <div class="card-icon-bubble" style="background:rgba(6, 182, 212, 0.2); color:var(--accent-cyan);">✂</div>
+            <div class="bento-title">BBenCut Slicer</div>
+            <div class="bento-desc">BBCut2 breakbeat cutting ported to Live 12 with offline roll rendering.</div>
+          </div>
+          <div class="bento-footer">
+            <span class="badge-tag" style="color:var(--accent-cyan);">AUDIO DSP</span>
+            <button class="btn-run-glass" onclick="simulateGlassRun('BBenCut')">Slice Break</button>
+          </div>
+        </div>
+
+        <!-- Tool: Detect Key -->
+        <div class="bento-card">
+          <div>
+            <div class="card-icon-bubble" style="background:rgba(245, 158, 11, 0.2); color:var(--accent-amber);">🎹</div>
+            <div class="bento-title">Detect Key</div>
+            <div class="bento-desc">Krumhansl-Schmuckler harmonic analysis for clips and full Set.</div>
+          </div>
+          <div class="bento-footer">
+            <span class="badge-tag" style="color:var(--accent-amber);">THEORY</span>
+            <button class="btn-run-glass" onclick="simulateGlassRun('Detect Key')">Analyze Key</button>
+          </div>
+        </div>
+
+        <!-- Tool: Mutate Variations -->
+        <div class="bento-card">
+          <div>
+            <div class="card-icon-bubble" style="background:rgba(244, 63, 94, 0.2); color:var(--accent-rose);">🧬</div>
+            <div class="bento-title">Mutate Variations</div>
+            <div class="bento-desc">Probability-based MIDI variation generator for clips.</div>
+          </div>
+          <div class="bento-footer">
+            <span class="badge-tag" style="color:var(--accent-rose);">MIDI TRANSFORM</span>
+            <button class="btn-run-glass" onclick="simulateGlassRun('Mutate')">Mutate 4 Takes</button>
+          </div>
+        </div>
+
+        <!-- Tool: Audio Sample DSP -->
+        <div class="bento-card">
+          <div>
+            <div class="card-icon-bubble" style="background:rgba(16, 185, 129, 0.2); color:var(--accent-emerald);">🔊</div>
+            <div class="bento-title">Audio Sample DSP</div>
+            <div class="bento-desc">17 ffmpeg-backed offline DSP prep operations on samples.</div>
+          </div>
+          <div class="bento-footer">
+            <span class="badge-tag" style="color:var(--accent-emerald);">OFFLINE DSP</span>
+            <button class="btn-run-glass" onclick="simulateGlassRun('Audio Sample DSP')">Process Samples</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Column 3: Genius Copilot Drawer -->
+    <aside class="genius-copilot-panel">
+      <div class="copilot-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="copilot-status-dot"></div>
+          <span style="font-size:12px; font-weight:700; color:#fff;">Genius AI Copilot</span>
+        </div>
+        <span style="font-size:10px; color:var(--text-dim); font-family:var(--font-mono)">xAI Grok-4.6</span>
+      </div>
+
+      <div class="copilot-chat-messages" id="copilot-chat">
+        <div class="chat-bubble ai">
+          Hey Miranda! I'm connected to your Live 12 Set. Target tracks are 1, 2, and 4. What would you like to build or automate?
+        </div>
+        <div class="chat-bubble user">
+          Add an 8-bar build with a snare roll on track 1 and filter sweep on track 2.
+        </div>
+        <div class="chat-bubble ai">
+          Generated action plan for <strong>Track 1 (909 Drums)</strong> and <strong>Track 2 (Acid Synth)</strong>:
+          <div class="action-proposal-card">
+            <div class="proposal-title">⚡ Live Action Execution Diff</div>
+            <div class="proposal-diff">+ Create MIDI clip [8 bars] @ Slot 4</div>
+            <div class="proposal-diff">+ Insert Breakdowns roll density: 85%</div>
+            <div class="proposal-diff">+ Automate Auto Filter Frequency: 200Hz -> 18kHz</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="copilot-input-box">
+        <input type="text" class="copilot-input" id="chat-input" placeholder="Ask Genius to create, route, or mutate..." onkeydown="if(event.key==='Enter') sendGlassChat()">
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    function simulateGlassRun(name) {
+      alert(`⚡ Executing ${name} via Live Actions OSC Bridge (127.0.0.1:11924)...`);
+    }
+
+    function sendGlassChat() {
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if(!text) return;
+      const chat = document.getElementById('copilot-chat');
+      chat.innerHTML += `<div class="chat-bubble user">${text}</div>`;
+      input.value = '';
+      setTimeout(() => {
+        chat.innerHTML += `<div class="chat-bubble ai">Analyzing context and preparing Live API call for: <em>${text}</em>...</div>`;
+        chat.scrollTop = chat.scrollHeight;
+      }, 400);
+    }
+
+    function selectAllTracks() {
+      document.querySelectorAll('.glass-track-item').forEach(i => i.classList.add('active'));
+    }
+    function clearTracks() {
+      document.querySelectorAll('.glass-track-item').forEach(i => i.classList.remove('active'));
+    }
+    function openSearch() {
+      alert("Opening Cmd+K Quick Action Palette...");
+    }
+  </script>
+</body>
+</html>

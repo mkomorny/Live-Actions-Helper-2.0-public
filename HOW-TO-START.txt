@@ -1,0 +1,68 @@
+LIVE ACTIONS — how to start
+===========================
+Host only. No tools. Live 12 Standard + Max for Live.
+
+1. Put the device on a track
+   Open Live. Select any audio track (or a MIDI track that already has an instrument).
+   In the browser, open User Library -> Presets -> Audio Effects -> Max Audio Effect
+   -> Live Actions.
+
+   Drag Live Actions onto that track's device chain, the same way you drop EQ or Compressor.
+   Audio passes through. It does not change the sound.
+
+   If Live was already open, rescan User Library or restart Live so it sees the new device.
+
+2. Open the desktop window
+   Click **Open desktop host** on the Live Actions device,
+   double-click "Live Actions" on the Desktop,
+   or run Launch Live Actions.bat in this folder.
+   If the window is already open, the button brings it to the front.
+
+3. Wait for Connected
+   The badge turns green when the window hears the bridge.
+   "Ask Live for status" should show the Set name, tempo, and track count.
+
+4. Settings (menu bar or the Settings tab)
+   Paste your xAI API key (console.x.ai).
+   Set the tools folder, Knowledgebase Library folder, Ableton Samples folder,
+   and optional Pal Local shortcut.
+   Settings are saved in %APPDATA%\Live Actions\settings.json — not in the project.
+
+5. Genius tab
+   Uses a COPY of Producer Pal Genius (skill + indexes) plus your books.
+   It does not patch or replace official Producer Pal files.
+   Open Producer Pal Local from the Genius menu if you want Pal to edit the Set.
+
+6. Optional: turn on Live's browser for Genius
+   Without this, Genius can do everything else but cannot see Live's library
+   panel (packs, presets, plug-ins) -- that part of Live is simply not exposed
+   to Max for Live, so it needs a small Remote Script instead.
+
+   install.ps1 copies it to A:\User Library\Remote Scripts\LiveActionsRS.
+   Then, in Live: Preferences -> Link/Tempo/MIDI -> pick any free
+   Control Surface slot -> choose "LiveActionsRS". Restart Live once.
+
+   You only do this once. After it, Genius can browse the library, audition a
+   sample before using it, and load presets, racks and plug-ins onto a track.
+   Re-running install.ps1 tells you whether it is answering.
+
+7. Optional: let Genius make vocals
+   If you have saved a TTS profile (Settings -> TTS Vocal Profiles), Genius can
+   generate a spoken vocal itself and edit any audio file with the same 17
+   ffmpeg operations the Audio Sample tool uses, then load the result into a
+   Simpler on a track. Two things to expect: these are SPEECH models, so they
+   do not sing, and the length comes out of how much text you give it -- ask
+   Genius to trim it if you need an exact length.
+
+   Generating costs money on your own API key, so the app asks you to approve
+   each call and shows you the exact text first. There is a "don't ask again
+   this session" box if you are doing a lot of them; it is forgotten when you
+   close the app. With no profile saved, Genius is not given the tool at all.
+
+That is the host. Tools get added later as folders under the tools directory.
+
+Ports (localhost only): app -> bridge 11924, bridge -> app 11925,
+app -> browser engine 11926 (only if you did step 6).
+
+This is a Max for Live audio effect on the track. It talks to the Set through
+the Live Object Model (Live 12 manual chapter 31).

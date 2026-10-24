@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Actions Helper — Design 2: Hardware Cyber-Rack</title>
+<style>
+  :root {
+    --chassis-bg: #111317;
+    --panel-dark: #191c22;
+    --panel-metal: #232730;
+    --panel-metal-bevel: #2f3440;
+    --rack-border: #090a0d;
+    --led-amber: #ff8c00;
+    --led-amber-glow: rgba(255, 140, 0, 0.4);
+    --led-green: #00ff66;
+    --led-green-glow: rgba(0, 255, 102, 0.4);
+    --led-cyan: #00f0ff;
+    --led-red: #ff3344;
+    --text-lcd: #ffaa33;
+    --font-lcd: "Courier New", Courier, monospace;
+    --font-ui: "Segoe UI", -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+  body {
+    background: #08090b;
+    color: #c8cdd8;
+    font-family: var(--font-ui);
+    min-height: 100vh;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: radial-gradient(#15181f 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* 3U Rack Case Outer */
+  .rack-chassis {
+    width: 100%;
+    max-width: 1100px;
+    background: var(--chassis-bg);
+    border: 3px solid #000;
+    border-radius: 6px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+    position: relative;
+    padding: 0 24px;
+  }
+
+  /* Rack Ears & Screws */
+  .rack-ear-left, .rack-ear-right {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 24px;
+    background: #14171d;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 12px 4px;
+  }
+  .rack-ear-left { left: 0; border-right: 2px solid #000; }
+  .rack-ear-right { right: 0; border-left: 2px solid #000; }
+
+  .hex-screw {
+    width: 14px;
+    height: 14px;
+    background: radial-gradient(circle, #777 20%, #222 90%);
+    border-radius: 50%;
+    border: 1px solid #111;
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.6);
+    position: relative;
+  }
+  .hex-screw::after {
+    content: "";
+    position: absolute;
+    top: 6px; left: 2px; right: 2px;
+    height: 2px;
+    background: #111;
+    transform: rotate(35deg);
+  }
+
+  /* Rack Units (1U, 2U, 1U) */
+  .rack-units {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 0;
+  }
+
+  .rack-unit {
+    background: var(--panel-metal);
+    border: 1px solid var(--panel-metal-bevel);
+    border-top: 1px solid #3c4250;
+    border-bottom: 2px solid #0a0c0f;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 10px rgba(0,0,0,0.4);
+    position: relative;
+  }
+
+  /* UNIT 1: Master Bridge & OSC Telemetry (1U) */
+  .unit-1 {
+    height: 90px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+
+  .unit-badge {
+    font-size: 8px;
+    font-weight: 900;
+    color: #555d6e;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .hardware-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand-logo-box {
+    width: 32px;
+    height: 32px;
+    background: #0e1014;
+    border: 1px solid #3a4050;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--led-amber);
+    font-weight: 900;
+    font-size: 14px;
+    box-shadow: inset 0 0 8px rgba(255,140,0,0.2);
+  }
+  .brand-text-block h2 {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #ffffff;
+  }
+  .brand-text-block span {
+    font-size: 9px;
+    color: var(--led-green);
+    font-family: var(--font-lcd);
+  }
+
+  /* LCD Dot Matrix Screen */
+  .lcd-display {
+    background: #090c0a;
+    border: 2px solid #000;
+    border-radius: 4px;
+    padding: 6px 12px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.9), 0 0 10px var(--led-amber-glow);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .lcd-segment {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .lcd-title {
+    font-size: 8px;
+    color: #6d5b3d;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+  }
+  .lcd-digits {
+    font-family: var(--font-lcd);
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--led-amber);
+    text-shadow: 0 0 8px var(--led-amber);
+    letter-spacing: 1px;
+  }
+
+  /* VU Signal Meter */
+  .vu-meter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .vu-label { font-size: 8px; color: #778194; font-weight: bold; }
+  .vu-bar {
+    width: 100px;
+    height: 8px;
+    background: #0c0e12;
+    border: 1px solid #222;
+    border-radius: 2px;
+    display: flex;
+    gap: 1px;
+    padding: 1px;
+  }
+  .vu-segment {
+    flex: 1;
+    background: #1e222a;
+    border-radius: 1px;
+  }
+  .vu-segment.lit-green { background: var(--led-green); box-shadow: 0 0 4px var(--led-green); }
+  .vu-segment.lit-amber { background: var(--led-amber); box-shadow: 0 0 4px var(--led-amber); }
+  .vu-segment.lit-red { background: var(--led-red); box-shadow: 0 0 4px var(--led-red); }
+
+  /* Rocker Switch */
+  .power-switch-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .rocker-switch {
+    width: 28px;
+    height: 44px;
+    background: linear-gradient(#111, #333);
+    border-radius: 4px;
+    border: 2px solid #000;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.6);
+  }
+  .rocker-switch.on::after {
+    content: "";
+    position: absolute;
+    top: 4px; left: 4px; right: 4px; height: 16px;
+    background: var(--led-red);
+    border-radius: 2px;
+    box-shadow: 0 0 8px var(--led-red);
+  }
+  .rocker-label { font-size: 8px; font-weight: bold; color: #888; }
+
+  /* UNIT 2: Action Trigger Matrix & Track Selector (2U) */
+  .unit-2 {
+    height: 310px;
+    padding: 12px 16px;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 16px;
+  }
+
+  /* Left Side: Track Deck */
+  .rack-track-deck {
+    background: #14171d;
+    border: 1px solid #0d0f13;
+    border-radius: 4px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);
+  }
+  .deck-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #222733;
+    padding-bottom: 6px;
+  }
+  .deck-title { font-size: 10px; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
+
+  .track-hardware-rows {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .track-hw-row {
+    background: #1d212a;
+    border: 1px solid #2d3340;
+    border-radius: 3px;
+    padding: 6px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.1s ease;
+  }
+  .track-hw-row:hover { background: #252a36; }
+  .track-hw-row.active {
+    border-color: var(--led-amber);
+    background: #2b2416;
+  }
+
+  .led-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #333;
+    border: 1px solid #111;
+  }
+  .track-hw-row.active .led-indicator {
+    background: var(--led-amber);
+    box-shadow: 0 0 6px var(--led-amber);
+  }
+
+  /* Right Side: MPC Action Pad Matrix */
+  .pad-matrix-area {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .matrix-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .pads-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .hardware-pad {
+    background: linear-gradient(145deg, #252a34, #181b22);
+    border: 2px solid #0f1115;
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+    transition: transform 0.05s ease, box-shadow 0.1s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .hardware-pad:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.8), inset 0 2px 4px rgba(0,0,0,0.6);
+  }
+  .hardware-pad.selected {
+    border-color: var(--led-cyan);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.4), inset 0 0 8px rgba(0, 240, 255, 0.2);
+  }
+
+  .pad-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .pad-code {
+    font-size: 8px;
+    font-family: var(--font-lcd);
+    color: #778194;
+  }
+  .pad-glow-pip {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #333;
+  }
+  .hardware-pad.selected .pad-glow-pip {
+    background: var(--led-cyan);
+    box-shadow: 0 0 6px var(--led-cyan);
+  }
+
+  .pad-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 4px 0 2px;
+  }
+  .pad-sub {
+    font-size: 8px;
+    color: #8b95a8;
+    line-height: 1.2;
+  }
+
+  .pad-trigger-bar {
+    height: 3px;
+    background: #2a303c;
+    border-radius: 1px;
+    margin-top: 4px;
+  }
+  .hardware-pad.selected .pad-trigger-bar {
+    background: var(--led-cyan);
+  }
+
+  /* Bottom Controls: Hardware Knobs & Big Red Action Stomp */
+  .unit-2-bottom-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #14171d;
+    border: 1px solid #0d0f13;
+    border-radius: 4px;
+    padding: 8px 14px;
+  }
+
+  .knobs-strip {
+    display: flex;
+    gap: 16px;
+  }
+  .rack-knob-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .rack-knob {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #3a4050 30%, #151820 90%);
+    border: 2px solid #090a0d;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.6);
+    position: relative;
+    cursor: pointer;
+  }
+  .rack-knob::after {
+    content: "";
+    position: absolute;
+    top: 3px; left: 15px;
+    width: 2px; height: 10px;
+    background: #ffffff;
+    border-radius: 1px;
+    transform: rotate(30deg);
+  }
+  .knob-label { font-size: 8px; color: #8893a7; font-weight: bold; }
+  .knob-val { font-size: 8px; font-family: var(--font-lcd); color: var(--led-amber); }
+
+  .big-stomp-button {
+    background: linear-gradient(180deg, #ff4433, #aa1100);
+    border: 2px solid #550000;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    padding: 8px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(255,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.4);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.05s ease;
+  }
+  .big-stomp-button:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.9);
+  }
+
+  /* UNIT 3: Genius AI Terminal & Oscilloscope Screen (1U) */
+  .unit-3 {
+    height: 100px;
+    padding: 8px 16px;
+    display: flex;
+    gap: 14px;
+    background: #181b22;
+  }
+
+  .terminal-screen {
+    flex: 1;
+    background: #07100b;
+    border: 2px solid #000;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-family: var(--font-lcd);
+    color: var(--led-green);
+    font-size: 11px;
+    box-shadow: inset 0 0 12px rgba(0,255,102,0.15), 0 0 8px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  .terminal-screen::before {
+    content: " ";
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+    background-size: 100% 3px;
+    pointer-events: none;
+  }
+
+  .term-logs {
+    line-height: 1.3;
+  }
+  .term-input-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    border-top: 1px solid #003311;
+    padding-top: 4px;
+  }
+  .term-prompt-arrow { color: var(--led-amber); font-weight: bold; }
+  .term-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--led-green);
+    font-family: var(--font-lcd);
+    font-size: 11px;
+    width: 100%;
+  }
+
+  .hw-scope {
+    width: 150px;
+    background: #05080c;
+    border: 2px solid #000;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 4px;
+    box-shadow: inset 0 0 8px rgba(0,240,255,0.2);
+  }
+  .scope-label { font-size: 7px; color: var(--led-cyan); font-family: var(--font-lcd); }
+  .scope-canvas { width: 100%; height: 50px; }
+</style>
+</head>
+<body>
+
+  <div class="rack-chassis">
+    <!-- Rack Ears Left -->
+    <div class="rack-ear-left">
+      <div class="hex-screw"></div>
+      <div class="hex-screw"></div>
+      <div class="hex-screw"></div>
+    </div>
+
+    <div class="rack-units">
+      <!-- ── UNIT 1: OSC BRIDGE & TELEMETRY CONTROLLER (1U) ─────────────────────── -->
+      <section class="rack-unit unit-1">
+        <div class="hardware-brand">
+          <div class="brand-logo-box">LA</div>
+          <div class="brand-text-block">
+            <h2>LIVE ACTIONS · MK-II</h2>
+            <span>SYSTEM ID: LIVE-12-BRIDGE · OSC ACTIVE</span>
+          </div>
+        </div>
+
+        <!-- LCD Screen -->
+        <div class="lcd-display">
+          <div class="lcd-segment">
+            <span class="lcd-title">LIVE SET</span>
+            <span class="lcd-digits">TECHNO_04</span>
+          </div>
+          <div class="lcd-segment">
+            <span class="lcd-title">BPM</span>
+            <span class="lcd-digits" id="rack-bpm">127.00</span>
+          </div>
+          <div class="lcd-segment">
+            <span class="lcd-title">TIME SIG</span>
+            <span class="lcd-digits">04 / 04</span>
+          </div>
+          <div class="lcd-segment">
+            <span class="lcd-title">OSC PORT</span>
+            <span class="lcd-digits" style="color:var(--led-cyan)">11924</span>
+          </div>
+        </div>
+
+        <!-- VU Meter -->
+        <div class="vu-meter-group">
+          <span class="vu-label">BRIDGE ACTIVITY</span>
+          <div class="vu-bar">
+            <div class="vu-segment lit-green"></div>
+            <div class="vu-segment lit-green"></div>
+            <div class="vu-segment lit-green"></div>
+            <div class="vu-segment lit-green"></div>
+            <div class="vu-segment lit-amber"></div>
+            <div class="vu-segment lit-amber"></div>
+            <div class="vu-segment"></div>
+            <div class="vu-segment"></div>
+          </div>
+        </div>
+
+        <!-- Power Switch -->
+        <div class="power-switch-group">
+          <div class="rocker-switch on" onclick="this.classList.toggle('on')"></div>
+          <span class="rocker-label">POWER</span>
+        </div>
+      </section>
+
+      <!-- ── UNIT 2: TACTILE ACTION MATRIX & TRACKS (2U) ────────────────────────── -->
+      <section class="rack-unit unit-2">
+        <!-- Left: Track Router Deck -->
+        <div class="rack-track-deck">
+          <div class="deck-header">
+            <span class="deck-title">TRACK ROUTING MATRIX</span>
+            <span style="font-size:8px; font-family:var(--font-lcd); color:var(--led-amber)">3 ROUTED</span>
+          </div>
+          <div class="track-hardware-rows">
+            <div class="track-hw-row active" onclick="toggleHwTrack(this)">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="led-indicator"></div>
+                <span style="font-size:10px; font-weight:700; color:#fff;">TRK 1 · 909 Kick & Snare</span>
+              </div>
+              <span style="font-size:8px; color:var(--led-cyan); font-family:var(--font-lcd)">MIDI</span>
+            </div>
+
+            <div class="track-hw-row active" onclick="toggleHwTrack(this)">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="led-indicator"></div>
+                <span style="font-size:10px; font-weight:700; color:#fff;">TRK 2 · 303 Acid Bass</span>
+              </div>
+              <span style="font-size:8px; color:var(--led-cyan); font-family:var(--font-lcd)">MIDI</span>
+            </div>
+
+            <div class="track-hw-row" onclick="toggleHwTrack(this)">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="led-indicator"></div>
+                <span style="font-size:10px; font-weight:700; color:#fff;">TRK 3 · Breakbeat Amen</span>
+              </div>
+              <span style="font-size:8px; color:var(--led-green); font-family:var(--font-lcd)">AUDIO</span>
+            </div>
+
+            <div class="track-hw-row active" onclick="toggleHwTrack(this)">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="led-indicator"></div>
+                <span style="font-size:10px; font-weight:700; color:#fff;">TRK 4 · Vocal Hook Hook</span>
+              </div>
+              <span style="font-size:8px; color:var(--led-green); font-family:var(--font-lcd)">AUDIO</span>
+            </div>
+
+            <div class="track-hw-row" onclick="toggleHwTrack(this)">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="led-indicator"></div>
+                <span style="font-size:10px; font-weight:700; color:#fff;">TRK 5 · Resonant Pad</span>
+              </div>
+              <span style="font-size:8px; color:var(--led-cyan); font-family:var(--font-lcd)">MIDI</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: 8-Pad Action Bank -->
+        <div class="pad-matrix-area">
+          <div class="matrix-header">
+            <span style="font-size:10px; font-weight:800; letter-spacing:0.5px;">ACTION PROGRAM BANK</span>
+            <span style="font-size:8px; font-family:var(--font-lcd); color:#888;">SELECT ACTIVE PAD</span>
+          </div>
+
+          <div class="pads-grid">
+            <!-- Pad 1 -->
+            <div class="hardware-pad selected" onclick="selectPad(this, 'BREAKDOWNS')">
+              <div class="pad-top-row">
+                <span class="pad-code">P01</span>
+                <div class="pad-glow-pip"></div>
+              </div>
+              <div>
+                <div class="pad-title">BREAKDOWNS</div>
+                <div class="pad-sub">Algorithmic drum rolls & tension risers</div>
+              </div>
+              <div class="pad-trigger-bar"></div>
+            </div>
+
+            <!-- Pad 2 -->
+            <div class="hardware-pad" onclick="selectPad(this, 'BBENCUT')">
+              <div class="pad-top-row">
+                <span class="pad-code">P02</span>
+                <div class="pad-glow-pip"></div>
+              </div>
+              <div>
+                <div class="pad-title">BBENCUT</div>
+                <div class="pad-sub">Algorithmic breakbeat chopper</div>
+              </div>
+              <div class="pad-trigger-bar"></div>
+            </div>
+
+            <!-- Pad 3 -->
+            <div class="hardware-pad" onclick="selectPad(this, 'DETECT KEY')">
+              <div class="pad-top-row">
+                <span class="pad-code">P03</span>
+                <div class="pad-glow-pip"></div>
+              </div>
+              <div>
+                <div class="pad-title">DETECT KEY</div>
+                <div class="pad-sub">Krumhansl harmonic set profiler</div>
+              </div>
+              <div class="pad-trigger-bar"></div>
+            </div>
+
+            <!-- Pad 4 -->
+            <div class="hardware-pad" onclick="selectPad(this, 'MUTATE')">
+              <div class="pad-top-row">
+                <span class="pad-code">P04</span>
+                <div class="pad-glow-pip"></div>
+              </div>
+              <div>
+                <div class="pad-title">MUTATE</div>
+                <div class="pad-sub">MIDI variation & pitch drop engine</div>
+              </div>
+              <div class="pad-trigger-bar"></div>
+            </div>
+
+            <!-- Pad 5 -->
+            <div class="hardware-pad" onclick="selectPad(this, 'SKELETON')">
+              <div class="pad-top-row">
+                <span class="pad-code">P05</span>
+                <div class="pad-glow-pip"></div>
+              </div>
+              <div>
+                <div class="pad-title">SKELETON</div>
+                <div class="pad-sub">Drop structural arrangement markers</div>
+              </div>
+              <div class="pad-trigger-bar"></div>
+            </div>
+
+            <!-- Pad 6 -->
+            <div class="hardware-pad" onclick="selectPad(this, 'CLIP NAMER')">
+              <div class="pad-top-row">
+                <span class="pad-code">P06</span>
+                <div class="pad-glow-pip"></div>
+              </div>
+              <div>
+                <div class="pad-title">CLIP NAMER</div>
+                <div class="pad-sub">Intelligent token batch renamer</div>
+              </div>
+              <div class="pad-trigger-bar"></div>
+            </div>
+
+            <!-- Pad 7 -->
+            <div class="hardware-pad" onclick="selectPad(this, 'TTS VOCAL')">
+              <div class="pad-top-row">
+                <span class="pad-code">P07</span>
+                <div class="pad-glow-pip"></div>
+              </div>
+              <div>
+                <div class="pad-title">TTS VOCAL</div>
+                <div class="pad-sub">Neural voice generation engine</div>
+              </div>
+              <div class="pad-trigger-bar"></div>
+            </div>
+
+            <!-- Pad 8 -->
+            <div class="hardware-pad" onclick="selectPad(this, 'SAMPLE DSP')">
+              <div class="pad-top-row">
+                <span class="pad-code">P08</span>
+                <div class="pad-glow-pip"></div>
+              </div>
+              <div>
+                <div class="pad-title">SAMPLE DSP</div>
+                <div class="pad-sub">17 Offline ffmpeg audio operations</div>
+              </div>
+              <div class="pad-trigger-bar"></div>
+            </div>
+          </div>
+
+          <!-- Bottom Knobs & Fire Button -->
+          <div class="unit-2-bottom-controls">
+            <div class="knobs-strip">
+              <div class="rack-knob-unit">
+                <div class="rack-knob"></div>
+                <span class="knob-label">BARS</span>
+                <span class="knob-val">2.0</span>
+              </div>
+              <div class="rack-knob-unit">
+                <div class="rack-knob"></div>
+                <span class="knob-label">DENSITY</span>
+                <span class="knob-val">85%</span>
+              </div>
+              <div class="rack-knob-unit">
+                <div class="rack-knob"></div>
+                <span class="knob-label">SWING</span>
+                <span class="knob-val">58%</span>
+              </div>
+            </div>
+
+            <button class="big-stomp-button" onclick="triggerStomp()">
+              <span>⚡ EXECUTE ACTION</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── UNIT 3: GENIUS AI TERMINAL & REALTIME SCOPE (1U) ────────────────────── -->
+      <section class="rack-unit unit-3">
+        <div class="terminal-screen">
+          <div class="term-logs" id="term-logs">
+            [PRODUCER-PAL-GENIUS ONLINE] // READY.<br>
+            &gt; Live 12 Bridge synced. Target tracks: 0, 1, 3. Ready to mutate clips.
+          </div>
+          <div class="term-input-row">
+            <span class="term-prompt-arrow">&gt;</span>
+            <input type="text" class="term-input" id="term-input" placeholder="Enter Genius AI command (e.g. 'Build 8-bar drop on track 2')..." onkeydown="if(event.key==='Enter') sendCommand()">
+          </div>
+        </div>
+
+        <div class="hw-scope">
+          <span class="scope-label">SIGNAL OSCILLOSCOPE</span>
+          <canvas id="scopeCanvas" class="scope-canvas"></canvas>
+        </div>
+      </section>
+    </div>
+
+    <!-- Rack Ears Right -->
+    <div class="rack-ear-right">
+      <div class="hex-screw"></div>
+      <div class="hex-screw"></div>
+      <div class="hex-screw"></div>
+    </div>
+  </div>
+
+  <script>
+    function toggleHwTrack(el) {
+      el.classList.toggle('active');
+    }
+
+    function selectPad(el, name) {
+      document.querySelectorAll('.hardware-pad').forEach(p => p.classList.remove('selected'));
+      el.classList.add('selected');
+      const term = document.getElementById('term-logs');
+      term.innerHTML += `<br>&gt; [SELECT] PROGRAM: ${name} LOADED TO RACK.`;
+    }
+
+    function triggerStomp() {
+      const term = document.getElementById('term-logs');
+      term.innerHTML += `<br><span style="color:#ff8c00;">&gt; [TRIGGER] Stomp fired -> OSC /live-actions/run to 127.0.0.1:11924...</span>`;
+      setTimeout(() => {
+        term.innerHTML += `<br><span style="color:#00ff66;">&gt; [SUCCESS] OK! 16 steps committed to Ableton Live.</span>`;
+      }, 400);
+    }
+
+    function sendCommand() {
+      const input = document.getElementById('term-input');
+      const text = input.value.trim();
+      if(!text) return;
+      const term = document.getElementById('term-logs');
+      term.innerHTML += `<br><span style="color:#00f0ff;">&gt; USER: ${text}</span>`;
+      input.value = '';
+      setTimeout(() => {
+        term.innerHTML += `<br>&gt; GENIUS: Analyzing prompt with Grok AI... Found 3 target MIDI clips. Generating automation curve.`;
+      }, 500);
+    }
+
+    // Oscilloscope canvas animation
+    const canvas = document.getElementById('scopeCanvas');
+    const ctx = canvas.getContext('2d');
+    let phase = 0;
+    function drawScope() {
+      ctx.fillStyle = '#05080c';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = '#00f0ff';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (let x = 0; x < canvas.width; x++) {
+        const y = canvas.height/2 + Math.sin((x * 0.1) + phase) * 12 + Math.sin((x * 0.05) + phase * 1.5) * 6;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      phase += 0.1;
+      requestAnimationFrame(drawScope);
+    }
+    drawScope();
+  </script>
+</body>
+</html>

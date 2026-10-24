@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Layout B · Rail + slide-over</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>document.write('<link rel="stylesheet" id="la-theme" href="themes/' + (new URLSearchParams(location.search).get('theme') || 'risograph-art-studio') + '.css">');</script>
+<link rel="stylesheet" href="shared/contract.css">
+<link rel="stylesheet" href="shared/components.css">
+<style>
+  /* B · RAIL + SLIDE-OVER -- the catalog owns the whole canvas. Navigation is a slim
+     icon rail (Settings parked at its foot as a preferences page, diagnostics as a
+     popover off the pip). Track targeting is one chip in the header that opens a
+     picker, so no page ever reserves a permanent sidebar. A tool opens as a
+     slide-over: the catalog is never replaced, so there is no drill-down page. */
+  .B-shell { flex: 1; display: grid; grid-template-columns: 78px minmax(0, 1fr); min-height: 0; position: relative; }
+  .B-rail { background: var(--la-bg-2); border-right: var(--la-border-w) solid var(--la-border); display: flex; flex-direction: column; align-items: center; padding: 14px 0; gap: 6px; position: relative; }
+  .B-mark { width: 38px; height: 38px; border-radius: var(--la-r-md); background: var(--la-accent); color: var(--la-accent-text); display: grid; place-items: center; margin-bottom: 14px; box-shadow: var(--la-shadow-lift); }
+  .B-nav { width: 62px; padding: 9px 0; border-radius: var(--la-r-md); border: var(--la-border-w) solid transparent; background: transparent; color: var(--la-text-muted); transition: all var(--la-dur) var(--la-ease); }
+  .B-nav:hover { background: var(--la-surface-2); color: var(--la-text); }
+  .B-nav.on { background: var(--la-accent-soft); border-color: var(--la-accent); color: var(--la-accent-ink); }
+  .B-rail .grow { flex: 1; }
+  .B-pipbtn .la-pip { padding: 6px; }
+  .B-main { display: flex; flex-direction: column; min-height: 0; min-width: 0; position: relative; }
+  .B-head { display: flex; align-items: center; gap: 16px; padding: 14px 24px; border-bottom: var(--la-border-w) solid var(--la-border-soft); position: relative; flex: none; }
+  .B-head .sep { flex: 1; }
+  .B-setline { display: flex; align-items: center; gap: 10px; color: var(--la-text-muted); }
+  .B-setline b { color: var(--la-text); font-family: var(--la-font-display); }
+  .B-setline .la-chips { width: 230px; }
+  .B-stage { flex: 1; min-height: 0; position: relative; display: flex; flex-direction: column; }
+  .B-body { flex: 1; min-height: 0; padding: 18px 24px 0; display: flex; flex-direction: column; }
+  .B-toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+  .B-toolbar .la-search { width: 300px; }
+  .B-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding: 3px 4px 20px 3px; }
+  .B-slide { position: absolute; top: 0; bottom: 0; right: 0; width: 440px; z-index: 15; background: var(--la-bg-2); border-left: var(--la-border-w) solid var(--la-accent); box-shadow: var(--la-shadow-lift), -20px 0 40px color-mix(in srgb, var(--la-bg) 60%, transparent); display: flex; flex-direction: column; }
+  .B-slide .top { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px 0; }
+  .B-slide .in { padding: 12px 22px 22px; overflow: auto; flex: 1; }
+  .B-narrow { max-width: 820px; margin: 0 auto; width: 100%; flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .B-page { max-width: 780px; margin: 0 auto; width: 100%; }
+  .B-tgt { min-width: 340px; padding: 12px; }
+  .B-tgt .la-scroll { max-height: 300px; margin-top: 8px; }
+</style>
+<script src="shared/data.js"></script>
+<script src="shared/shared.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+  const S = { layoutId: "b", page: "actions", tool: null, filter: "all", q: "", console: false, settings: false, pop: null };
+
+  const rail = () => `<nav class="B-rail">
+      <div class="B-mark">${LA.icon("bolt", 20)}</div>
+      <button class="B-nav${S.page === "actions" ? " on" : ""}" data-act="page" data-k="actions"><span class="la-ic-label">${LA.icon("bolt", 20)}Actions</span></button>
+      <button class="B-nav${S.page === "genius" ? " on" : ""}" data-act="page" data-k="genius"><span class="la-ic-label">${LA.icon("brain", 20)}Genius</span></button>
+      <span class="grow"></span>
+      <button class="B-nav B-pipbtn" data-act="diag" title="Bridge diagnostics"><span class="la-ic-label">${LA.pip(false)}Bridge</span></button>
+      <button class="B-nav${S.page === "settings" ? " on" : ""}" data-act="page" data-k="settings"><span class="la-ic-label">${LA.icon("gear", 20)}Prefs</span></button>
+      ${S.pop === "diag" ? `<div class="la-pop" style="left:86px;bottom:80px;width:290px">${LA.diagPanel()}</div>` : ""}
+    </nav>`;
+
+  const targets = () => `<button class="la-btn${S.pop === "tgt" ? " on" : ""}" data-act="tgt">${LA.icon("tracks", 14)} Targets · ${LA.state.targets.size} ${LA.icon("down", 12)}</button>
+      ${S.pop === "tgt" ? `<div class="la-pop B-tgt" style="right:24px;top:56px">${LA.quickPicks()}<div class="la-scroll">${LA.trackList({ devices: true })}</div></div>` : ""}`;
+
+  const head = (title, sub) => `<header class="B-head"><div><h1 class="la-title">${title}</h1><span class="la-muted">${sub}</span></div><span class="sep"></span>
+      ${S.page === "genius" ? LA.agentChips() : `<div class="B-setline"><b>${LA.esc(LA.set.name)}</b><div class="la-chips">${LA.chips()}</div></div>`}
+      ${S.page === "settings" ? "" : targets()}</header>`;
+
+  const actions = () => {
+    const tools = LA.filterTools(S);
+    return `${head("Studio Actions", tools.length + " of " + LA.tools.length + " actions")}
+      <div class="B-stage"><div class="B-body"><div class="B-toolbar"><label class="la-search">${LA.icon("search", 15)}<input data-input="q" value="${LA.esc(S.q)}" placeholder="Search actions…"></label>${LA.filterChips(S)}</div>
+      <div class="la-scroll" style="flex:1"><div class="B-grid">${tools.map((t) => LA.toolCard(t, { active: t.id === S.tool })).join("")}</div></div></div>
+      ${S.tool ? `<aside class="B-slide"><div class="top"><span class="la-section-title">Action</span><button class="la-iconbtn" data-act="close-tool" aria-label="Close">${LA.icon("x")}</button></div><div class="in">${LA.toolBody(LA.byId(S.tool), { backLabel: "Close" })}</div></aside>` : ""}</div>`;
+  };
+  const genius = () => `${head("Genius", "Ticked tracks offered as context (proposal)")}
+      <div class="B-body"><div class="B-narrow"><div class="la-scroll" style="flex:1">${LA.chat()}</div>${LA.composer()}<div style="height:14px"></div></div></div>`;
+  const settings = () => `${head("Preferences", "Nothing here changes how the app is laid out")}
+      <div class="B-body"><div class="la-scroll" style="flex:1"><div class="B-page">${LA.settingsBody()}</div></div></div>`;
+
+  const render = () => `<div class="B-shell">${rail()}<main class="B-main">${{ actions, genius, settings }[S.page]()}</main></div>
+    ${LA.consoleDrawer(S)}${LA.statusbar(S)}`;
+
+  LA.mount(S, render, {
+    page: (el) => { S.page = el.dataset.k; S.tool = null; },
+    diag: (el, prev) => { S.pop = prev === "diag" ? null : "diag"; },
+    tgt: (el, prev) => { S.pop = prev === "tgt" ? null : "tgt"; },
+    filter: (el) => { S.filter = el.dataset.k; },
+  });
+</script>
+</body>
+</html>

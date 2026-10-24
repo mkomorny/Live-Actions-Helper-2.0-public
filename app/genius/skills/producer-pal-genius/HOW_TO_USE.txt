@@ -1,0 +1,50 @@
+HOW TO USE: producer-pal-genius
+================================
+
+PURPOSE
+  Live Actions Genius: control the open Ableton Set through live_* tools
+  on the Live Actions Bridge, and answer how-to from the local studio
+  library. This copy lives in the desktop host. It is not official
+  Producer Pal and does not use producer-pal__ppal-* MCP tools.
+
+CAPABILITIES
+  - Connect with live_connect, then live_read_set before changing the Set
+  - Insert native Live devices (Live 12.3+); cannot add VST/AU from the browser
+  - Inspect already-present VST/AU with live_inspect_plugin
+  - Read and set Live-visible knobs on those plugins with live_read_device
+    and live_update_device (LOM-visible only)
+  - Write native MIDI, tracks, clips, routing, racks, and host tools
+  - Cite manuals from INDEX.md / library_db_search instead of guessing
+
+USE CASES
+  - "Open cutoff on the Vital that's already on this track"
+  - "What knobs does Surge expose in Live?"
+  - "Write an 8-bar D Dorian clip, then nudge Helm's filter if it's loaded"
+  - How-to in Ableton, Launchkey, theory, sound design, named plugins
+
+IDEAS
+  - Inspect first, then set only names the inspect/read returned
+  - Say LOM-visible only when wavetable or mod-matrix may still be missing
+  - Treat presets[] as a list, not a load command
+  - Keep adding the plugin itself as a drag-and-drop handoff
+
+PROMPTS YOU CAN PASTE
+  /producer-pal-genius
+
+  Inspect the Vital on the ticked track and list Live-visible knobs.
+
+  Set filter cutoff on the already-loaded Surge. Don't invent names.
+
+  Dark dubstep bass — write the MIDI, then tweak Helm if it's on the track.
+
+EXAMPLE FLOW
+  You:   Open the filter on Vital on track 2
+  Model: live_connect, live_inspect_plugin / live_read_device,
+         then live_update_device with a real param name.
+         Reports LOM-visible only if wavetable data is not in the list.
+
+DEFAULT GOALS IF YOU DON'T NAME ONE
+  1. Connect and read the Set before changing it
+  2. Use inspect/read names — never invent VST parameter calls
+  3. Turn Live-visible knobs on already-present plugins
+  4. Hand off insert, stems, automation, and leftover plugin state with a citation

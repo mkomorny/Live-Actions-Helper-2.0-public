@@ -1,0 +1,36 @@
+# Live Actions Helper -- runtime dependencies.
+#
+# ffmpeg is required by tts_vocal/audio_sample/bbencut for format conversion
+# and is expected as an external binary (settings.ffmpeg_path), not pip-installed.
+#
+# The redesign plan (docs/plans/HANDOFF-redesign-for-opus.md) only asked for the
+# three WebView2-shell additions below the first blank line -- everything above
+# it was already an undeclared dependency of the app (there was no requirements
+# file in the repo before v1.0.46+ slice 0) and is included here so this file
+# actually reproduces a working environment from a clean checkout.
+
+numpy==2.5.1
+scipy==1.18.1
+soundfile==0.14.0
+pypdf==6.14.2
+pymupdf==1.28.2          # imported as `fitz`
+
+# Soft dependency: audio_analysis._lufs_pyloudnorm is wrapped in a try/except
+# that falls back to a numpy-only LUFS estimate if this isn't installed. Not
+# actually installed in this environment (not pinned to a version verified
+# against this codebase) -- pinned to latest as of this pass.
+pyloudnorm==0.2.0
+
+pywebview==6.2.1
+pythonnet==3.1.0
+
+# Only needed for previews/redesign-round/tools (fidelity_diff.py, make_thumbs.py)
+# and the Tk evidence build (previews/redesign-round/tk/tk_pushed.py) -- not
+# imported by the shipped app itself.
+pillow==12.3.0
+
+# Dev/test harness only (app/shell_dev/: capture_shell.py, e2e_shell.py) -- not
+# imported by the shipped shell. websocket-client drives WebView2 over the
+# DevTools protocol; psutil measures the shell's memory footprint.
+websocket-client
+psutil

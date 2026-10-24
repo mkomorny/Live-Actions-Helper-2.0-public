@@ -1,0 +1,34 @@
+BBenCut in Live Actions
+========================
+
+This tool ports the cut-procedure algorithms from BBenCut, an MIT-licensed
+Ableton Live Extension:
+
+  https://github.com/bencodec/BBenCut
+  Copyright (c) Ben Casey
+  License: MIT
+
+BBenCut itself ports the BBCut2 breakbeat-cutting algorithms, a SuperCollider
+library by Nick Collins:
+
+  https://composerprogrammer.com/bbcut2.html
+  Copyright (c) Nick Collins
+
+Changes for Live Actions:
+  - Hosted as a desktop tool (Max for Live bridge), not a Suite-only
+    Ableton Live Extension -- this studio runs Live 12 Standard.
+  - Only the 10 cut procedures BBenCut's own UI shipped are ported
+    (BBCutProc11, ChooseCutProc, ChooseBlockProc, WarpCutProc1, SQPusher1,
+    SQPusher2, CageCut, TimelineCut, BBCPPermute, ThrashCutProc1).
+    MotifCutProc, CampCutProc, RecCutProc, RecursiveCutProc1, MultiProc, and
+    OffsetCP1 exist in upstream BBenCut but were never wired into a UI
+    there either -- a documented Pass 2 follow-up, not an oversight.
+  - Very short cuts (< 0.25 beats, upstream's SDK minimum clip duration,
+    empirically confirmed to also hold on Live 12 Standard's LOM) are
+    pre-rendered to a WAV file by the Live Actions Python host via ffmpeg,
+    not upstream's Node-side renderer.
+  - Apply posts pure JSON (the computed cut sequence) back to the Live
+    Actions host; this dialog does no LOM/OSC work itself.
+
+The cut-procedure algorithms (tools\bbencut\src\bbcut\*.ts and slicer.ts)
+are unchanged from upstream except for the TypeScript port itself.

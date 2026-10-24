@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Actions Helper — 5 New UI/UX Design Previews Showcase</title>
+<style>
+  :root {
+    --bg: #0b0e14;
+    --surface: #141923;
+    --surface-raised: #1c2331;
+    --border: #232c3d;
+    --accent: #00f59b;
+    --accent-violet: #a855f7;
+    --accent-cyan: #06b6d4;
+    --accent-amber: #f59e0b;
+    --accent-rose: #f43f5e;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    --font-mono: "SF Mono", "Consolas", "Courier New", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Header */
+  header {
+    height: 64px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    flex-shrink: 0;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .app-logo {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-cyan));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: #0b0e14;
+    font-size: 16px;
+    box-shadow: 0 0 16px rgba(0, 245, 155, 0.4);
+  }
+  .header-title-block h1 {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+  }
+  .header-title-block p {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* Design Selector Tabs */
+  .design-tabs {
+    display: flex;
+    background: var(--bg);
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    gap: 4px;
+  }
+
+  .tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab-btn:hover {
+    color: var(--text);
+    background: rgba(255,255,255,0.05);
+  }
+  .tab-btn.active {
+    background: var(--surface-raised);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .tab-btn.active[data-id="1"] { border-left: 3px solid #ff5500; }
+  .tab-btn.active[data-id="2"] { border-left: 3px solid var(--accent-amber); }
+  .tab-btn.active[data-id="3"] { border-left: 3px solid var(--accent-violet); }
+  .tab-btn.active[data-id="4"] { border-left: 3px solid var(--accent-cyan); }
+  .tab-btn.active[data-id="5"] { border-left: 3px solid var(--accent); }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .btn-open-external {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-open-external:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Main Split Layout: Left Info Drawer & Right Interactive Iframe */
+  .showcase-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    overflow: hidden;
+  }
+
+  /* Left Info Sidebar */
+  .design-info-sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .design-badge-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    width: fit-content;
+  }
+
+  .design-concept-title {
+    font-size: 18px;
+    font-weight: 800;
+    margin-top: 4px;
+  }
+  .design-concept-summary {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .section-heading {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+  }
+
+  .features-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .features-list li {
+    font-size: 12px;
+    color: #cbd5e1;
+    line-height: 1.4;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .features-list li::before {
+    content: "✓";
+    color: var(--accent);
+    font-weight: bold;
+  }
+
+  /* Color Palette Chips */
+  .swatches-row {
+    display: flex;
+    gap: 8px;
+  }
+  .color-swatch-box {
+    flex: 1;
+    height: 36px;
+    border-radius: 6px;
+    display: flex;
+    align-items: flex-end;
+    padding: 4px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: bold;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* Right Iframe Container */
+  .preview-stage {
+    background: #06070a;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .stage-toolbar {
+    height: 36px;
+    background: #0d1117;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+  }
+  .stage-url {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .window-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .window-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .dot-red { background: #ff5f56; }
+  .dot-yellow { background: #ffbd2e; }
+  .dot-green { background: #27c93f; }
+
+  .preview-iframe {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #000;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Top Navigation Showcase Bar -->
+  <header>
+    <div class="header-left">
+      <div class="app-logo">LA</div>
+      <div class="header-title-block">
+        <h1>Live Actions Helper · 5 Design Concepts</h1>
+        <p>Interactive prototypes for Ableton Live 12 Companion Host</p>
+      </div>
+    </div>
+
+    <!-- Design Switcher Tabs -->
+    <nav class="design-tabs">
+      <button class="tab-btn active" data-id="1" onclick="switchDesign(1)">
+        <span>1. Ableton 12 Native</span>
+      </button>
+      <button class="tab-btn" data-id="2" onclick="switchDesign(2)">
+        <span>2. Cyber Hardware Rack</span>
+      </button>
+      <button class="tab-btn" data-id="3" onclick="switchDesign(3)">
+        <span>3. Glassmorphism HUD</span>
+      </button>
+      <button class="tab-btn" data-id="4" onclick="switchDesign(4)">
+        <span>4. Performance Macro Deck</span>
+      </button>
+      <button class="tab-btn" data-id="5" onclick="switchDesign(5)">
+        <span>5. AI-First Copilot Studio</span>
+      </button>
+    </nav>
+
+    <div class="header-actions">
+      <a id="external-link" class="btn-open-external" href="preview-1-ableton-native.html" target="_blank">
+        <span>Open Standalone ↗</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Showcase Workspace -->
+  <div class="showcase-body">
+    <!-- Left Info Sidebar -->
+    <aside class="design-info-sidebar" id="design-info-panel">
+      <!-- Dynamic Info Injected Here -->
+    </aside>
+
+    <!-- Right Live Preview Iframe -->
+    <main class="preview-stage">
+      <div class="stage-toolbar">
+        <div class="window-dots">
+          <div class="window-dot dot-red"></div>
+          <div class="window-dot dot-yellow"></div>
+          <div class="window-dot dot-green"></div>
+        </div>
+        <div class="stage-url" id="stage-url-display">preview-1-ableton-native.html</div>
+        <div style="font-size:10px; color:var(--text-muted); font-family:var(--font-mono)">INTERACTIVE PROTOTYPE</div>
+      </div>
+      <iframe id="preview-frame" class="preview-iframe" src="preview-1-ableton-native.html"></iframe>
+    </main>
+  </div>
+
+  <script>
+    const DESIGNS = {
+      1: {
+        file: "preview-1-ableton-native.html",
+        badge: "Ableton Design System",
+        badgeColor: "#ff5500",
+        badgeBg: "rgba(255, 85, 0, 0.15)",
+        title: "Ableton 12 Native Dark Slate",
+        summary: "100% faithful to Ableton Live 12's signature look & feel. Seamlessly blends into your DAW workflow like an official Suite Extension or native device rack.",
+        features: [
+          "Authentic Ableton Live 12 dark slate color palette and typography.",
+          "Target track matrix with native track color indicators (Audio/MIDI/Return).",
+          "Collapsible Ableton Device parameter rack with rotary dials and number inputs.",
+          "Real-time OSC bridge telemetry banner with Live BPM, time signature & key.",
+          "Low cognitive load for existing Ableton power users."
+        ],
+        swatches: [
+          { color: "#1e1e1e", label: "#1e1e1e", text: "#fff" },
+          { color: "#262626", label: "#262626", text: "#fff" },
+          { color: "#ff5500", label: "#ff5500", text: "#000" },
+          { color: "#ffd700", label: "#ffd700", text: "#000" }
+        ],
+        bestFor: "Producers who want zero visual friction and an interface that feels like it was built by Ableton itself."
+      },
+      2: {
+        file: "preview-2-cyber-rack.html",
+        badge: "Hardware Synthesizer / 3U Rack",
+        badgeColor: "#f59e0b",
+        badgeBg: "rgba(245, 158, 11, 0.15)",
+        title: "Hardware Cyber-Rack (Elektron/Moog Style)",
+        summary: "Tactile studio hardware unit in a virtual 3U rack chassis with anodized aluminum plates, amber OLED displays, phosphor LED meters, and physical MPC-style backlit pads.",
+        features: [
+          "3U modular rack case with brushed aluminum textures & chrome hex screws.",
+          "Amber LCD 7-segment display for Live BPM, Time Signature & OSC Ports.",
+          "8 backlit rubberized action pads with velocity trigger feel.",
+          "Tactile rotary knobs with numerical readout and master fire stomp button.",
+          "CRT phosphor-green oscilloscope and terminal command drawer."
+        ],
+        swatches: [
+          { color: "#111317", label: "#111317", text: "#fff" },
+          { color: "#232730", label: "#232730", text: "#fff" },
+          { color: "#ff8c00", label: "#ff8c00", text: "#000" },
+          { color: "#00ff66", label: "#00ff66", text: "#000" }
+        ],
+        bestFor: "Hardware synth lovers, electronic music producers, and tactile workflow enthusiasts."
+      },
+      3: {
+        file: "preview-3-glass-hud.html",
+        badge: "Modern Glassmorphism HUD",
+        badgeColor: "#a855f7",
+        badgeBg: "rgba(168, 85, 247, 0.15)",
+        title: "Glassmorphism Obsidian Pro HUD",
+        summary: "Ultra-refined translucent frosted glass interface with ambient radiant glows, Bento Grid tool layout, command palette, and smooth spring animations.",
+        features: [
+          "Frosted dark glass surfaces (backdrop-filter: blur(25px)) with glowing gradient borders.",
+          "Floating top telemetry capsule with real-time bridge latency pulse.",
+          "Bento Grid tool cards categorized into Generative MIDI, Audio DSP & Arrangement.",
+          "Integrated Genius AI copilot drawer with action diff proposals.",
+          "Quick-action spotlight search trigger (Cmd+K)."
+        ],
+        swatches: [
+          { color: "#07090e", label: "#07090e", text: "#fff" },
+          { color: "#121622", label: "#121622", text: "#fff" },
+          { color: "#8b5cf6", label: "#8b5cf6", text: "#fff" },
+          { color: "#06b6d4", label: "#06b6d4", text: "#000" }
+        ],
+        bestFor: "Modern music producers who love sleek Linear/macOS aesthetics and futuristic HUD displays."
+      },
+      4: {
+        file: "preview-4-performance-deck.html",
+        badge: "Stage & Arrangement Deck",
+        badgeColor: "#06b6d4",
+        badgeBg: "rgba(6, 182, 212, 0.15)",
+        title: "Performance Macro Deck & Arranger",
+        summary: "High-contrast, touch-optimized performance deck (Stream Deck + Push 3 style) featuring an interactive Arrangement structure map and 4x4 macro action pads.",
+        features: [
+          "Interactive Song Structure Arranger (Intro -> Verse -> Chorus -> Drop -> Outro).",
+          "1-Click Arrangement skeleton locator dropping and section jumping.",
+          "High-contrast 4x2 macro action pads with real-time progress fill animations.",
+          "Instant Track Group selector with color-coded pads.",
+          "Optimized for live jamming, second-screen tablets, and rapid arrangement building."
+        ],
+        swatches: [
+          { color: "#0a0d14", label: "#0a0d14", text: "#fff" },
+          { color: "#121824", label: "#121824", text: "#fff" },
+          { color: "#3b82f6", label: "#3b82f6", text: "#fff" },
+          { color: "#10b981", label: "#10b981", text: "#000" }
+        ],
+        bestFor: "Live performers, DJs, song arrangers, and producers using touchscreens or Stream Decks."
+      },
+      5: {
+        file: "preview-5-ai-canvas.html",
+        badge: "Agentic AI Co-Producer",
+        badgeColor: "#00f59b",
+        badgeBg: "rgba(0, 245, 155, 0.15)",
+        title: "AI-First Agentic Studio & Creative Canvas",
+        summary: "Dual-engine AI workspace combining a conversational context-aware Copilot on the left with a dynamic interactive visual canvas (Harmonic Wheel, Breakbeat Slices) on the right.",
+        features: [
+          "Dual-Engine split view: Conversational AI Copilot + Dynamic Visual Canvas.",
+          "Interactive Harmonic Circle of Fifths SVG wheel with modal root selection.",
+          "Visual Breakbeat Slice waveform timeline for BBenCut with drag placement.",
+          "Transparent Action Execution cards with diff preview before committing to Live.",
+          "Context-aware understanding of Ableton tracks, scale modes, and user manuals."
+        ],
+        swatches: [
+          { color: "#0c0e14", label: "#0c0e14", text: "#fff" },
+          { color: "#121620", label: "#121620", text: "#fff" },
+          { color: "#6366f1", label: "#6366f1", text: "#fff" },
+          { color: "#00f59b", label: "#00f59b", text: "#000" }
+        ],
+        bestFor: "Producers looking for an intelligent AI co-producer that visualizes theory and generative ideas."
+      }
+    };
+
+    function switchDesign(id) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.querySelector(`.tab-btn[data-id="${id}"]`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const d = DESIGNS[id];
+      document.getElementById('preview-frame').src = d.file;
+      document.getElementById('stage-url-display').textContent = d.file;
+      document.getElementById('external-link').href = d.file;
+
+      // Render Sidebar info
+      const panel = document.getElementById('design-info-panel');
+      panel.innerHTML = `
+        <div>
+          <span class="design-badge-tag" style="color:${d.badgeColor}; background:${d.badgeBg};">${d.badge}</span>
+          <h2 class="design-concept-title">${d.title}</h2>
+          <p class="design-concept-summary" style="margin-top:8px;">${d.summary}</p>
+        </div>
+
+        <div>
+          <div class="section-heading">Key Design Highlights</div>
+          <ul class="features-list">
+            ${d.features.map(f => `<li>${f}</li>`).join('')}
+          </ul>
+        </div>
+
+        <div>
+          <div class="section-heading">Color Palette</div>
+          <div class="swatches-row">
+            ${d.swatches.map(s => `
+              <div class="color-swatch-box" style="background:${s.color}; color:${s.text};">${s.label}</div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div>
+          <div class="section-heading">Best Workflow Fit</div>
+          <p style="font-size:12px; color:#cbd5e1; line-height:1.4;">${d.bestFor}</p>
+        </div>
+      `;
+    }
+
+    // Initialize with Design 1
+    switchDesign(1);
+  </script>
+</body>
+</html>

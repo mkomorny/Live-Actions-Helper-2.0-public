@@ -1,0 +1,280 @@
+{
+  "live_version": "12.4.15b3",
+  "rows": [
+    {
+      "probe": "1",
+      "description": "display_value settable through M4L (device: 'Plymouth Kit', param: 'Warmth', range 0.0-127.0)",
+      "path": "live_set tracks 2 devices 0 parameters 1",
+      "op": "get/set/get",
+      "member": "display_value",
+      "raw_reply": {
+        "ok": true,
+        "path": "live_set tracks 2 devices 0 parameters 1",
+        "results": [
+          {
+            "ok": true,
+            "property": "display_value",
+            "value": 31.75
+          },
+          {
+            "ok": true,
+            "property": "display_value",
+            "value": [
+              31
+            ]
+          },
+          {
+            "ok": true,
+            "property": "display_value",
+            "value": 95.25
+          },
+          {
+            "ok": true,
+            "property": "display_value",
+            "value": [
+              95
+            ]
+          }
+        ]
+      },
+      "verdict": "CONFIRMED settable (target_a=31.75->after=31, target_b=95.25->after=95) -- str_for_value bisection can be retired"
+    },
+    {
+      "probe": "2",
+      "description": "str_for_value on device 'Plymouth Kit' param 'Warmth'",
+      "path": "live_set tracks 2 devices 0 parameters 1",
+      "op": "call",
+      "member": "str_for_value",
+      "raw_reply": {
+        "ok": true,
+        "path": "live_set tracks 2 devices 0 parameters 1",
+        "results": [
+          {
+            "ok": true,
+            "property": "min",
+            "value": [
+              0
+            ]
+          },
+          {
+            "ok": true,
+            "property": "max",
+            "value": [
+              127
+            ]
+          },
+          {
+            "ok": true,
+            "method": "str_for_value",
+            "value": 0
+          }
+        ]
+      },
+      "verdict": "recorded"
+    },
+    {
+      "probe": "2",
+      "description": "str_for_value on device 'Reverb' param 'Predelay'",
+      "path": "live_set tracks 2 devices 1 parameters 1",
+      "op": "call",
+      "member": "str_for_value",
+      "raw_reply": {
+        "ok": true,
+        "path": "live_set tracks 2 devices 1 parameters 1",
+        "results": [
+          {
+            "ok": true,
+            "property": "min",
+            "value": [
+              0
+            ]
+          },
+          {
+            "ok": true,
+            "property": "max",
+            "value": [
+              1
+            ]
+          },
+          {
+            "ok": true,
+            "method": "str_for_value",
+            "value": "0.50 ms"
+          }
+        ]
+      },
+      "verdict": "recorded"
+    },
+    {
+      "probe": "3",
+      "description": "Automation envelope for 'Warmth' on device 'Plymouth Kit'",
+      "path": "t2/d0",
+      "op": "set_clip_automation",
+      "member": "create_automation_envelope / automation_envelope",
+      "raw_reply": {
+        "ok": true,
+        "message": "Wrote 2 automation points for Warmth",
+        "track_index": 2,
+        "slot_index": 0,
+        "owner": "Plymouth Kit",
+        "points_added": 2,
+        "points_verified": 2
+      },
+      "verdict": "CONFIRMED working"
+    },
+    {
+      "probe": "4",
+      "description": "Clip.fade_*/follow_action_* on t2/slot0 (MIDI clip)",
+      "path": "live_set tracks 2 clip_slots 0 clip",
+      "op": "info",
+      "member": "fade_in_start / follow_action_*",
+      "raw_reply": {
+        "ok": true,
+        "path": "live_set tracks 2 clip_slots 0 clip",
+        "results": [
+          {
+            "ok": true,
+            "info": "id 371\ntype Clip\ndescription This class represents a Clip in Live. It can be either an Audio Clip or a MIDI Clip\\\\, in an Arrangement or the Session\\\\, depending on the Track (Slot) it lives in.\nchild canonical_parent ClipSlot\nchild groove Groove\nchild view View\nproperty color int\nproperty color_index int\nproperty end_marker float\nproperty end_time float\nproperty has_envelopes bool\nproperty has_groove bool\nproperty is_arrangement_clip bool\nproperty is_audio_clip bool\nproperty is_midi_clip bool\nproperty is_overdubbing bool\nproperty is_playing bool\nproperty is_recording bool\nproperty is_triggered bool\nproperty launch_mode int\nproperty launch_quantization int\nproperty legato bool\nproperty length float\nproperty loop_end float\nproperty loop_start float\nproperty looping bool\nproperty muted bool\nproperty name str\nproperty playing_position float\nproperty position float\nproperty root_note int\nproperty scale_intervals IntVector\nproperty scale_mode bool\nproperty scale_name str\nproperty signature_denominator int\nproperty signature_numerator int\nproperty start_marker float\nproperty start_time float\nproperty velocity_amount float\nproperty will_record_on_start bool\nfunction add_new_notes\nfunction add_warp_marker\nfunction apply_note_modifications\nfunction clear_all_envelopes\nfunction clear_envelope\nfunction crop\nfunction deselect_all_notes\nfunction duplicate_loop\nfunction duplicate_notes_by_id\nfunction duplicate_region\nfunction fire\nfunction get_all_notes_extended\nfunction get_notes_by_id\nfunction get_notes_extended\nfunction get_selected_notes_extended\nfunction move_playing_pos\nfunction move_warp_marker\nfunction quantize\nfunction quantize_pitch\nfunction remove_notes_by_id\nfunction remove_notes_extended\nfunction remove_warp_marker\nfunction scrub\nfunction select_all_notes\nfunction select_notes_by_id\nfunction set_fire_button_state\nfunction stop\nfunction stop_scrub\ndone"
+          }
+        ]
+      },
+      "verdict": "recorded"
+    },
+    {
+      "probe": "4",
+      "description": "Clip.fade_*/follow_action_* on t0/slot0 (audio clip)",
+      "path": "live_set tracks 0 clip_slots 0 clip",
+      "op": "info",
+      "member": "fade_in_start / follow_action_*",
+      "raw_reply": {
+        "ok": true,
+        "path": "live_set tracks 0 clip_slots 0 clip",
+        "results": [
+          {
+            "ok": true,
+            "info": "id 339\ntype Clip\ndescription This class represents a Clip in Live. It can be either an Audio Clip or a MIDI Clip\\\\, in an Arrangement or the Session\\\\, depending on the Track (Slot) it lives in.\nchild canonical_parent ClipSlot\nchild groove Groove\nchild view View\nproperty available_warp_modes IntVector\nproperty color int\nproperty color_index int\nproperty end_marker float\nproperty end_time float\nproperty file_path str\nproperty gain float\nproperty gain_display_string str\nproperty has_envelopes bool\nproperty has_groove bool\nproperty is_arrangement_clip bool\nproperty is_audio_clip bool\nproperty is_midi_clip bool\nproperty is_overdubbing bool\nproperty is_playing bool\nproperty is_recording bool\nproperty is_triggered bool\nproperty launch_mode int\nproperty launch_quantization int\nproperty legato bool\nproperty length float\nproperty loop_end float\nproperty loop_start float\nproperty looping bool\nproperty muted bool\nproperty name str\nproperty pitch_coarse int\nproperty pitch_fine float\nproperty playing_position float\nproperty position float\nproperty ram_mode bool\nproperty root_note int\nproperty sample_length int\nproperty sample_rate float\nproperty scale_intervals IntVector\nproperty scale_mode bool\nproperty scale_name str\nproperty signature_denominator int\nproperty signature_numerator int\nproperty start_marker float\nproperty start_time float\nproperty velocity_amount float\nproperty warp_markers dict\nproperty warp_mode int\nproperty warping bool\nproperty will_record_on_start bool\nfunction add_new_notes\nfunction add_warp_marker\nfunction apply_note_modifications\nfunction clear_all_envelopes\nfunction clear_envelope\nfunction crop\nfunction deselect_all_notes\nfunction duplicate_loop\nfunction duplicate_notes_by_id\nfunction duplicate_region\nfunction fire\nfunction get_all_notes_extended\nfunction get_notes_by_id\nfunction get_notes_extended\nfunction get_selected_notes_extended\nfunction move_playing_pos\nfunction move_warp_marker\nfunction quantize\nfunction quantize_pitch\nfunction remove_notes_by_id\nfunction remove_notes_extended\nfunction remove_warp_marker\nfunction scrub\nfunction select_all_notes\nfunction select_notes_by_id\nfunction set_fire_button_state\nfunction stop\nfunction stop_scrub\ndone"
+          }
+        ]
+      },
+      "verdict": "recorded"
+    },
+    {
+      "probe": "5",
+      "description": "RackDevice.rename_macro / macro_map on device '106 Live Key'",
+      "path": "live_set tracks 1 devices 0",
+      "op": "info",
+      "member": "rename_macro / macro_map",
+      "raw_reply": {
+        "ok": true,
+        "path": "live_set tracks 1 devices 0",
+        "results": [
+          {
+            "ok": true,
+            "info": "id 396\ntype RackDevice\ndescription This class represents a Rack device.\nchildren chains Chain\nchildren parameters DeviceParameter\nchildren return_chains Chain\nchild canonical_parent Track\nchild chain_selector DeviceParameter\nchild view View\nproperty can_compare_ab bool\nproperty can_have_chains bool\nproperty can_have_drum_pads bool\nproperty can_show_chains bool\nproperty class_display_name str\nproperty class_name str\nproperty has_macro_mappings bool\nproperty is_active bool\nproperty is_showing_chains bool\nproperty latency_in_ms float\nproperty latency_in_samples int\nproperty name str\nproperty selected_variation_index int\nproperty type DeviceType\nproperty variation_count int\nproperty visible_macro_count int\nfunction add_macro\nfunction copy_pad\nfunction delete_selected_variation\nfunction insert_chain\nfunction randomize_macros\nfunction recall_last_used_variation\nfunction recall_selected_variation\nfunction remove_macro\nfunction save_preset_to_compare_ab_slot\nfunction store_chosen_bank\nfunction store_variation\ndone"
+          }
+        ]
+      },
+      "verdict": "CONFIRMED absent (rename_macro=False, macro_map=False)"
+    },
+    {
+      "probe": "6",
+      "description": "live_app browser existence",
+      "path": "live_app",
+      "op": "exists/get",
+      "member": "browser",
+      "raw_reply": {
+        "ok": true,
+        "path": "live_app",
+        "results": [
+          {
+            "ok": true,
+            "exists": true
+          },
+          {
+            "ok": true,
+            "property": "browser",
+            "value": 0
+          }
+        ]
+      },
+      "verdict": "CONFIRMED absent (raw=0)"
+    },
+    {
+      "probe": "7",
+      "description": "read_set full payload size/timing",
+      "path": "live_set",
+      "op": "read_set",
+      "member": "read_set",
+      "raw_reply": {
+        "ok": true,
+        "bytes": 15951,
+        "elapsed_s": 0.17
+      },
+      "verdict": "recorded"
+    },
+    {
+      "probe": "8",
+      "description": "Song property spot-check (Part C1 targets)",
+      "path": "live_set",
+      "op": "get",
+      "member": "loop,loop_start,loop_length,groove_amount,swing_amount,appointed_device,session_automation_record",
+      "raw_reply": {
+        "ok": true,
+        "path": "live_set",
+        "results": [
+          {
+            "ok": true,
+            "property": "loop",
+            "value": [
+              0
+            ]
+          },
+          {
+            "ok": true,
+            "property": "loop_start",
+            "value": [
+              27
+            ]
+          },
+          {
+            "ok": true,
+            "property": "loop_length",
+            "value": [
+              16
+            ]
+          },
+          {
+            "ok": true,
+            "property": "groove_amount",
+            "value": [
+              0
+            ]
+          },
+          {
+            "ok": true,
+            "property": "swing_amount",
+            "value": [
+              0
+            ]
+          },
+          {
+            "ok": true,
+            "property": "appointed_device",
+            "value": [
+              "id",
+              0
+            ]
+          },
+          {
+            "ok": true,
+            "property": "session_automation_record",
+            "value": [
+              1
+            ]
+          }
+        ]
+      },
+      "verdict": "recorded"
+    }
+  ]
+}

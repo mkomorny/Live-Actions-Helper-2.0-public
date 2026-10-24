@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Layout D · Session deck</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>document.write('<link rel="stylesheet" id="la-theme" href="themes/' + (new URLSearchParams(location.search).get('theme') || 'risograph-art-studio') + '.css">');</script>
+<link rel="stylesheet" href="shared/contract.css">
+<link rel="stylesheet" href="shared/components.css">
+<style>
+  /* D · SESSION DECK -- modelled on Live's own Session View. There are no pages:
+     the Set's tracks run across the top as columns (the thing you target), the
+     tool list and the selected tool's detail sit side by side beneath (master-detail
+     on one screen, never empty), and Genius and the console are tabs of a dock along
+     the bottom. Genius stops being a destination and becomes ambient context. */
+  .D-top { display: flex; align-items: center; gap: 16px; padding: 9px 18px; background: var(--la-bg-2); border-bottom: var(--la-border-w) solid var(--la-border); flex: none; position: relative; }
+  .D-top .set { font: 700 calc(15px * var(--la-heading-scale)) var(--la-font-display); }
+  .D-top .la-chips { width: 270px; }
+  .D-top .grow { flex: 1; }
+  .D-deck { display: flex; flex: none; background: var(--la-bg-2); border-bottom: var(--la-border-w) solid var(--la-border); }
+  .D-ctrl { flex: none; width: 176px; padding: 12px; display: flex; flex-direction: column; gap: 8px; border-right: var(--la-border-w) solid var(--la-border); }
+  .D-ctrl .sum { color: var(--la-accent-ink); font-weight: 700; font-size: 11.5px; }
+  .D-cols { display: flex; gap: 6px; padding: 10px; overflow-x: auto; flex: 1; }
+  .D-col { flex: none; width: 108px; padding: 9px 10px; display: flex; flex-direction: column; gap: 5px; text-align: left; background: var(--la-surface); border: var(--la-border-w) solid var(--la-border-soft); border-radius: var(--la-r-md); transition: all var(--la-dur) var(--la-ease); }
+  .D-col:hover { border-color: var(--la-border); }
+  .D-col.on { border-color: var(--la-accent); background: var(--la-accent-soft); }
+  .D-col .n { display: flex; justify-content: space-between; align-items: center; font: 11px var(--la-font-mono); color: var(--la-text-dim); }
+  .D-col b { font: 700 13px var(--la-font-body); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .D-col .dv { font-size: 10.5px; color: var(--la-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .D-col .tg { margin-top: 3px; padding: 3px 0; text-align: center; border-radius: var(--la-r-sm); border: var(--la-border-w) solid var(--la-border); font: 700 9.5px var(--la-font-body); letter-spacing: var(--la-label-track); text-transform: var(--la-label-case); color: var(--la-text-muted); }
+  .D-col.on .tg { background: var(--la-accent); color: var(--la-accent-text); border-color: var(--la-accent); }
+  .D-split { flex: 1; display: grid; grid-template-columns: 360px minmax(0, 1fr); min-height: 0; }
+  .D-master { border-right: var(--la-border-w) solid var(--la-border); padding: 12px; display: flex; flex-direction: column; gap: 10px; min-height: 0; background: var(--la-bg-2); }
+  .D-master .f { display: flex; gap: 5px; flex-wrap: wrap; }
+  .D-master .la-row { padding: 8px 11px; }
+  .D-master .la-row .la-pill { display: none; }
+  .D-master .la-row-main span { display: none; }
+  .D-detail { padding: 22px 30px; min-width: 0; }
+  .D-detail .la-tool-body { max-width: 640px; }
+  .D-dock { flex: none; display: flex; flex-direction: column; background: var(--la-bg-2); border-top: var(--la-border-w) solid var(--la-border); }
+  .D-tabs { display: flex; align-items: center; gap: 4px; padding: 5px 10px; }
+  .D-tabs .grow { flex: 1; font: 11px var(--la-font-mono); color: var(--la-text-muted); padding-left: 10px; }
+  .D-panel { padding: 8px 20px 12px; display: flex; flex-direction: column; min-height: 0; }
+  .D-panel .la-prompts { display: none; }
+  .D-panel.genius { max-width: 900px; width: 100%; margin: 0 auto; }
+</style>
+<script src="shared/data.js"></script>
+<script src="shared/shared.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+  const S = { layoutId: "d", tool: "detect-key", filter: "all", dock: "genius", dockMax: false, settings: false, pop: null };
+
+  const topbar = () => `<header class="D-top"><div class="la-brand"><i>${LA.icon("bolt", 13)}</i>Live Actions</div>
+      <span class="set">${LA.esc(LA.set.name)}</span><div class="la-chips">${LA.chips()}</div><span class="grow"></span>
+      <button class="la-btn ghost" data-act="diag">${LA.pip()}</button>
+      <button class="la-iconbtn" data-act="settings" aria-label="Preferences">${LA.icon("gear", 18)}</button>
+      ${S.pop === "diag" ? `<div class="la-pop" style="right:56px;top:50px;width:300px">${LA.diagPanel()}</div>` : ""}</header>`;
+
+  const deck = () => `<section class="D-deck"><div class="D-ctrl"><span class="la-section-title">Target tracks</span>${LA.quickPicks()}<span class="sum">${LA.esc(LA.targetSummary())}</span></div>
+      <div class="D-cols">${LA.tracks.map((t) => `<button class="D-col${LA.state.targets.has(t.id) ? " on" : ""}" data-act="toggle-track" data-id="${t.id}">
+        <span class="n"><span>${t.id}</span>${LA.kind(t.kind)}</span><b>${LA.esc(t.name)}</b><span class="dv">${t.dev.length ? LA.esc(t.dev.join(" · ")) : "no devices"}</span><span class="tg">${LA.state.targets.has(t.id) ? "Targeted" : "Target"}</span></button>`).join("")}</div></section>`;
+
+  const split = () => {
+    const tools = LA.filterTools(S);
+    return `<div class="D-split"><aside class="D-master"><div class="f">${LA.filterChips(S)}</div>
+        <div class="la-scroll" style="flex:1;display:flex;flex-direction:column;gap:5px">${tools.map((t) => LA.toolRow(t, { active: t.id === S.tool })).join("")}</div></aside>
+      <section class="D-detail la-scroll">${LA.toolBody(LA.byId(S.tool || tools[0].id), { back: false })}</section></div>`;
+  };
+
+  const dock = () => {
+    const h = S.dockMax ? 420 : 200;
+    const body = S.dock === "genius" ? `<div class="D-panel genius" style="height:${h}px"><div class="la-scroll" style="flex:1">${LA.chat()}</div>${LA.composer()}</div>`
+      : S.dock === "console" ? `<div class="la-console la-scroll" style="height:${h - 60}px">${LA.consoleLines()}</div>` : "";
+    return `<footer class="D-dock"><div class="D-tabs">
+        <button class="la-tab${S.dock === "genius" ? " on" : ""}" data-act="dock" data-k="genius">${LA.icon("brain", 14)} Genius</button>
+        <button class="la-tab${S.dock === "console" ? " on" : ""}" data-act="dock" data-k="console">${LA.icon("term", 14)} Console</button>
+        <span class="grow">Ready · OSC bridge on 127.0.0.1 · ${LA.esc(LA.targetSummary())}</span>
+        ${S.dock ? `<button class="la-iconbtn" data-act="dockmax" title="Resize dock">${LA.icon("dock", 16)}</button>` : ""}</div>${body}</footer>`;
+  };
+
+  const render = () => `${topbar()}${deck()}${split()}${dock()}${LA.settingsModal(S)}`;
+
+  LA.mount(S, render, {
+    diag: (el, prev) => { S.pop = prev === "diag" ? null : "diag"; },
+    filter: (el) => { S.filter = el.dataset.k; },
+    dock: (el) => { S.dock = S.dock === el.dataset.k ? null : el.dataset.k; },
+    dockmax: () => { S.dockMax = !S.dockMax; },
+    "open-tool": (el) => { S.tool = el.dataset.id; },
+  });
+</script>
+</body>
+</html>

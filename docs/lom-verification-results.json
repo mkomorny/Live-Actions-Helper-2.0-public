@@ -1,0 +1,95 @@
+{
+  "live_version": "12.4.15b3",
+  "rows": [
+    {
+      "action": "live_set_loop_region",
+      "description": "set loop_start=8, loop_length=4, enabled=True",
+      "ok": true,
+      "detail": "before=(27,16,0) after=(8,4)"
+    },
+    {
+      "action": "live_set_groove_amount",
+      "description": "set amount=0.5",
+      "ok": true,
+      "detail": "before=0 after=0.5"
+    },
+    {
+      "action": "live_nudge",
+      "description": "momentary nudge up then down",
+      "ok": true,
+      "detail": "up={'ok': True, 'message': 'Nudged up'} down={'ok': True, 'message': 'Nudged down'}"
+    },
+    {
+      "action": "live_set_swing",
+      "description": "set amount=0.3",
+      "ok": true,
+      "detail": "before=0 after=0.30000001192092896"
+    },
+    {
+      "action": "live_set_appointed_device",
+      "description": "appoint t2/d0 -- expect an HONEST ok:false (Song.appointed_device does not persist a scripted write in this install)",
+      "ok": true,
+      "detail": "{'ok': False, 'message': 'appointed_device write did not verify by read-back'}"
+    },
+    {
+      "action": "live_set_automation_record",
+      "description": "toggle to False",
+      "ok": true,
+      "detail": "before=1 after=0"
+    },
+    {
+      "action": "live_read_param_range",
+      "description": "read Warmth's range/display_value on Plymouth Kit",
+      "ok": true,
+      "detail": "{'ok': True, 'name': 'Warmth', 'index': 1, 'value': 0, 'min': 0, 'max': 127, 'is_quantized': False, 'display_value': 0, 'display_string': ''}"
+    },
+    {
+      "action": "live_set_param_raw",
+      "description": "set Warmth raw value to 20.0",
+      "ok": true,
+      "detail": "before=0 after=20"
+    },
+    {
+      "action": "live_show_message",
+      "description": "post to Live's status bar",
+      "ok": true,
+      "detail": "{'ok': True, 'message': \"Shown in Live's status bar: Live Actions v1.0.39 verification pass\"}"
+    },
+    {
+      "action": "live_read_dialog",
+      "description": "read current dialog state",
+      "ok": true,
+      "detail": "{'ok': True, 'has_dialog': False, 'message': '(no dialog currently open)', 'button_count': 0}"
+    },
+    {
+      "action": "live_read_cpu",
+      "description": "read average/peak CPU usage",
+      "ok": true,
+      "detail": "{'ok': True, 'average_process_usage': 1.9968749284744263, 'peak_process_usage': 2.7281248569488525, 'message': 'average_process_usage=1.9968749284744263, peak_process_usage=2.7281248569488525'}"
+    },
+    {
+      "action": "live_view_control",
+      "description": "action=list",
+      "ok": true,
+      "detail": "{'ok': True, 'available_views': ['Browser', 'Arranger', 'Session', 'Detail', 'Detail/Clip', 'Detail/DeviceChain']}"
+    },
+    {
+      "action": "live_view_control",
+      "description": "action=is_visible view_name=Browser",
+      "ok": true,
+      "detail": "{'ok': True, 'is_visible': True}"
+    },
+    {
+      "action": "live_read_selected_notes",
+      "description": "read selection on t2/slot0 (MIDI clip)",
+      "ok": true,
+      "detail": "{'ok': True, 'track_index': 2, 'slot_index': 0, 'notes': [], 'count': 0, 'message': 'No notes are currently selected in the MIDI editor for this clip'}"
+    },
+    {
+      "action": "live_read_selected_notes",
+      "description": "read selection on t0/slot0 (audio clip -- expect honest rejection)",
+      "ok": true,
+      "detail": "{'ok': False, 'error': 'Clip at track 1, slot 1 is audio, not MIDI.'}"
+    }
+  ]
+}

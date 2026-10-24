@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BBenCut</title>
+  <style>
+    :root {
+      --bg-0: #14161D; --bg-1: #08090C;
+      --surface: #15171E; --inset: #0C0D12;
+      --border: #242732; --border-hi: #313542;
+      --text: #ECEEF2; --dim: #7E8596;
+      --on-accent: #10121A;
+      --accent-a: #B79BFF; --accent-b: #7C5CFF;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    * { margin: 0; }
+    *:focus, *:focus-visible { outline: none; }
+    html, body { height: 100%; }
+    body {
+      --grad-accent: linear-gradient(180deg, var(--accent-b), var(--accent-a));
+      background: radial-gradient(120% 130% at 50% 0%, var(--bg-0) 0%, var(--bg-1) 72%);
+      color: var(--text);
+      font-family: "AbletonSansSmall", system-ui, -apple-system, sans-serif;
+      font-size: 12px; -webkit-font-smoothing: antialiased;
+      display: flex; flex-direction: column; overflow: hidden; user-select: none;
+    }
+    header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 18px; border-bottom: 1px solid var(--border);
+    }
+    .title { display: flex; flex-direction: column; gap: 1px; }
+    .wordmark {
+      font-size: 16px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; line-height: 1.05;
+      background: var(--grad-accent);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .tagline { font-size: 10px; color: var(--dim); letter-spacing: .2px; }
+    .spacer { flex: 1; }
+    .clip-chip {
+      padding: 4px 10px; border-radius: 999px;
+      background: var(--inset); border: 1px solid var(--border); color: var(--dim);
+      font-size: 11px; max-width: 280px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+    main { flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 18px; overflow-y: auto; min-height: 0; }
+    .group { display: flex; flex-direction: column; gap: 6px; }
+    .group > .label {
+      font-size: 10.5px; font-weight: 600; letter-spacing: .6px;
+      text-transform: uppercase; color: var(--dim);
+    }
+    select, input[type="number"] {
+      border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text); font: inherit; font-size: 12px; padding: 6px 9px;
+      background-color: var(--inset);
+    }
+    select:focus, input[type="number"]:focus { border-color: var(--accent-b); }
+    .length-row { display: flex; gap: 16px; }
+    .length-field { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .length-field label { font-size: 11px; color: var(--dim); }
+    .params-box {
+      display: flex; flex-direction: column; gap: 10px;
+      border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: var(--surface);
+    }
+    .field-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .field-row label { font-size: 11px; color: var(--dim); }
+    .field-row input { width: 110px; }
+    .no-params { font-size: 11px; color: var(--dim); font-style: italic; }
+    footer {
+      display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+      padding: 12px 18px; border-top: 1px solid var(--border);
+    }
+    footer button {
+      padding: 8px 18px; border-radius: 7px; border: 1px solid var(--border);
+      background: var(--inset); color: var(--text); cursor: pointer; font: inherit;
+    }
+    footer button:hover { border-color: var(--border-hi); }
+    footer button#apply {
+      border-color: transparent; color: var(--on-accent); font-weight: 700;
+      background: var(--grad-accent);
+    }
+    .note { font-size: 10.5px; color: var(--dim); line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">
+      <span class="wordmark">BBenCut</span>
+      <span class="tagline">algorithmic breakbeat cutting</span>
+    </div>
+    <span class="spacer"></span>
+    <span class="clip-chip" id="clipChip">…</span>
+  </header>
+
+  <main>
+    <p class="note">This build computes the cut sequence only -- it does not place clips into Live yet.</p>
+
+    <div class="group">
+      <div class="label">Cut procedure</div>
+      <select id="algorithm"></select>
+    </div>
+
+    <div class="length-row">
+      <div class="length-field">
+        <label for="totalLength">Total length (beats)</label>
+        <input type="number" id="totalLength" step="1" min="0.25" />
+      </div>
+      <div class="length-field">
+        <label for="loopLength">Loop length (beats)</label>
+        <input type="number" id="loopLength" step="0.25" min="0.25" />
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="label">Parameters</div>
+      <div class="params-box" id="paramFields"></div>
+    </div>
+  </main>
+
+  <footer>
+    <button id="cancel">Cancel</button>
+    <button id="apply">Apply</button>
+  </footer>
+
+  <script>
+    // The host injects the per-invocation BBenCutContext here at dialog time.
+    window.__CTX__ = __CTX_JSON__;
+  </script>
+  <script>/*__UI_BUNDLE__*/</script>
+</body>
+</html>

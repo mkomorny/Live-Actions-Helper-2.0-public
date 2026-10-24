@@ -1,0 +1,11 @@
+THIS IS A COPY
+==============
+Copied 17 August 2026 from:
+  C:\Users\<you>\My Apps\producer-pal-genius
+
+Moved into app\genius\ on 18 August 2026 so Genius reads it as a fixed,
+bundled part of Live Actions (see GENIUS_DIR in app\genius_client.py)
+instead of a separately configurable folder. The original Genius repo,
+Producer Pal Local, and every Producer_Pal.amxd were left untouched.
+
+The Pal device patch script was not copied and will not be run from here.

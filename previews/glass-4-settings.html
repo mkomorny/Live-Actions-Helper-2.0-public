@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glass HUD — Page 4: Preferences & Settings</title>
+<style>
+  :root {
+    --bg-dark: #07090e;
+    --glass-surface: rgba(18, 22, 34, 0.65);
+    --glass-surface-hover: rgba(28, 34, 52, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-border-hover: rgba(255, 255, 255, 0.16);
+    --glass-card: rgba(14, 18, 28, 0.55);
+    --accent-cyan: #06b6d4;
+    --accent-violet: #8b5cf6;
+    --accent-emerald: #10b981;
+    --accent-amber: #f59e0b;
+    --accent-rose: #f43f5e;
+    --text-main: #f8fafc;
+    --text-sub: #94a3b8;
+    --text-dim: #64748b;
+    --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+    --font-mono: "SF Mono", "Consolas", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-image: 
+      radial-gradient(circle at 80% 10%, rgba(139, 92, 246, 0.15), transparent 45%),
+      radial-gradient(circle at 20% 90%, rgba(6, 182, 212, 0.12), transparent 45%);
+  }
+
+  /* Header */
+  .hud-top-bar {
+    height: 56px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(10, 13, 20, 0.7);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--glass-border);
+    flex-shrink: 0;
+  }
+
+  .hud-brand { display: flex; align-items: center; gap: 10px; }
+  .brand-badge-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent-violet), var(--accent-cyan));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 900; color: #fff;
+  }
+  .brand-text { font-size: 14px; font-weight: 800; }
+
+  .hud-nav {
+    display: flex;
+    background: rgba(255,255,255,0.04);
+    padding: 3px;
+    border-radius: 30px;
+    border: 1px solid var(--glass-border);
+    gap: 2px;
+  }
+  .nav-tab {
+    background: transparent;
+    border: none;
+    color: var(--text-sub);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .nav-tab.active {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(6, 182, 212, 0.4));
+    color: #fff;
+  }
+
+  /* Settings Body */
+  .settings-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 30px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .settings-header-intro {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 14px;
+  }
+  .settings-title { font-size: 18px; font-weight: 800; color: #fff; }
+  .settings-subtitle { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+
+  /* Glass Card Group */
+  .settings-card {
+    background: var(--glass-surface);
+    backdrop-filter: blur(25px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+
+  .card-group-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 10px;
+  }
+  .group-num-pill {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: rgba(139, 92, 246, 0.2);
+    color: var(--accent-violet);
+    font-size: 11px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-mono);
+  }
+  .group-title-text {
+    font-size: 13px; font-weight: 800; color: #fff;
+    letter-spacing: 0.3px;
+  }
+
+  .form-row-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .form-row-full { grid-column: span 2; }
+
+  .setting-label {
+    font-size: 11px; font-weight: 700; color: var(--text-sub);
+    margin-bottom: 6px; display: block;
+  }
+
+  .glass-input-text {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #fff;
+    font-size: 12px;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.15s ease;
+  }
+  .glass-input-text:focus {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+  }
+
+  .path-input-group {
+    display: flex;
+    gap: 8px;
+  }
+  .btn-browse {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: var(--text-main);
+    padding: 8px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-browse:hover { background: rgba(255,255,255,0.12); }
+
+  .key-action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 4px;
+  }
+  .checkbox-label {
+    font-size: 11px; color: var(--text-sub);
+    display: flex; align-items: center; gap: 6px; cursor: pointer;
+  }
+
+  .btn-save-settings {
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 10px 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.35);
+  }
+</style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="hud-top-bar">
+    <div class="hud-brand">
+      <div class="brand-badge-icon">LA</div>
+      <div>
+        <div class="brand-text">Live Actions Pro</div>
+        <div class="brand-sub">Settings & Config</div>
+      </div>
+    </div>
+
+    <nav class="hud-nav">
+      <button class="nav-tab">⚡ Actions Catalog</button>
+      <button class="nav-tab">🧠 Genius AI</button>
+      <button class="nav-tab active">⚙ Settings</button>
+    </nav>
+
+    <button class="btn-save-settings" onclick="alert('Settings saved to %APPDATA%\\Live Actions\\settings.json!')">
+      Save Preferences
+    </button>
+  </header>
+
+  <!-- Settings Container -->
+  <main class="settings-container">
+    <div class="settings-header-intro">
+      <div>
+        <div class="settings-title">Studio Preferences & Connectivity</div>
+        <div class="settings-subtitle">Stored securely in %APPDATA%\Live Actions\settings.json (never committed to git)</div>
+      </div>
+      <button class="btn-browse" onclick="alert('Opening AppData folder in Explorer...')">Open AppData Folder ↗</button>
+    </div>
+
+    <!-- Group 1: xAI & Genius -->
+    <section class="settings-card">
+      <div class="card-group-header">
+        <span class="group-num-pill">1</span>
+        <span class="group-title-text">xAI & GENIUS COPILOT CONFIGURATION</span>
+      </div>
+
+      <div class="form-row-grid">
+        <div class="form-row-full">
+          <label class="setting-label">xAI API Key</label>
+          <input type="password" class="glass-input-text" id="api-key" value="xai-live-actions-preview-secret-key-12345">
+          
+          <div class="key-action-bar">
+            <label class="checkbox-label">
+              <input type="checkbox" onchange="toggleKey(this)"> Show plain API key
+            </label>
+            <button class="btn-browse" style="padding:4px 10px;" onclick="testApi()">Test Connection</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="setting-label">AI Model</label>
+          <input type="text" class="glass-input-text" value="grok-4.6">
+        </div>
+
+        <div>
+          <label class="setting-label">API Base URL</label>
+          <input type="text" class="glass-input-text" value="https://api.x.ai/v1">
+        </div>
+      </div>
+    </section>
+
+    <!-- Group 2: Paths & Directories -->
+    <section class="settings-card">
+      <div class="card-group-header">
+        <span class="group-num-pill">2</span>
+        <span class="group-title-text">LOCAL STUDIO DIRECTORIES & KNOWLEDGE</span>
+      </div>
+
+      <div class="form-row-grid">
+        <div class="form-row-full">
+          <label class="setting-label">Tools Directory (Scanned for tool.json)</label>
+          <div class="path-input-group">
+            <input type="text" class="glass-input-text" value="C:\Users\<you>\My Apps\Live Actions Helper\tools">
+            <button class="btn-browse">Browse...</button>
+          </div>
+        </div>
+
+        <div class="form-row-full">
+          <label class="setting-label">Knowledgebase Library (contains INDEX.md & PDFs)</label>
+          <div class="path-input-group">
+            <input type="text" class="glass-input-text" value="C:\Users\<you>\My Apps\Live Actions Helper\app\genius\indexes">
+            <button class="btn-browse">Browse...</button>
+          </div>
+        </div>
+
+        <div class="form-row-full">
+          <label class="setting-label">Ableton Samples Folder</label>
+          <div class="path-input-group">
+            <input type="text" class="glass-input-text" value="A:\User Library\Samples">
+            <button class="btn-browse">Browse...</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Group 3: OSC Ports -->
+    <section class="settings-card">
+      <div class="card-group-header">
+        <span class="group-num-pill">3</span>
+        <span class="group-title-text">LIVE ACTIONS OSC BRIDGE & PORTS</span>
+      </div>
+
+      <div class="form-row-grid">
+        <div>
+          <label class="setting-label">App Listen Port (Incoming from Max)</label>
+          <input type="number" class="glass-input-text" value="11925">
+        </div>
+
+        <div>
+          <label class="setting-label">Bridge Send Port (Outgoing to Max)</label>
+          <input type="number" class="glass-input-text" value="11924">
+        </div>
+
+        <div class="form-row-full">
+          <label class="setting-label">Producer Pal Local Shortcut / Launcher Script</label>
+          <div class="path-input-group">
+            <input type="text" class="glass-input-text" value="C:\Users\<you>\My Apps\producer-pal-local\launcher\Launch.ps1">
+            <button class="btn-browse">Browse...</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Group 4: Audio Tools & DSP -->
+    <section class="settings-card">
+      <div class="card-group-header">
+        <span class="group-num-pill">4</span>
+        <span class="group-title-text">AUDIO TOOLS (TTS VOCAL + AUDIO SAMPLE DSP)</span>
+      </div>
+
+      <div class="form-row-grid">
+        <div>
+          <label class="setting-label">TTS Vocal Output Folder</label>
+          <div class="path-input-group">
+            <input type="text" class="glass-input-text" value="A:\User Library\Samples\TTS Vocals">
+            <button class="btn-browse">Browse...</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="setting-label">Audio Sample DSP Output Folder</label>
+          <div class="path-input-group">
+            <input type="text" class="glass-input-text" value="A:\User Library\Samples\Audio Samples">
+            <button class="btn-browse">Browse...</button>
+          </div>
+        </div>
+
+        <div class="form-row-full">
+          <label class="setting-label">FFmpeg Executable Binary Path</label>
+          <div class="path-input-group">
+            <input type="text" class="glass-input-text" value="C:\ffmpeg\bin\ffmpeg.exe">
+            <button class="btn-browse">Browse...</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function toggleKey(cb) {
+      document.getElementById('api-key').type = cb.checked ? 'text' : 'password';
+    }
+
+    function testApi() {
+      alert("✓ xAI Connection Success! Handshake latency: 142ms.");
+    }
+  </script>
+</body>
+</html>

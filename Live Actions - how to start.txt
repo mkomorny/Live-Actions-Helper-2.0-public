@@ -1,0 +1,41 @@
+LIVE ACTIONS — how to start
+===========================
+Host only. No tools. Live 12 Standard + Max for Live.
+
+1. Put the device on a track
+   Open Live. Select any audio track (or a MIDI track that already has an instrument).
+   In the browser, open User Library -> Presets -> Audio Effects -> Max Audio Effect
+   -> Live Actions.
+
+   Drag Live Actions onto that track's device chain, the same way you drop EQ or Compressor.
+   Audio passes through. It does not change the sound.
+
+   If Live was already open, rescan User Library or restart Live so it sees the new device.
+
+2. Open the desktop window
+   Click **Open desktop host** on the Live Actions device,
+   double-click "Live Actions" on the Desktop,
+   or run Launch Live Actions.bat in this folder.
+   If the window is already open, the button brings it to the front.
+
+3. Wait for Connected
+   The badge turns green when the window hears the bridge.
+   "Ask Live for status" should show the Set name, tempo, and track count.
+
+4. Settings (menu bar or the Settings tab)
+   Paste your xAI API key (console.x.ai).
+   Set the tools folder, Knowledgebase Library folder, Ableton Samples folder,
+   and optional Pal Local shortcut.
+   Settings are saved in %APPDATA%\Live Actions\settings.json — not in the project.
+
+5. Genius tab
+   Uses a COPY of Producer Pal Genius (skill + indexes) plus your books.
+   It does not patch or replace official Producer Pal files.
+   Open Producer Pal Local from the Genius menu if you want Pal to edit the Set.
+
+That is the host. Tools get added later as folders under the tools directory.
+
+Ports (localhost only): app -> bridge 11924, bridge -> app 11925.
+
+This is a Max for Live audio effect on the track. It talks to the Set through
+the Live Object Model (Live 12 manual chapter 31).

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Layout A · Workbench</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>document.write('<link rel="stylesheet" id="la-theme" href="themes/' + (new URLSearchParams(location.search).get('theme') || 'risograph-art-studio') + '.css">');</script>
+<link rel="stylesheet" href="shared/contract.css">
+<link rel="stylesheet" href="shared/components.css">
+<style>
+  /* A · WORKBENCH -- three persistent panes. The left pane means ONE thing on every
+     page (the Set's tracks); tool detail opens in the right pane instead of replacing
+     the catalog; diagnostics and Settings leave the main flow entirely. */
+  .A-top { display: flex; align-items: center; gap: 18px; padding: 10px 16px; background: var(--la-bg-2); border-bottom: var(--la-border-w) solid var(--la-border); flex: none; position: relative; }
+  .A-top .grow { flex: 1; }
+  .A-body { flex: 1; display: grid; grid-template-columns: 268px minmax(0, 1fr) 372px; min-height: 0; }
+  .A-body.solo { grid-template-columns: minmax(0, 1fr); }
+  .A-genius-wrap { max-width: 900px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; min-height: 0; flex: 1; }
+  .A-left { border-right: var(--la-border-w) solid var(--la-border); background: var(--la-bg-2); padding: 14px; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+  .A-left .set { padding: 12px; }
+  .A-left .set b { display: block; font: 700 13px var(--la-font-display); margin-bottom: 8px; }
+  .A-tracks { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 10px; }
+  .A-tracks .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .A-tracks .sum { color: var(--la-accent-ink); font-weight: 700; font-size: 11.5px; margin: 8px 0 6px; }
+  .A-main { padding: 18px 22px; display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+  .A-headrow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 12px; }
+  .A-filters { display: flex; gap: 6px; }
+  .A-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding: 3px 4px 16px 3px; }
+  .A-right { border-left: var(--la-border-w) solid var(--la-border); background: var(--la-bg-2); padding: 18px; min-height: 0; }
+  .A-empty { height: 100%; display: grid; place-items: center; text-align: center; color: var(--la-text-muted); padding: 24px; border: var(--la-border-w) dashed var(--la-border); border-radius: var(--la-r-lg); }
+  .A-genius { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .A-genius .la-chat { flex: 1; padding: 4px 6px 12px; }
+  .A-agent { display: flex; gap: 8px; align-items: center; }
+</style>
+<script src="shared/data.js"></script>
+<script src="shared/shared.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+  const S = { layoutId: "a", page: "actions", tool: "detect-key", filter: "all", console: false, settings: false, pop: null };
+
+  const topbar = () => `<header class="A-top">
+      <div class="la-brand"><i>${LA.icon("bolt", 13)}</i>Live Actions</div>
+      <nav><button class="la-tab${S.page === "actions" ? " on" : ""}" data-act="page" data-k="actions">${LA.icon("bolt", 14)} Actions</button>
+           <button class="la-tab${S.page === "genius" ? " on" : ""}" data-act="page" data-k="genius">${LA.icon("brain", 14)} Genius</button></nav>
+      <span class="grow"></span>
+      <button class="la-btn ghost" data-act="diag" data-keep>${LA.pip()}</button>
+      <button class="la-iconbtn" data-act="settings" title="Preferences" aria-label="Preferences">${LA.icon("gear", 18)}</button>
+      ${S.pop === "diag" ? `<div class="la-pop" style="right:58px;top:52px;width:300px">${LA.diagPanel()}</div>` : ""}
+    </header>`;
+
+  const left = () => `<aside class="A-left">
+      <div class="la-panel set"><span class="la-section-title">Live Set</span><b>${LA.esc(LA.set.name)}</b><div class="la-chips">${LA.chips()}</div></div>
+      <div class="la-panel A-tracks">
+        <div class="head"><span class="la-section-title">${"Target tracks"}</span></div>
+        ${LA.quickPicks()}<div class="sum">${LA.esc(LA.targetSummary())}</div>
+        <div class="la-scroll" style="flex:1">${LA.trackList({ devices: false })}</div>
+      </div></aside>`;
+
+  const actions = () => {
+    const tools = LA.filterTools(S);
+    return `<main class="A-main"><div class="A-headrow"><div><h1 class="la-title">Studio Actions</h1><span class="la-muted">${tools.length} of ${LA.tools.length} actions</span></div>
+        <div class="A-filters">${LA.filterChips(S)}</div></div>
+      <div class="la-scroll" style="flex:1"><div class="A-grid">${tools.map((t) => LA.toolCard(t, { active: t.id === S.tool })).join("")}</div></div></main>
+      <aside class="A-right la-scroll">${S.tool ? LA.toolBody(LA.byId(S.tool), { back: false }) : `<div class="A-empty">Select an action to configure and run it here.<br>The catalog stays where it is.</div>`}</aside>`;
+  };
+
+  // Genius resolves tracks itself (by number or name), so the Genius page has no track panel at all.
+  const genius = () => `<main class="A-main A-genius"><div class="A-genius-wrap"><div class="A-headrow"><div><h1 class="la-title">Genius</h1><span class="la-muted">Genius finds the tracks it needs by number or name — nothing to tick here.</span></div><div class="A-agent">${LA.agentChips()}</div></div>
+      <div class="la-scroll" style="flex:1">${LA.chat()}</div>${LA.composer()}</div></main>`;
+
+  const render = () => `${topbar()}
+    <div class="A-body${S.page === "genius" ? " solo" : ""}">${S.page === "genius" ? genius() : left() + actions()}</div>
+    ${LA.consoleDrawer(S)}${LA.statusbar(S, S.page !== "genius")}${LA.settingsModal(S)}`;
+
+  LA.mount(S, render, {
+    page: (el) => { S.page = el.dataset.k; },
+    diag: (el, prev) => { S.pop = prev === "diag" ? null : "diag"; },
+    filter: (el) => { S.filter = el.dataset.k; },
+  });
+</script>
+</body>
+</html>

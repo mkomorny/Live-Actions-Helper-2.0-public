@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Actions Helper — Design 5: AI-First Agentic Studio & Creative Canvas</title>
+<style>
+  :root {
+    --bg-main: #0c0e14;
+    --panel-dark: #121620;
+    --card-surface: #181e2c;
+    --border-subtle: #232b3e;
+    --accent-ai: #6366f1;
+    --accent-glow: #818cf8;
+    --accent-cyan: #06b6d4;
+    --accent-amber: #f59e0b;
+    --accent-green: #10b981;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --font-ui: "Inter", -apple-system, sans-serif;
+    --font-mono: "SF Mono", "Consolas", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg-main);
+    color: var(--text-primary);
+    font-family: var(--font-ui);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Header */
+  .ai-studio-header {
+    height: 52px;
+    background: var(--panel-dark);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+  }
+  .brand-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ai-spark-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent-ai), var(--accent-cyan));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+  }
+  .brand-text-title { font-size: 14px; font-weight: 800; }
+  
+  .bridge-status-badge {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid var(--accent-green);
+    color: var(--accent-green);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .bridge-status-badge::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green);
+  }
+
+  /* Dual-Engine Split Workspace */
+  .studio-split-container {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    overflow: hidden;
+  }
+
+  /* LEFT ENGINE: Genius Agentic Conversational Pane */
+  .copilot-engine-pane {
+    background: var(--panel-dark);
+    border-right: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .engine-header {
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .engine-title { font-size: 12px; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .chat-thread-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .agent-bubble {
+    background: var(--card-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .user-bubble {
+    background: linear-gradient(135deg, var(--accent-ai), #4f46e5);
+    align-self: flex-end;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 12px;
+    max-width: 85%;
+  }
+
+  .action-callout-card {
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 10px;
+  }
+  .action-callout-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--accent-glow);
+    margin-bottom: 6px;
+  }
+  .action-callout-diff {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: #e2e8f0;
+    line-height: 1.4;
+    background: rgba(0,0,0,0.3);
+    padding: 6px 8px;
+    border-radius: 4px;
+  }
+  .action-callout-footer {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .btn-accept-action {
+    background: var(--accent-ai);
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 5px 12px;
+    cursor: pointer;
+  }
+  .btn-accept-action:hover { background: #4f46e5; }
+  .btn-preview-canvas {
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+
+  .agent-input-container {
+    padding: 14px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .agent-textarea {
+    width: 100%;
+    background: var(--card-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    color: #fff;
+    padding: 10px 12px;
+    font-size: 12px;
+    outline: none;
+    resize: none;
+    font-family: inherit;
+  }
+  .agent-textarea:focus { border-color: var(--accent-ai); }
+
+  /* RIGHT ENGINE: Dynamic Creative Canvas */
+  .creative-canvas-pane {
+    background: var(--bg-main);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .canvas-top-bar {
+    height: 48px;
+    background: var(--panel-dark);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+  }
+
+  .canvas-modes {
+    display: flex;
+    gap: 4px;
+  }
+  .canvas-mode-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .canvas-mode-btn.active {
+    background: var(--card-surface);
+    border-color: var(--border-subtle);
+    color: #fff;
+  }
+
+  .canvas-viewport {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Harmonic Circle of 5ths Mode */
+  .circle-fifths-view {
+    width: 100%;
+    max-width: 580px;
+    background: var(--panel-dark);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  }
+  .circle-title { font-size: 13px; font-weight: 800; color: #fff; }
+  .circle-desc { font-size: 11px; color: var(--text-secondary); text-align: center; }
+
+  .circle-svg-container {
+    width: 280px;
+    height: 280px;
+    position: relative;
+  }
+
+  .key-node {
+    cursor: pointer;
+    transition: transform 0.15s ease, filter 0.15s ease;
+  }
+  .key-node:hover { transform: scale(1.15); filter: drop-shadow(0 0 8px var(--accent-glow)); }
+
+  /* Breakbeat Slice Timeline View */
+  .slice-timeline-view {
+    width: 100%;
+    max-width: 650px;
+    background: var(--panel-dark);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .waveform-strip {
+    height: 80px;
+    background: #080a0f;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+  }
+  .wave-slice {
+    flex: 1;
+    border-right: 1px dashed rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-family: var(--font-mono);
+    color: var(--accent-cyan);
+    background: rgba(6, 182, 212, 0.08);
+    cursor: pointer;
+  }
+  .wave-slice:hover { background: rgba(6, 182, 212, 0.25); }
+</style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="ai-studio-header">
+    <div class="brand-group">
+      <div class="ai-spark-icon">✨</div>
+      <span class="brand-text-title">Genius AI Studio · Live Actions Helper</span>
+    </div>
+
+    <div class="bridge-status-badge">
+      ABLETON LIVE 12 · ACTIVE BRIDGE
+    </div>
+  </header>
+
+  <!-- Dual-Engine Workspace -->
+  <main class="studio-split-container">
+    <!-- Left Engine: Agent Copilot -->
+    <aside class="copilot-engine-pane">
+      <div class="engine-header">
+        <span class="engine-title">Genius Agentic Copilot</span>
+        <span style="font-size:10px; font-family:var(--font-mono); color:var(--accent-glow)">xAI Grok-4.6</span>
+      </div>
+
+      <div class="chat-thread-container" id="agent-chat">
+        <div class="agent-bubble">
+          👋 Welcome to the Agentic Studio! I've loaded your open Set (<strong>Techno_Groove_04</strong>). What musical task are we tackling today?
+        </div>
+
+        <div class="user-bubble">
+          We are in D Dorian. Can you detect the key of the lead synth on track 2 and generate a complementary rhythmic breakdown?
+        </div>
+
+        <div class="agent-bubble">
+          Running <strong>Detect Key</strong> statistical scoring on Track 2 (<em>Acid Synth</em>)...
+          <div class="action-callout-card">
+            <div class="action-callout-header">
+              <span>🎹 Harmonic Key Detection Result</span>
+              <span style="color:var(--accent-green);">100% Match</span>
+            </div>
+            <div class="action-callout-diff">
+              Primary: D Dorian (100%)\nClose Call: C Major (94%)\nDownbeat Tonic Anchor: D (14 hits)
+            </div>
+            <div class="action-callout-footer">
+              <button class="btn-accept-action" onclick="alert('Set scale updated to D Dorian!')">Set Live Scale</button>
+              <button class="btn-preview-canvas" onclick="switchCanvas('circle')">View Circle of 5ths ↗</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="agent-input-container">
+        <textarea class="agent-textarea" rows="3" id="agent-input" placeholder="Instruct Genius to compose, chop breakbeats, or mutate clips..." onkeydown="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendAgentPrompt(); }"></textarea>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:10px; color:var(--text-secondary);">Press Enter to dispatch</span>
+          <button class="btn-accept-action" onclick="sendAgentPrompt()">Send Prompt ↵</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Engine: Dynamic Creative Canvas -->
+    <section class="creative-canvas-pane">
+      <div class="canvas-top-bar">
+        <div class="canvas-modes">
+          <button class="canvas-mode-btn active" id="btn-circle" onclick="switchCanvas('circle')">Harmonic Wheel</button>
+          <button class="canvas-mode-btn" id="btn-slices" onclick="switchCanvas('slices')">Breakbeat Slices</button>
+          <button class="canvas-mode-btn" id="btn-midi" onclick="switchCanvas('midi')">MIDI Variations</button>
+        </div>
+        <span style="font-size:11px; font-family:var(--font-mono); color:var(--text-secondary)">CANVAS SYNCED WITH LIVE API</span>
+      </div>
+
+      <div class="canvas-viewport">
+        <!-- Mode 1: Circle of 5ths -->
+        <div class="circle-fifths-view" id="view-circle">
+          <div class="circle-title">Harmonic Circle of 5ths & Modes</div>
+          <div class="circle-desc">Interactive modal wheel for Track 2 (Acid Synth). Target key: <strong>D Dorian</strong>.</div>
+          
+          <svg class="circle-svg-container" viewBox="0 0 300 300">
+            <!-- Outer Circle -->
+            <circle cx="150" cy="150" r="120" fill="none" stroke="#232b3e" stroke-width="2"/>
+            <circle cx="150" cy="150" r="70" fill="none" stroke="#1f2636" stroke-width="2"/>
+
+            <!-- Key Nodes -->
+            <!-- C -->
+            <g class="key-node" onclick="alert('Selected C Major')">
+              <circle cx="150" cy="30" r="16" fill="#1e2433" stroke="#6366f1" stroke-width="2"/>
+              <text x="150" y="34" fill="#fff" font-size="11" font-weight="bold" text-anchor="middle">C</text>
+            </g>
+            <!-- G -->
+            <g class="key-node" onclick="alert('Selected G Major')">
+              <circle cx="210" cy="46" r="16" fill="#1e2433" stroke="#232b3e" stroke-width="2"/>
+              <text x="210" y="50" fill="#fff" font-size="11" font-weight="bold" text-anchor="middle">G</text>
+            </g>
+            <!-- D (Active) -->
+            <g class="key-node" onclick="alert('D Dorian Active')">
+              <circle cx="254" cy="90" r="20" fill="#6366f1" stroke="#818cf8" stroke-width="3"/>
+              <text x="254" y="94" fill="#fff" font-size="12" font-weight="bold" text-anchor="middle">D</text>
+            </g>
+            <!-- A -->
+            <g class="key-node">
+              <circle cx="270" cy="150" r="16" fill="#1e2433" stroke="#232b3e" stroke-width="2"/>
+              <text x="270" y="154" fill="#fff" font-size="11" font-weight="bold" text-anchor="middle">A</text>
+            </g>
+            <!-- F -->
+            <g class="key-node">
+              <circle cx="90" cy="46" r="16" fill="#1e2433" stroke="#232b3e" stroke-width="2"/>
+              <text x="90" y="50" fill="#fff" font-size="11" font-weight="bold" text-anchor="middle">F</text>
+            </g>
+            <!-- Bb -->
+            <g class="key-node">
+              <circle cx="46" cy="90" r="16" fill="#1e2433" stroke="#232b3e" stroke-width="2"/>
+              <text x="46" y="94" fill="#fff" font-size="11" font-weight="bold" text-anchor="middle">B♭</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Mode 2: Slices View -->
+        <div class="slice-timeline-view" id="view-slices" style="display:none;">
+          <div class="circle-title">BBenCut Slicer Timeline</div>
+          <div class="circle-desc">Calculated breakbeat slice sequences for Track 3 (Amen Break).</div>
+          <div class="waveform-strip">
+            <div class="wave-slice">S1 (0.25s)</div>
+            <div class="wave-slice">S2 (0.12s)</div>
+            <div class="wave-slice">S3 (0.25s)</div>
+            <div class="wave-slice">S4 (0.50s)</div>
+            <div class="wave-slice">S5 (0.12s)</div>
+            <div class="wave-slice">S6 (0.12s)</div>
+            <div class="wave-slice">S7 (0.25s)</div>
+            <div class="wave-slice">S8 (0.38s)</div>
+          </div>
+          <button class="btn-accept-action" style="align-self:flex-start;" onclick="alert('Committed BBenCut slices to Arrangement!')">Place Slices in Live</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function switchCanvas(mode) {
+      document.querySelectorAll('.canvas-mode-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('view-circle').style.display = 'none';
+      document.getElementById('view-slices').style.display = 'none';
+
+      if (mode === 'circle') {
+        document.getElementById('btn-circle').classList.add('active');
+        document.getElementById('view-circle').style.display = 'flex';
+      } else if (mode === 'slices') {
+        document.getElementById('btn-slices').classList.add('active');
+        document.getElementById('view-slices').style.display = 'flex';
+      } else {
+        document.getElementById('btn-midi').classList.add('active');
+        document.getElementById('view-circle').style.display = 'flex';
+      }
+    }
+
+    function sendAgentPrompt() {
+      const input = document.getElementById('agent-input');
+      const text = input.value.trim();
+      if(!text) return;
+      const chat = document.getElementById('agent-chat');
+      chat.innerHTML += `<div class="user-bubble">${text}</div>`;
+      input.value = '';
+      setTimeout(() => {
+        chat.innerHTML += `<div class="agent-bubble">Analyzing prompt with Grok AI... Synthesizing MIDI notes and modulating filter sweeps. Ready to commit.</div>`;
+        chat.scrollTop = chat.scrollHeight;
+      }, 400);
+    }
+  </script>
+</body>
+</html>

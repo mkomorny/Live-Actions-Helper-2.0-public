@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BBenCut</title>
+  <style>
+    :root {
+      --bg-0: #14161D; --bg-1: #08090C;
+      --surface: #15171E; --inset: #0C0D12;
+      --border: #242732; --border-hi: #313542;
+      --text: #ECEEF2; --dim: #7E8596;
+      --on-accent: #10121A;
+      --accent-a: #B79BFF; --accent-b: #7C5CFF;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    * { margin: 0; }
+    *:focus, *:focus-visible { outline: none; }
+    html, body { height: 100%; }
+    body {
+      --grad-accent: linear-gradient(180deg, var(--accent-b), var(--accent-a));
+      background: radial-gradient(120% 130% at 50% 0%, var(--bg-0) 0%, var(--bg-1) 72%);
+      color: var(--text);
+      font-family: "AbletonSansSmall", system-ui, -apple-system, sans-serif;
+      font-size: 12px; -webkit-font-smoothing: antialiased;
+      display: flex; flex-direction: column; overflow: hidden; user-select: none;
+    }
+    header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 18px; border-bottom: 1px solid var(--border);
+    }
+    .title { display: flex; flex-direction: column; gap: 1px; }
+    .wordmark {
+      font-size: 16px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; line-height: 1.05;
+      background: var(--grad-accent);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .tagline { font-size: 10px; color: var(--dim); letter-spacing: .2px; }
+    .spacer { flex: 1; }
+    .clip-chip {
+      padding: 4px 10px; border-radius: 999px;
+      background: var(--inset); border: 1px solid var(--border); color: var(--dim);
+      font-size: 11px; max-width: 280px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+    main { flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 18px; overflow-y: auto; min-height: 0; }
+    .group { display: flex; flex-direction: column; gap: 6px; }
+    .group > .label {
+      font-size: 10.5px; font-weight: 600; letter-spacing: .6px;
+      text-transform: uppercase; color: var(--dim);
+    }
+    select, input[type="number"] {
+      border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text); font: inherit; font-size: 12px; padding: 6px 9px;
+      background-color: var(--inset);
+    }
+    select:focus, input[type="number"]:focus { border-color: var(--accent-b); }
+    .length-row { display: flex; gap: 16px; }
+    .length-field { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .length-field label { font-size: 11px; color: var(--dim); }
+    .params-box {
+      display: flex; flex-direction: column; gap: 10px;
+      border: 1px solid var(--border); border-radius: 8px; padding: 12px; background: var(--surface);
+    }
+    .field-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .field-row label { font-size: 11px; color: var(--dim); }
+    .field-row input { width: 110px; }
+    .no-params { font-size: 11px; color: var(--dim); font-style: italic; }
+    footer {
+      display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+      padding: 12px 18px; border-top: 1px solid var(--border);
+    }
+    footer button {
+      padding: 8px 18px; border-radius: 7px; border: 1px solid var(--border);
+      background: var(--inset); color: var(--text); cursor: pointer; font: inherit;
+    }
+    footer button:hover { border-color: var(--border-hi); }
+    footer button#apply {
+      border-color: transparent; color: var(--on-accent); font-weight: 700;
+      background: var(--grad-accent);
+    }
+    .note { font-size: 10.5px; color: var(--dim); line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">
+      <span class="wordmark">BBenCut</span>
+      <span class="tagline">algorithmic breakbeat cutting</span>
+    </div>
+    <span class="spacer"></span>
+    <span class="clip-chip" id="clipChip">…</span>
+  </header>
+
+  <main>
+    <p class="note">This build computes the cut sequence only -- it does not place clips into Live yet.</p>
+
+    <div class="group">
+      <div class="label">Cut procedure</div>
+      <select id="algorithm"></select>
+    </div>
+
+    <div class="length-row">
+      <div class="length-field">
+        <label for="totalLength">Total length (beats)</label>
+        <input type="number" id="totalLength" step="1" min="0.25" />
+      </div>
+      <div class="length-field">
+        <label for="loopLength">Loop length (beats)</label>
+        <input type="number" id="loopLength" step="0.25" min="0.25" />
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="label">Parameters</div>
+      <div class="params-box" id="paramFields"></div>
+    </div>
+  </main>
+
+  <footer>
+    <button id="cancel">Cancel</button>
+    <button id="apply">Apply</button>
+  </footer>
+
+  <script>
+    // The host injects the per-invocation BBenCutContext here at dialog time.
+    window.__CTX__ = __CTX_JSON__;
+  </script>
+  <script>"use strict";
+(() => {
+  // src/slicer.ts
+  function isExtendedCut(cut) {
+    return Array.isArray(cut);
+  }
+  var MIN_CLIP_BEATS = 0.25;
+  function clampOffset(offset, cutDuration, loopLength) {
+    if (cutDuration >= loopLength) return 0;
+    const maxOffset = loopLength - cutDuration;
+    if (offset > maxOffset) return offset % (maxOffset + 1e-4);
+    return offset;
+  }
+  function generateCutSequence(proc, totalBeats, loopLengthBeats) {
+    const blocks = [];
+    let pendingOffset = -1;
+    proc.attachListener({
+      chooseoffset(phrasepos) {
+        pendingOffset = phrasepos;
+      },
+      setoffset(prop, phraseLength) {
+        const pl = phraseLength ?? loopLengthBeats;
+        pendingOffset = prop * pl;
+      },
+      updateblock(_blockNum, _phraseProp, cuts, isroll) {
+        blocks.push({
+          offset: pendingOffset,
+          cuts: cuts.map((c) => isExtendedCut(c) ? [...c] : c),
+          blocklength: proc.blocklength,
+          isStutter: isroll === 1
+        });
+        pendingOffset = -1;
+      }
+    });
+    let generated = 0;
+    while (generated < totalBeats - 1e-5) {
+      proc.chooseblock();
+      generated += proc.blocklength;
+    }
+    return blocks;
+  }
+  function mapToSliceDefinitions(blocks, clipStartTime, clipLoopStart, loopLengthBeats, filePath) {
+    const items = [];
+    const rollGroups = [];
+    let arrangementPos = clipStartTime;
+    let pendingSmall = null;
+    function flushSmall() {
+      if (!pendingSmall || pendingSmall.cuts.length === 0) return;
+      if (pendingSmall.totalDur < MIN_CLIP_BEATS) {
+        pendingSmall = null;
+        return;
+      }
+      const groupIdx = rollGroups.length;
+      rollGroups.push({
+        arrangementStartTime: pendingSmall.startPos,
+        totalDuration: pendingSmall.totalDur,
+        cuts: pendingSmall.cuts
+      });
+      items.push({
+        type: "roll",
+        arrangementStartTime: pendingSmall.startPos,
+        totalDuration: pendingSmall.totalDur,
+        rollGroupIndex: groupIdx
+      });
+      pendingSmall = null;
+    }
+    function addSmallCut(sourceOffset, duration) {
+      if (!pendingSmall) {
+        pendingSmall = { startPos: arrangementPos, totalDur: 0, cuts: [] };
+      }
+      pendingSmall.cuts.push({
+        sourceOffsetBeat: sourceOffset,
+        durationBeat: duration
+      });
+      pendingSmall.totalDur += duration;
+    }
+    function addClip(duration, markerStart, markerEnd) {
+      flushSmall();
+      items.push({
+        type: "clip",
+        arrangementStartTime: arrangementPos,
+        duration,
+        filePath,
+        loopSettings: {
+          looping: true,
+          startMarker: markerStart,
+          endMarker: markerEnd,
+          loopStart: markerStart,
+          loopEnd: markerEnd
+        }
+      });
+    }
+    for (const block of blocks) {
+      const firstCut = block.cuts[0];
+      if (isExtendedCut(firstCut)) {
+        for (const cut of block.cuts) {
+          const ioi = cut[0];
+          let duration = cut[1];
+          const cutOffset = cut[2];
+          const amp = cut[3];
+          if (duration < 1e-3) {
+            arrangementPos += ioi;
+            continue;
+          }
+          if (amp === 0) {
+            const silenceOffset = block.offset >= 0 ? block.offset % loopLengthBeats : 0;
+            const clamped = clampOffset(silenceOffset, ioi, loopLengthBeats);
+            const fillDur = Math.min(ioi, loopLengthBeats - clamped);
+            if (ioi >= MIN_CLIP_BEATS && fillDur >= MIN_CLIP_BEATS) {
+              addClip(ioi, clipLoopStart + clamped, clipLoopStart + clamped + fillDur);
+            } else if (ioi >= MIN_CLIP_BEATS) {
+              addClip(ioi, clipLoopStart, clipLoopStart + ioi);
+            } else {
+              addSmallCut(clamped, fillDur);
+            }
+            arrangementPos += ioi;
+            continue;
+          }
+          let loopOffset;
+          if (cutOffset !== null) {
+            loopOffset = cutOffset * loopLengthBeats % loopLengthBeats;
+          } else if (block.offset >= 0) {
+            loopOffset = block.offset % loopLengthBeats;
+          } else {
+            loopOffset = 0;
+          }
+          loopOffset = clampOffset(loopOffset, duration, loopLengthBeats);
+          duration = Math.min(duration, loopLengthBeats - loopOffset);
+          if (ioi < MIN_CLIP_BEATS) {
+            addSmallCut(loopOffset, duration);
+          } else {
+            addClip(ioi, clipLoopStart + loopOffset, clipLoopStart + loopOffset + duration);
+          }
+          arrangementPos += ioi;
+        }
+      } else {
+        let loopOffset;
+        if (block.offset >= 0) {
+          loopOffset = block.offset % loopLengthBeats;
+        } else {
+          loopOffset = 0;
+        }
+        for (const cut of block.cuts) {
+          const originalDur = cut;
+          const clamped = clampOffset(loopOffset, originalDur, loopLengthBeats);
+          let cutDuration = Math.min(originalDur, loopLengthBeats - clamped);
+          if (originalDur < MIN_CLIP_BEATS) {
+            addSmallCut(clamped, cutDuration);
+            arrangementPos += originalDur;
+            continue;
+          }
+          if (cutDuration < MIN_CLIP_BEATS) {
+            addSmallCut(clamped, cutDuration);
+            arrangementPos += originalDur;
+            continue;
+          }
+          addClip(cutDuration, clipLoopStart + clamped, clipLoopStart + clamped + cutDuration);
+          arrangementPos += originalDur;
+        }
+      }
+    }
+    flushSmall();
+    const allItems = items;
+    for (let i = 0; i < allItems.length - 1; i++) {
+      const curr = allItems[i];
+      const next = allItems[i + 1];
+      const currEnd = curr.arrangementStartTime + (curr.type === "clip" ? curr.duration : curr.totalDuration);
+      const gap = next.arrangementStartTime - currEnd;
+      if (gap > 1e-3 && curr.type === "clip") {
+        curr.duration += gap;
+      }
+    }
+    const slices = [];
+    for (const item of allItems) {
+      if (item.type === "clip") {
+        const { type: _, ...slice } = item;
+        slices.push(slice);
+      } else {
+        slices.push({
+          arrangementStartTime: item.arrangementStartTime,
+          duration: item.totalDuration,
+          filePath: `__ROLL_GROUP_${item.rollGroupIndex}__`,
+          loopSettings: {
+            looping: false,
+            startMarker: 0,
+            endMarker: item.totalDuration,
+            loopStart: 0,
+            loopEnd: item.totalDuration
+          }
+        });
+      }
+    }
+    return { slices, rollGroups };
+  }
+
+  // src/bbcut/helpers.ts
+  var rand = (n) => Math.floor(Math.random() * n);
+  var rrand = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+  var coin = (prob) => Math.random() < prob;
+  var intDiv = (a, b) => Math.floor(a / b);
+  function resolve(x) {
+    return typeof x === "function" ? x() : x;
+  }
+  function wchoose(arr, weights) {
+    const total = weights.reduce((a, b) => a + b, 0);
+    let r = Math.random() * total;
+    for (let i = 0; i < arr.length; i++) {
+      r -= weights[i];
+      if (r <= 0) return arr[i];
+    }
+    return arr[arr.length - 1];
+  }
+  var choose = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  function scramble(arr) {
+    const out = arr.slice();
+    for (let i = out.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = out[i];
+      out[i] = out[j];
+      out[j] = tmp;
+    }
+    return out;
+  }
+  function rotate(arr, n) {
+    const len = arr.length;
+    if (len === 0) return [];
+    const shift = (n % len + len) % len;
+    return [...arr.slice(shift), ...arr.slice(0, shift)];
+  }
+  function normalizeSum(arr) {
+    const total = arr.reduce((a, b) => a + b, 0);
+    return arr.map((x) => x / total);
+  }
+  function scRound(x, quant) {
+    if (quant === 0) return x;
+    return Math.round(x / quant) * quant;
+  }
+  function curdle(arr, prob) {
+    const result = [];
+    let current = [];
+    for (const item of arr) {
+      current.push(item);
+      if (coin(prob)) {
+        result.push(current);
+        current = [];
+      }
+    }
+    if (current.length > 0) result.push(current);
+    return result;
+  }
+  var sum = (arr) => arr.reduce((a, b) => a + b, 0);
+
+  // src/bbcut/BBCutProc.ts
+  var BBCutProc = class {
+    // ── State visible to subclasses and callers ─────────────────────────────
+    phrase = 0;
+    block = 0;
+    beatspersubdiv;
+    phraselength;
+    phrasepos = 0;
+    currphraselength = 0;
+    totalbeatsdone = 0;
+    /** The cut durations (in beats) produced by the last chooseblock() call. */
+    cuts = [];
+    /** Total beat length of the current block. */
+    blocklength = 0;
+    _listener = null;
+    constructor(beatsPerSubdiv = 0.5, phraseLength = 4) {
+      this.beatspersubdiv = beatsPerSubdiv;
+      this.phraselength = phraseLength;
+    }
+    /** Attach a listener that receives phrase/block/offset callbacks. */
+    attachListener(listener) {
+      this._listener = listener;
+    }
+    /** Produce the next block of cuts. Updates this.cuts and this.blocklength. */
+    chooseblock() {
+      this.newPhraseAccounting();
+      this.blocklength = this.currphraselength;
+      this.cuts = [this.blocklength];
+      this._listener?.chooseoffset?.(
+        this.phrasepos,
+        this.beatspersubdiv,
+        this.currphraselength
+      );
+      this.updateblock();
+      this.endBlockAccounting();
+    }
+    /** Returns 1 when the current phrase is exhausted, 0 otherwise. */
+    phraseover() {
+      return this.currphraselength - this.phrasepos < 1e-5 ? 1 : 0;
+    }
+    // ── Protected accounting helpers ─────────────────────────────────────────
+    updateblock(isroll = 0) {
+      this._listener?.updateblock?.(
+        this.block,
+        this.phrasepos / this.currphraselength,
+        this.cuts,
+        isroll
+      );
+    }
+    /** Begin a new phrase. Pass cpl to override the phraselength for this phrase. */
+    newPhraseAccounting(cpl) {
+      this.currphraselength = cpl ?? resolve(this.phraselength);
+      this._listener?.updatephrase?.(this.phrase, this.currphraselength);
+      this.phrasepos = 0;
+      this.phrase += 1;
+      this.block = 0;
+    }
+    endBlockAccounting() {
+      this.phrasepos += this.blocklength;
+      this.totalbeatsdone += this.blocklength;
+      this.block += 1;
+    }
+  };
+
+  // src/bbcut/BBCutProc11.ts
+  var BBCutProc11 = class extends BBCutProc {
+    _sdiv;
+    _barlength;
+    _phrasebars;
+    _numrepeats;
+    _repeatschance;
+    _repeatsspeed;
+    _repeatsarea;
+    // State persisting across blocks within a phrase
+    _subdiv = 0;
+    _unitsdone = 0;
+    _totalunits = 0;
+    _repeatson = 0;
+    constructor({
+      sdiv = 8,
+      barlength = 4,
+      phrasebars = 3,
+      numrepeats = () => rand(2) + 1,
+      repeatschance = 0.2,
+      repeatsspeed = 2,
+      repeatsarea = 0.5
+    } = {}) {
+      super();
+      this._sdiv = sdiv;
+      this._barlength = barlength;
+      this._phrasebars = phrasebars;
+      this._numrepeats = numrepeats;
+      this._repeatschance = repeatschance;
+      this._repeatsspeed = repeatsspeed;
+      this._repeatsarea = repeatsarea;
+    }
+    chooseblock() {
+      let unitblock;
+      let repeats;
+      if (this._unitsdone >= this._totalunits - 1e-6) {
+        const subdiv = Math.round(resolve(this._sdiv));
+        const sdivbeats = resolve(this._barlength);
+        const numbarsnow = Math.round(resolve(this._phrasebars));
+        this._subdiv = subdiv;
+        this._totalunits = numbarsnow * subdiv;
+        this.currphraselength = sdivbeats * numbarsnow;
+        this.newPhraseAccounting(this.currphraselength);
+        this.beatspersubdiv = sdivbeats / subdiv;
+        this._unitsdone = 0;
+      }
+      const unitsleft = this._totalunits - this._unitsdone;
+      if (coin(resolve(this._repeatschance)) && unitsleft < resolve(this._repeatsarea) * this._subdiv) {
+        const stutsp = Math.round(resolve(this._repeatsspeed));
+        repeats = unitsleft * stutsp;
+        unitblock = 1 / stutsp;
+        this.blocklength = this.currphraselength - this.phrasepos;
+        this._unitsdone = this._totalunits;
+        this._repeatson = 1;
+      } else {
+        this._repeatson = 0;
+        let oddmax = intDiv(this._subdiv, 2);
+        oddmax = oddmax % 2 === 0 ? intDiv(oddmax - 2, 2) : intDiv(oddmax - 1, 2);
+        unitblock = rrand(0, oddmax);
+        unitblock = 2 * unitblock + 1;
+        while (unitblock > unitsleft) unitblock -= 2;
+        repeats = Math.round(resolve(this._numrepeats));
+        let unitproj = repeats * unitblock + this._unitsdone;
+        while (unitproj > this._totalunits) {
+          repeats -= 1;
+          if (repeats <= 1) {
+            repeats = 1;
+            unitblock = unitsleft;
+          }
+          unitproj = repeats * unitblock + this._unitsdone;
+        }
+        this.blocklength = repeats * unitblock * this.beatspersubdiv;
+        if (unitproj === this._totalunits) {
+          this.blocklength = this.currphraselength - this.phrasepos;
+        }
+        this._unitsdone += repeats * unitblock;
+      }
+      this._listener?.chooseoffset?.(
+        this.phrasepos,
+        this.beatspersubdiv,
+        this.currphraselength
+      );
+      const cutLength = unitblock * this.beatspersubdiv;
+      this.cuts = Array.from({ length: repeats }, () => cutLength);
+      this.updateblock(this._repeatson);
+      this.endBlockAccounting();
+    }
+  };
+
+  // src/bbcut/ChooseCutProc.ts
+  var ChooseCutProc = class extends BBCutProc {
+    _cutsizefunc;
+    _repeatfunc;
+    _rollfunc;
+    _rollchance;
+    _rollallowed;
+    _rollon = 0;
+    constructor({
+      cutsizefunc,
+      repeatfunc,
+      rollfunc,
+      phraselength = 16,
+      rollchance = 0.1,
+      rollallowed = 2,
+      bpsd = 0.5
+    } = {}) {
+      super(bpsd, phraselength);
+      this._cutsizefunc = cutsizefunc ?? ((_pos, _len) => choose([1, 1.5]));
+      this._repeatfunc = repeatfunc ?? ((_size, _pos, _len) => choose([1, 2]));
+      this._rollfunc = rollfunc ?? ((blocksize) => {
+        const reps = Math.round(blocksize * 4);
+        const cutsize = blocksize / reps;
+        return Array.from({ length: reps }, () => cutsize);
+      });
+      this._rollchance = rollchance;
+      this._rollallowed = rollallowed;
+    }
+    chooseblock() {
+      if (this.phrasepos >= this.currphraselength) {
+        this.newPhraseAccounting();
+      }
+      const beatsleft = this.currphraselength - this.phrasepos;
+      if (coin(resolve(this._rollchance)) && beatsleft < resolve(this._rollallowed)) {
+        this._rollon = 1;
+        this.blocklength = beatsleft;
+        this.cuts = this._rollfunc(beatsleft);
+      } else {
+        this._rollon = 0;
+        let cutsize = this._cutsizefunc(this.phrasepos, this.currphraselength);
+        if (cutsize > beatsleft) cutsize = beatsleft;
+        let repeats = this._repeatfunc(
+          cutsize,
+          this.phrasepos,
+          this.currphraselength
+        );
+        let proj = repeats * cutsize + this.phrasepos;
+        while (proj > this.currphraselength) {
+          repeats -= 1;
+          if (repeats <= 1) {
+            repeats = 1;
+            cutsize = beatsleft;
+          }
+          proj = repeats * cutsize + this.phrasepos;
+        }
+        this.cuts = Array.from({ length: repeats }, () => cutsize);
+        this.blocklength = repeats * cutsize;
+      }
+      this._listener?.chooseoffset?.(
+        this.phrasepos,
+        this.beatspersubdiv,
+        this.currphraselength
+      );
+      this.updateblock(this._rollon);
+      this.endBlockAccounting();
+    }
+  };
+
+  // src/bbcut/ChooseBlockProc.ts
+  var ChooseBlockProc = class extends BBCutProc {
+    _blocksizefunc;
+    _numcutfunc;
+    constructor({
+      blocksizefunc,
+      numcutfunc,
+      phraselength = 12,
+      bpsd = 0.5
+    } = {}) {
+      super(bpsd, phraselength);
+      this._blocksizefunc = blocksizefunc ?? ((left, _len) => wchoose([0.5, 1, 2], [0.5, 0.4, 0.1]));
+      this._numcutfunc = numcutfunc ?? ((size) => size < 1 ? choose([4, 8, 16]) : choose([8, 16, 32]));
+    }
+    chooseblock() {
+      if (this.phrasepos >= this.currphraselength) {
+        this.newPhraseAccounting();
+      }
+      const beatsleft = this.currphraselength - this.phrasepos;
+      this.blocklength = this._blocksizefunc(beatsleft, this.currphraselength);
+      if (this.blocklength > beatsleft) this.blocklength = beatsleft;
+      const repeats = this._numcutfunc(this.blocklength);
+      const cutsize = this.blocklength / repeats;
+      this.cuts = Array.from({ length: repeats }, () => cutsize);
+      this.cuts[repeats - 1] = cutsize + (this.blocklength - cutsize * repeats);
+      this._listener?.chooseoffset?.(
+        this.phrasepos,
+        this.beatspersubdiv,
+        this.currphraselength
+      );
+      this.updateblock();
+      this.endBlockAccounting();
+    }
+  };
+
+  // src/bbcut/WarpCutProc1.ts
+  var WarpCutProc1 = class extends BBCutProc {
+    _blocksizefunc;
+    _rollfunc;
+    _probs;
+    _accel;
+    _rollon = 0;
+    constructor({
+      blocksizefunc,
+      rollfunc,
+      probs = [0.5, 0.7, 0.6],
+      phraselength = 12,
+      accel = 0.9,
+      bpsd = 0.5
+    } = {}) {
+      super(bpsd, phraselength);
+      this._blocksizefunc = blocksizefunc ?? ((left, _len) => wchoose([0.5, 1, 2], [0.5, 0.4, 0.1]));
+      this._rollfunc = rollfunc ?? ((size) => size < 1 ? choose([4, 8, 16]) : choose([8, 16, 32]));
+      this._probs = probs;
+      this._accel = accel;
+    }
+    chooseblock() {
+      if (this.phrasepos >= this.currphraselength - 1e-4) {
+        this.newPhraseAccounting();
+      }
+      const beatsleft = this.currphraselength - this.phrasepos;
+      this.blocklength = this._blocksizefunc(beatsleft, this.currphraselength);
+      if (this.blocklength > beatsleft) this.blocklength = beatsleft;
+      if (coin(resolve(this._probs[0]))) {
+        this._rollon = 0;
+        this.cuts = [this.blocklength];
+      } else {
+        this._rollon = 1;
+        const repeats = this._rollfunc(this.blocklength);
+        if (coin(resolve(this._probs[1]))) {
+          const cutsize = this.blocklength / repeats;
+          this.cuts = Array.from({ length: repeats }, () => cutsize);
+        } else {
+          const acctemp = resolve(this._accel);
+          const temp = this.blocklength * (1 - acctemp) / (1 - Math.pow(acctemp, repeats));
+          let cuts = Array.from(
+            { length: repeats },
+            (_, i) => temp * Math.pow(acctemp, i)
+          );
+          if (coin(resolve(this._probs[2]))) {
+            cuts = cuts.reverse();
+          }
+          this.cuts = cuts;
+        }
+      }
+      this._listener?.chooseoffset?.(
+        this.phrasepos,
+        this.beatspersubdiv,
+        this.currphraselength
+      );
+      this.updateblock(this._rollon);
+      this.endBlockAccounting();
+    }
+  };
+
+  // src/bbcut/ThrashCutProc1.ts
+  var SINGLE_KICK = 0;
+  var SINGLE_SNARE = 1;
+  var ROLL_KICK = 2;
+  var ROLL_SNARE = 3;
+  var PRESCRIBED = 5;
+  var ThrashCutProc1 = class _ThrashCutProc1 extends BBCutProc {
+    _kickoffset;
+    _snareoffset;
+    _blockdiv;
+    _chooseriff;
+    _shuffles;
+    _filltest;
+    _stopchance;
+    // Mutable riff database — public so callers can extend it
+    database;
+    _whichriff;
+    _cutsequence = [];
+    _fillflag = false;
+    _didstop = 0;
+    // ── Default riff database (4 patterns) ──────────────────────────────────
+    static DEFAULT_DB = [
+      [
+        [1, ROLL_KICK],
+        [2, SINGLE_SNARE, 1],
+        [1, ROLL_KICK],
+        [4, PRESCRIBED, 4, SINGLE_KICK, 1, 1]
+      ],
+      [
+        [0.5, ROLL_KICK],
+        [1, SINGLE_SNARE, 0.25],
+        [0.5, ROLL_KICK],
+        [0.5, ROLL_KICK],
+        [0.5, ROLL_KICK],
+        [0.25, SINGLE_SNARE, 1, 0],
+        [0.75, SINGLE_SNARE]
+      ],
+      [
+        [0.5, ROLL_KICK],
+        [0.5, ROLL_KICK],
+        [0.5, ROLL_KICK],
+        [0.5, ROLL_KICK],
+        [0.5, SINGLE_SNARE],
+        [0.5, ROLL_KICK],
+        [0.5, SINGLE_SNARE],
+        [0.5, ROLL_KICK]
+      ],
+      [
+        [0.5, ROLL_KICK],
+        [1, SINGLE_SNARE],
+        [0.5, ROLL_KICK],
+        [0.5, SINGLE_SNARE],
+        [0.5, ROLL_KICK],
+        [1, SINGLE_SNARE]
+      ]
+    ];
+    constructor({
+      kickoffset = 0,
+      snareoffset = 0.125,
+      phraselength = 4,
+      blockdiv = [0.34, 0.33, 0.33],
+      chooseriff = 0,
+      shuffles = 1,
+      filltest = () => coin(0.125),
+      stopchance = 0.125
+    } = {}) {
+      super(0.5, phraselength);
+      this._kickoffset = kickoffset;
+      this._snareoffset = snareoffset;
+      this._blockdiv = blockdiv;
+      this._chooseriff = chooseriff;
+      this._shuffles = shuffles;
+      this._filltest = filltest;
+      this._stopchance = stopchance;
+      this.database = _ThrashCutProc1.DEFAULT_DB.map(
+        (riff) => riff.map((entry) => entry.slice())
+      );
+      this._whichriff = Math.floor(Math.random() * this.database.length);
+    }
+    // ── Internal: expand a riff entry into ExtendedCuts ─────────────────────
+    calcblock(entry) {
+      const next = entry.slice();
+      const bl = next[0];
+      let type = next[1];
+      if (this._fillflag) {
+        if (type === SINGLE_KICK) type = SINGLE_SNARE;
+        else if (type === SINGLE_SNARE) type = SINGLE_KICK;
+        else if (type === ROLL_KICK) type = ROLL_SNARE;
+        else if (type === ROLL_SNARE) type = ROLL_KICK;
+        else if (type === PRESCRIBED) {
+          if (next[3] === SINGLE_KICK) next[3] = SINGLE_SNARE;
+          else if (next[3] === SINGLE_SNARE) next[3] = SINGLE_KICK;
+        }
+        next[1] = type;
+      }
+      let amp = 0.8;
+      let duty = 1;
+      let rawOffset;
+      if (type < PRESCRIBED) {
+        if (next.length === 4) amp = next[3];
+        if (next.length > 2) duty = next[2];
+        rawOffset = type % 2;
+      } else {
+        if (next.length === 6) amp = next[5];
+        if (next.length > 4) duty = next[4];
+        rawOffset = next[3];
+      }
+      if (this._didstop === 0 && coin(resolve(this._stopchance))) {
+        this._didstop = 1;
+        amp = 0;
+      }
+      const offset = rawOffset < 0.5 ? resolve(this._kickoffset) : resolve(this._snareoffset);
+      let durs;
+      if (type > 1.5) {
+        if (type === PRESCRIBED) {
+          const count = next[2];
+          durs = Array.from({ length: count }, () => bl / count);
+        } else {
+          const divs = resolve(this._blockdiv);
+          durs = divs.map((p) => bl * p);
+        }
+      } else {
+        durs = [bl];
+      }
+      const cuts = durs.map((d, i) => [
+        d,
+        d * duty,
+        offset,
+        // Accent the first hit in any group
+        i === 0 ? amp * 1.1 : amp
+      ]);
+      return [bl, cuts];
+    }
+    chooseblock() {
+      if (this.phrasepos >= this.currphraselength - 1e-3) {
+        this.newPhraseAccounting();
+        this._fillflag = this._filltest();
+        this._didstop = 0;
+        const prevRiff = this._whichriff;
+        this._whichriff = typeof this._chooseriff === "function" ? this._chooseriff(prevRiff, this.database.length) : this._chooseriff;
+        let currriff = (this.database[this._whichriff % this.database.length] ?? this.database[0]).map((e) => e.slice());
+        const shuffleCount = Math.round(resolve(this._shuffles));
+        for (let i = 0; i < shuffleCount; i++) {
+          const a = Math.floor(Math.random() * currriff.length);
+          const b = Math.floor(Math.random() * currriff.length);
+          [currriff[a], currriff[b]] = [currriff[b], currriff[a]];
+        }
+        this._cutsequence = [];
+        let done = 0;
+        let seqIdx = 0;
+        while (done < this.currphraselength - 1e-3) {
+          const left = this.currphraselength - done;
+          const entry = currriff[seqIdx % currriff.length];
+          seqIdx++;
+          let [blocklen, cuts] = this.calcblock(entry.slice());
+          if (blocklen > left) {
+            blocklen = left;
+            cuts = [[left, left, 0, 0]];
+          }
+          this._cutsequence.push([blocklen, cuts]);
+          done += blocklen;
+        }
+      }
+      const beatsleft = this.currphraselength - this.phrasepos;
+      const current = this._cutsequence[this.block];
+      if (!current) {
+        this.cuts = [[beatsleft, beatsleft, 0, 1]];
+        this.blocklength = beatsleft;
+      } else {
+        this.cuts = current[1];
+        this.blocklength = Math.min(current[0], beatsleft);
+      }
+      this.updateblock(this.cuts.length > 1 ? 1 : 0);
+      this.endBlockAccounting();
+    }
+  };
+
+  // src/bbcut/SQPusher1.ts
+  var SQPusher1 = class _SQPusher1 extends BBCutProc {
+    _activity;
+    _fillfreq;
+    _fillscramble;
+    _sqweights;
+    // Pre-computed fill patterns (authentic Squarepusher transcriptions)
+    static FILLS = [
+      [[0.75, 0.75, 0.75, 0.75], [1]],
+      [[0.5, 1], [1], [1, 0.5]],
+      [[0.5], [1, 1, 1], [0.5]],
+      [
+        [0.571429],
+        [0.571429, 0.571429],
+        [0.571429, 0.571429],
+        [0.571429],
+        [0.285714, 0.285716]
+      ],
+      [[1, 0.5], [1, 0.5], [0.5, 0.5]],
+      [[0.5, 0.5], [0.66, 0.67, 0.67], [1.01]],
+      [[0.34], [0.33, 0.33], [0.34, 0.33], [2.33]],
+      [[1.4], [0.4, 0.4], [0.6, 0.2], [1]],
+      [[0.167, 0.167, 0.166], [1, 1, 1], [0.5]],
+      [[1.5, 0.5, 1], [0.25, 0.25, 0.25, 0.25]],
+      [[0.2, 0.2], [0.4, 0.4], [0.4, 0.4], [2]],
+      [[0.75, 0.75, 1], [0.25, 0.25, 0.25, 0.25, 0.25, 0.25]],
+      [[0.5, 1], [0.5], [0.125, 0.125, 0.125, 0.125], [1], [0.167, 0.167, 0.166]]
+    ];
+    // Pre-computed block sequence for the current phrase
+    _cutsequence = [];
+    constructor({
+      activity = 0.1,
+      fillfreq = 4,
+      fillscramble = 0,
+      sqweights = [0, 0.3, 0, 0.5, 0.7, 0.8, 0.9, 0.6],
+      bpsd = 0.5
+    } = {}) {
+      super(bpsd, 4);
+      this._activity = activity;
+      this._fillfreq = fillfreq;
+      this._fillscramble = fillscramble;
+      this._sqweights = sqweights;
+    }
+    chooseblock() {
+      if (this.phrasepos >= this.currphraselength - 1e-3) {
+        this.newPhraseAccounting();
+        if (this.phrase % resolve(this._fillfreq) === 0) {
+          let seq = choose(_SQPusher1.FILLS);
+          if (coin(resolve(this._fillscramble))) {
+            seq = seq.slice().sort(() => Math.random() - 0.5);
+          }
+          this._cutsequence = seq;
+        } else {
+          this._cutsequence = [];
+          let done = 0;
+          while (done < 4) {
+            const beatpos = Math.round(done / 0.25) * 0.25 % 1;
+            const quaver = Math.round(done / 0.5) * 2 % 8;
+            const sqchance = this._sqweights[quaver] * resolve(this._activity);
+            let groupLen;
+            if (beatpos === 0.5) {
+              groupLen = 1;
+            } else {
+              groupLen = Math.floor(Math.random() * 2) + 1;
+            }
+            const cuts2 = coin(sqchance) ? Array.from({ length: groupLen * 2 }, () => 0.25) : Array.from({ length: groupLen }, () => 0.5);
+            this._cutsequence.push(cuts2);
+            done += sum(cuts2);
+          }
+        }
+      }
+      const beatsleft = this.currphraselength - this.phrasepos;
+      let cuts = (this._cutsequence[this.block] ?? [beatsleft]).slice();
+      this.blocklength = sum(cuts);
+      if (this.blocklength > beatsleft) {
+        let accumulated = 0;
+        let cutoffIndex = 0;
+        for (let i = 0; i < cuts.length; i++) {
+          accumulated += cuts[i];
+          if (accumulated > beatsleft - 1e-3) {
+            cutoffIndex = i;
+            break;
+          }
+        }
+        cuts = cuts.slice(0, cutoffIndex + 1);
+        cuts[cutoffIndex] = (cuts[cutoffIndex] ?? 0) - (accumulated - beatsleft);
+        if (cuts.length < 1) cuts = [beatsleft];
+        this.blocklength = beatsleft;
+      }
+      this.cuts = cuts;
+      this._listener?.chooseoffset?.(
+        this.phrasepos,
+        this.beatspersubdiv,
+        this.currphraselength
+      );
+      this.updateblock();
+      this.endBlockAccounting();
+    }
+  };
+
+  // src/bbcut/SQPusher2.ts
+  var SQPusher2 = class _SQPusher2 extends BBCutProc {
+    _barfunc;
+    _repetitionfunc;
+    _scramble;
+    _quant;
+    _cutsequence = [];
+    constructor({
+      barfunc,
+      repetitionfunc,
+      scramble: scrambleProb = 0,
+      quant = 0,
+      bpsd = 0.5
+    } = {}) {
+      super(bpsd, 4);
+      this._barfunc = barfunc ?? ((data) => choose(data));
+      this._repetitionfunc = repetitionfunc ?? ((iois) => curdle(iois, 0.5));
+      this._scramble = scrambleProb;
+      this._quant = quant;
+    }
+    chooseblock() {
+      if (this.phrasepos >= this.currphraselength - 1e-3) {
+        this.newPhraseAccounting();
+        const quantVal = resolve(this._quant);
+        const rawOnsets = this._barfunc(_SQPusher2.seqdata);
+        const onsets = rawOnsets.map((t) => scRound(t, quantVal));
+        const rotated = rotate(onsets, -1);
+        const ioisRaw = rotated.map((t, i) => t - (onsets[i] ?? 0));
+        ioisRaw[ioisRaw.length - 1] = 4 - (onsets[onsets.length - 1] ?? 0);
+        const ioisFiltered = ioisRaw.filter((v) => v > 1e-5);
+        const firstOnsetOffset = onsets[0] ?? 0;
+        const addLeadingSilence = firstOnsetOffset > 0.025;
+        const ioisExtended = ioisFiltered.map(
+          (v) => [v, v, null, 1]
+        );
+        let cutsequence = this._repetitionfunc(ioisExtended);
+        if (addLeadingSilence) {
+          cutsequence = [
+            [[firstOnsetOffset, firstOnsetOffset, null, 0]],
+            ...cutsequence
+          ];
+        }
+        if (coin(resolve(this._scramble))) {
+          cutsequence = scramble(cutsequence);
+        }
+        this._cutsequence = cutsequence;
+      }
+      const beatsleft = this.currphraselength - this.phrasepos;
+      let cuts = (this._cutsequence[this.block] ?? [
+        [beatsleft, beatsleft, null, 1]
+      ]).slice();
+      if (cuts.length === 0) {
+        cuts = [[beatsleft, beatsleft, null, 1]];
+      }
+      this.blocklength = cuts.reduce((acc, c) => acc + c[0], 0);
+      if (this.blocklength > beatsleft) {
+        let accumulated = 0;
+        let cutoffIndex = 0;
+        for (let i = 0; i < cuts.length; i++) {
+          accumulated += cuts[i][0];
+          if (accumulated > beatsleft - 1e-3) {
+            cutoffIndex = i;
+            break;
+          }
+        }
+        cuts = cuts.slice(0, cutoffIndex + 1);
+        const last = cuts[cutoffIndex];
+        const trimmed = last[0] - (accumulated - beatsleft);
+        cuts[cutoffIndex] = [trimmed, trimmed, last[2], last[3]];
+        this.blocklength = beatsleft;
+      }
+      this.cuts = cuts;
+      this._listener?.chooseoffset?.(
+        this.phrasepos,
+        this.beatspersubdiv,
+        this.currphraselength
+      );
+      this.updateblock();
+      this.endBlockAccounting();
+    }
+    // ── Onset dataset ─────────────────────────────────────────────────────────
+    // 149 bars of onset times (beats within a 4-beat bar) extracted from
+    // "Come On My Selector" by Squarepusher, quantised to 0.01 beat resolution.
+    static seqdata = [
+      [0.47, 1.02, 1.5, 1.75, 1.94, 2.27, 2.49, 3, 3.52, 3.77],
+      [0, 0.47, 0.99, 1.5, 1.76, 1.94, 2.24, 2.49, 3.01, 3.49, 3.78, 3.96],
+      [0.48, 0.99, 1.51, 1.76, 1.98, 2.24, 2.46, 2.79, 3.01, 3.53, 3.78],
+      [0, 0.26, 0.48, 0.78, 1, 1.51, 1.77, 1.99, 2.24, 2.46, 2.8, 3.02, 3.53, 3.79],
+      [0.01, 0.26, 0.45, 1, 1.51, 1.73, 1.99, 2.25, 2.47, 2.73, 3.02, 3.53, 3.98],
+      [0.27, 0.45, 1, 1.48, 1.74, 1.92, 2.25, 2.47, 2.73, 2.99, 3.54, 3.76, 3.98],
+      [0.46, 1.01, 1.49, 1.74, 2, 2.26, 2.48, 2.99, 3.51, 3.76, 3.98],
+      [0.46, 0.98, 1.49, 1.75, 1.93, 2.22, 2.48, 3, 3.47, 3.99],
+      [0.8, 1.02, 1.24, 1.46, 2.49, 2.63, 3, 3.55, 3.99],
+      [0.58, 0.98, 1.46, 1.61, 2.27, 2.49, 2.93, 3.33, 3.7],
+      [0, 0.29, 0.73, 1.06, 1.25, 1.5, 1.72, 2.24, 2.49, 2.97, 3.27, 3.41, 3.74],
+      [0, 0.29, 0.51, 0.74, 0.99, 1.25, 1.51, 1.76, 1.91, 2.13, 2.46, 2.94, 3.27, 3.49, 3.75],
+      [0, 1, 1.47, 2.47, 2.98, 3.49, 3.64],
+      [0.49, 1.15, 1.29, 1.51, 1.77, 1.99, 2.47, 2.98, 3.28, 3.5, 3.76, 3.98],
+      [0.23, 0.56, 0.97, 1.52, 1.78, 1.92, 2.4, 2.58, 3.03, 3.47, 3.8, 3.94],
+      [0.46, 0.72, 0.94, 1.49, 1.67, 2, 2.48, 2.99, 3.43, 3.76, 3.98],
+      [0.65, 0.9, 1.45, 2.12, 2.48, 2.74, 2.96, 3.73, 3.99],
+      [0.58, 0.98, 1.38, 1.61, 1.94, 2.19, 2.45, 2.74, 3, 3.22, 3.48, 3.74, 3.99],
+      [0.91, 1.17, 1.5, 1.98, 2.34, 2.49, 2.71, 2.93, 3.3, 3.48, 3.96],
+      [0.51, 1.1, 1.5, 1.76, 1.98, 2.46, 2.97, 3.19, 3.45, 3.71, 3.96],
+      [0.48, 0.63, 1.1, 1.32, 1.47, 2.46, 2.98, 3.49, 3.67, 3.97],
+      [0.23, 0.48, 0.92, 1.51, 1.99, 2.47, 2.72, 2.98, 3.46, 3.75, 3.97],
+      [0.49, 0.96, 1.48, 1.74, 1.99, 2.47, 3.46, 3.76, 3.94],
+      [0.12, 0.42, 0.6, 0.79, 1.19, 1.45, 1.96, 2.44, 2.7, 2.95, 3.25, 3.43, 3.72, 3.98],
+      [0.24, 0.5, 0.75, 0.97, 2.48, 3.51, 3.77, 3.99],
+      [1.6, 1.97, 2.23, 2.45, 2.67, 2.92, 3.44, 3.7, 3.95],
+      [0.25, 0.43, 0.72, 0.98, 1.42, 1.68, 1.94, 2.52, 2.71, 3, 3.22, 3.44, 3.77],
+      [0.03, 0.47, 0.69, 0.84, 1.06, 1.21, 1.43, 1.98, 2.16, 2.42, 3.19, 3.48, 3.7, 3.96],
+      [0.22, 0.48, 0.73, 0.88, 1.47, 2.46, 2.94, 3.45, 3.64],
+      [0, 0.44, 0.96, 1.47, 1.69, 1.95, 2.17, 2.43, 2.87, 3.2, 3.46, 3.71, 3.97],
+      [0.48, 0.7, 0.93, 1.11, 1.7, 1.95, 2.43, 3.39, 3.75, 3.9],
+      [0.19, 0.45, 0.64, 0.93, 1.44, 1.96, 2.44, 2.95, 3.24, 3.46, 3.94],
+      [0.2, 0.46, 0.68, 0.93, 1.45, 2, 2.15, 2.44, 2.7, 2.92, 3.17, 3.43, 3.65, 3.95],
+      [0.72, 0.94, 1.45, 1.93, 2.92, 3.91],
+      [0.28, 0.65, 0.91, 1.16, 1.42, 1.6, 1.93, 2.19, 2.67, 3.22, 3.44, 3.7],
+      [0.03, 0.28, 0.47, 0.69, 0.95, 1.2, 1.39, 1.86, 2.08, 2.42, 2.89, 3.19, 3.48, 3.66, 3.92],
+      [0.47, 0.69, 0.95, 1.17, 1.43, 1.91, 2.42, 2.93, 3.45, 3.96],
+      [0.22, 0.44, 0.95, 1.43, 1.73, 1.95, 2.17, 2.42, 2.72, 2.94, 3.2, 3.45, 3.71, 3.93],
+      [0.19, 0.66, 0.92, 1.47, 1.73, 1.88, 2.24, 2.94, 3.42, 3.71, 3.93],
+      [0.67, 0.93, 1.11, 1.44, 1.88, 2.14, 2.43, 2.95, 3.2, 3.42, 3.72, 3.94],
+      [0.2, 0.42, 0.93, 1.44, 1.7, 1.92, 2.18, 2.4, 2.91, 3.43, 3.72, 3.94],
+      [0.42, 0.93, 1.41, 1.67, 2.15, 2.37, 2.7, 2.92, 3.18, 3.95],
+      [0.46, 0.94, 1.45, 1.93, 2.44, 2.92, 3.44, 3.91],
+      [0.43, 0.91, 1.42, 1.93, 2.41, 3.92],
+      [0.18, 0.43, 0.69, 0.95, 1.2, 1.42, 1.72, 1.94, 2.2, 2.45, 2.93, 3.19, 3.45, 3.78, 3.92],
+      [0.14, 0.4, 0.66, 0.91, 1.17, 1.43, 1.69, 1.91, 2.42, 2.71, 2.9, 3.16, 3.38, 3.63, 3.93],
+      [0.44, 0.66, 1.4, 1.91, 2.65, 2.9, 3.42, 3.64, 3.89],
+      [0.41, 0.63, 0.92, 1.18, 1.4, 1.66, 1.91, 2.17, 2.43, 2.69, 2.91, 3.16, 3.42, 3.64, 3.94],
+      [0.45, 0.93, 1.44, 2.4, 2.65, 2.95, 3.43, 3.65, 3.94],
+      [0.42, 0.64, 0.93, 1.15, 1.37, 1.89, 2.18, 2.36, 2.92, 3.17, 3.43, 3.69],
+      [0.2, 0.42, 0.68, 0.94, 1.41, 1.93, 2.44, 2.92, 3.43, 3.69, 3.91],
+      [0.43, 0.9, 1.38, 1.89, 2.15, 2.41, 3.4, 3.88],
+      [0.39, 1.02, 1.16, 1.42, 1.97, 2.41, 2.89, 3.41, 3.92],
+      [0.18, 0.4, 0.91, 1.43, 1.9, 2.16, 2.42, 2.67, 2.9, 3.37, 3.63, 3.78, 3.92],
+      [0.22, 0.58, 0.88, 1.25, 1.58, 1.83, 2.24, 2.57, 2.86, 3.23, 3.6, 3.89],
+      [0.22, 0.55, 0.88, 1.25, 1.58, 1.91, 2.54, 3.23, 3.9],
+      [0.23, 0.56, 0.81, 1.22, 1.92, 2.25, 2.54, 2.91, 3.57, 3.9],
+      [0.56, 0.89, 1.22, 1.55, 1.88, 2.54, 2.91, 3.13, 3.39, 3.54, 3.9],
+      [0.38, 0.93, 1.41, 1.59, 1.89, 2.88, 3.36, 3.91],
+      [1.08, 1.23, 1.45, 1.67, 1.89, 2.19, 2.44, 2.92, 3.4, 3.62],
+      [0.1, 0.35, 0.65, 0.87, 1.38, 2.12, 2.85, 3.14, 3.62, 3.88],
+      [0.39, 0.69, 0.87, 1.17, 1.39, 1.61, 2.12, 2.38, 2.56, 2.89, 3.15, 3.33, 3.63, 3.88],
+      [0.4, 1.43, 1.9, 2.38, 3.23, 3.37, 3.92],
+      [0.11, 0.48, 0.66, 0.92, 1.39, 1.91, 2.39, 2.64, 2.86, 3.16, 3.41, 3.64, 3.89],
+      [0.37, 0.63, 0.88, 1.1, 1.4, 2.13, 2.35, 2.87, 3.2, 3.6, 3.82],
+      [0.37, 0.67, 0.89, 1.62, 1.84, 2.14, 2.36, 2.87, 3.39, 3.64, 3.86],
+      [0.89, 1.15, 1.63, 1.85, 2.4, 2.84, 3.13, 3.39, 3.79],
+      [0.13, 0.38, 0.71, 0.9, 1.37, 3.62, 3.91],
+      [0.64, 1.38, 2.11, 2.33, 2.52, 2.88, 3.44, 3.66],
+      [0.39, 0.87, 1.13, 1.6, 1.86, 2.19, 2.56, 2.93, 3.18, 3.88],
+      [0.03, 0.17, 0.36, 0.62, 0.91, 1.09, 1.35, 1.5, 1.86, 2.16, 2.38, 2.64, 3.04, 3.37, 3.85],
+      [0.18, 0.58, 0.84, 1.21, 1.61, 1.87, 2.13, 2.38, 2.86, 3.19, 3.52, 3.85],
+      [0.26, 0.62, 0.88, 1.14, 1.32, 1.69, 1.87, 2.24, 2.86, 3.31, 3.6],
+      [0.11, 0.37, 0.81, 1.11, 1.55, 1.88, 2.17, 2.39, 3.24, 3.46, 3.86],
+      [0.6, 0.93, 1.88, 2.84, 3.2, 3.42, 3.64, 3.86],
+      [0.34, 0.64, 0.89, 1.33, 1.48, 2.03, 3.83],
+      [0.31, 0.64, 0.9, 1.38, 1.56, 1.89, 2.11, 2.37, 2.84, 3.21, 3.62, 3.8],
+      [0.35, 0.61, 1.12, 1.31, 1.56, 2.55, 2.81, 3.14, 3.29, 3.51, 3.84, 3.99],
+      [0.35, 0.87, 1.38, 1.64, 1.9, 2.12, 2.34, 2.63, 3.33, 3.84],
+      [0.14, 0.36, 0.84, 1.24, 1.61, 1.87, 2.12, 2.56, 3.85],
+      [0.14, 0.58, 0.8, 1.02, 1.36, 1.58, 2.13, 2.86, 3.34, 3.6, 3.85],
+      [0.37, 0.85, 1.07, 1.87, 2.61, 2.87, 3.31, 3.86],
+      [0.81, 1.36, 1.62, 1.88, 2.1, 2.36, 2.87, 3.09, 3.38],
+      [0.3, 0.6, 0.85, 1.33, 1.85, 2.1, 2.36, 2.84, 3.35, 3.83],
+      [0.82, 1.37, 1.63, 2.07, 2.33, 2.69, 2.88, 3.21, 3.39, 3.83],
+      [0.35, 0.6, 0.86, 1.38, 2.07, 2.33, 2.63, 2.85, 3.14, 3.32, 3.58, 3.84],
+      [0.09, 0.5, 0.83, 1.6, 1.86, 2.3, 2.59, 3.11, 3.29, 3.84],
+      [0.61, 0.87, 1.35, 2.08, 2.34, 2.85, 3.33, 3.59, 3.85],
+      [0.1, 0.32, 1.17, 1.32, 1.83, 2.05, 2.86, 3.34, 3.56],
+      [0.11, 1.1, 1.83, 2.09, 2.46, 2.72, 2.97, 3.3, 3.85],
+      [0.85, 1.1, 1.36, 1.51, 1.65, 1.84, 2.35, 2.83, 3.12, 3.34, 3.6, 3.86],
+      [0.34, 0.59, 0.85, 1.59, 1.84, 2.1, 2.28, 2.94, 3.31, 3.86],
+      [0.63, 0.89, 1.07, 1.55, 2.36, 2.84, 3.1, 3.57, 3.83],
+      [0.12, 0.34, 0.56, 0.82, 1.34, 2.33, 3.36, 3.5, 3.83],
+      [0.05, 0.35, 0.79, 1.05, 1.34, 1.78, 2.3, 2.81, 3.07, 3.32, 3.51],
+      [0.28, 0.79, 1.01, 1.34, 1.82, 2.12, 2.37, 2.92, 3.44, 3.99],
+      [1.31, 1.83, 2.3, 2.74, 3.04, 3.55, 3.81],
+      [0.32, 0.77, 1.06, 1.28, 1.79, 2.46, 2.82, 3.08, 3.23, 3.56, 3.78],
+      [0.81, 1.1, 1.32, 1.8, 2.83, 3.05, 3.3, 3.56, 3.82],
+      [0.08, 0.33, 0.81, 1.07, 1.55, 1.8, 2.13, 2.32, 2.87, 3.31, 3.53, 3.82],
+      [0.08, 0.59, 0.85, 1.29, 1.59, 1.81, 2.32, 2.8, 3.06, 3.31, 3.53, 3.83],
+      [0.16, 0.3, 0.75, 1.3, 1.81, 2.33, 3.02, 3.28, 3.83],
+      [0.57, 0.79, 1.04, 1.26, 1.78, 2.29, 2.81, 3.03, 3.28, 3.54, 3.84],
+      [0.24, 0.79, 1.05, 1.3, 1.75, 2.04, 2.33, 2.88, 3.03, 3.33, 3.55],
+      [0.83, 1.6, 1.75, 2.3, 2.82, 3.07, 3.29, 3.55],
+      [0.03, 0.54, 0.91, 1.06, 1.31, 1.46, 1.83, 2.05, 2.27, 2.49, 2.82, 3.15, 3.41, 3.81],
+      [0.51, 0.77, 1.28, 1.79, 1.94, 2.27, 2.53, 2.79, 3.04, 3.3, 3.56, 3.78],
+      [0.04, 0.33, 0.77, 1.32, 1.76, 2.31, 3.31, 3.82],
+      [1.11, 1.25, 1.8, 2.28, 2.8, 3.02, 3.53],
+      [0.26, 0.82, 1.29, 1.81, 2.8, 3.06, 3.31, 3.79],
+      [0.09, 0.34, 0.53, 0.75, 1.3, 1.48, 1.77, 2, 2.29, 2.77, 3.02, 3.28, 3.54, 3.8],
+      [0.05, 0.24, 0.93, 1.52, 1.82, 2.04, 2.29, 2.84, 3.32, 3.8],
+      [0.83, 1.01, 1.16, 1.42, 1.78, 2.26, 2.78, 3, 3.29, 3.51, 3.77],
+      [0.8, 1.27, 2.23, 2.78, 3.29, 3.73],
+      [0.1, 0.36, 0.51, 0.76, 1.28, 1.76, 2.27, 2.75, 3, 3.26, 3.48, 3.78],
+      [0.25, 0.4, 0.73, 1.06, 1.28, 1.43, 1.69, 1.87, 2.31, 3.27, 3.78],
+      [0.07, 0.29, 0.55, 1.29, 1.47, 1.76, 2.06, 2.28, 2.76, 3.01, 3.49, 3.75, 3.97],
+      [0.7, 1.03, 1.25, 1.51, 1.77, 2.06, 2.28, 2.76, 2.91, 3.24, 3.57, 3.79],
+      [0.01, 0.52, 0.78, 1.77, 2.25, 2.73, 3.02, 3.24, 3.46, 3.79],
+      [0.27, 0.53, 0.75, 1.59, 2.29, 2.88, 3.03, 3.25, 3.43, 3.91],
+      [0.05, 0.27, 0.79, 2.77, 2.99, 3.51, 3.76],
+      [0.17, 0.54, 1.05, 1.2, 1.42, 1.75, 1.89, 2.78, 3.69],
+      [0.06, 0.39, 0.61, 0.91, 1.24, 2.45, 2.6, 2.96, 3.22, 3.48, 3.77],
+      [0.18, 0.8, 0.98, 1.21, 1.79, 2.27, 2.78, 3.04, 3.26, 3.52, 3.78],
+      [0.25, 0.77, 1.91, 2.31, 2.79],
+      [0.3, 0.44, 0.77, 1.03, 1.47, 1.8, 1.98, 2.28, 2.79],
+      [0.01, 1.25, 1.51, 1.77, 2.28, 2.47, 2.76, 3.24, 3.39, 3.79],
+      [0.3, 0.78, 1, 1.26, 1.77, 2.25, 2.76, 3.02, 3.24, 3.5, 3.76],
+      [0.27, 0.75, 1.48, 1.78, 2.07, 2.25, 2.99, 3.25, 3.76],
+      [0.16, 0.53, 0.79, 1.12, 1.27, 1.49, 1.78, 2.26, 2.74, 2.99, 3.25, 3.47, 3.76],
+      [0.72, 1.23, 1.53, 1.75, 2.26, 2.78, 3.22, 3.77],
+      [0.5, 0.76, 0.98, 1.24, 1.75, 2.23, 2.74, 3, 3.22, 3.48, 3.77],
+      [0.73, 0.95, 1.21, 1.5, 1.72, 1.98, 2.27, 2.75, 3.04, 3.26, 3.52, 3.74],
+      [0.77, 1.28, 1.76, 2.24, 2.72, 2.97, 3.23, 3.49, 3.75],
+      [0.44, 0.77, 0.99, 1.21, 1.43, 2.06, 2.28, 2.72, 2.94, 3.53, 3.75],
+      [0.04, 0.74, 1.26, 1.51, 1.77, 2.54, 2.76, 3.02, 3.28, 3.5],
+      [0.01, 0.27, 0.56, 0.75, 1.48, 2.03, 2.25, 2.8, 3.02, 3.72],
+      [0.27, 0.75, 1.26, 2.22, 2.59, 2.73, 2.99, 3.25, 3.47, 3.73, 3.91],
+      [0.24, 0.46, 0.75, 0.97, 1.38, 2.77, 3.8],
+      [0.17, 0.61, 0.76, 0.9, 1.49, 1.64, 1.97, 2.23, 2.48, 2.7, 3.04, 3.22, 3.51, 3.7],
+      [0.17, 0.73, 1.02, 1.5, 1.64, 1.97, 2.19, 2.49, 2.75, 3.04, 3.52, 3.74, 3.99],
+      [0.22, 0.73, 1.02, 1.24, 1.46, 1.65, 1.98, 2.2, 2.46, 2.75, 3.04, 3.3, 3.52, 3.67],
+      [0, 0.18, 0.73, 1.03, 1.25, 1.47, 1.65, 1.98, 2.2, 2.46, 2.72, 3.27, 3.49, 3.71, 3.86],
+      [0, 0.19, 0.74, 1.25, 1.47, 1.66, 1.99, 2.21, 2.46, 2.72, 3.27, 3.49, 3.71],
+      [0.19, 0.71, 1.22, 1.48, 1.66, 1.95, 2.21, 2.73, 3.2, 3.5, 3.68],
+      [0.2, 0.71, 1.22, 1.48, 1.7, 1.96, 2.18, 2.51, 2.73, 3.24, 3.5, 3.72, 3.98],
+      [0.2, 0.71, 1.23, 1.49, 1.71, 1.96, 2.18, 2.51, 2.73, 3.21, 3.73],
+      [0.02, 0.2, 0.75, 1.05, 1.45, 1.71, 2.19, 2.48, 2.74, 3.18, 3.73],
+      [0.72, 1.24, 1.75, 2.19, 2.49, 2.74, 3.51, 3.73, 3.99],
+      [0.21, 0.95, 1.42, 1.68, 2.2, 2.49, 3.19, 3.7],
+      [0, 0.4, 0.73, 0.99, 1.17, 1.5, 1.65, 1.94, 2.16, 2.71, 3.23, 3.49, 3.74],
+      [0, 0.22, 0.73, 0.96, 1.43, 1.69, 1.95, 2.2, 2.72, 3.2, 3.71],
+      [0.74, 0.96, 1.66, 1.95, 2.17, 2.72, 3.24, 3.49, 3.75, 3.97],
+      [0.41, 0.74, 1.04, 1.44, 1.7, 1.99, 2.21, 2.73, 3.17, 3.72, 3.98],
+      [0.38, 0.71, 1.48, 1.74, 2.18, 2.73, 3.21, 3.69],
+      [0.24, 0.71, 1.96, 2.22, 2.7, 3.51, 3.69],
+      [0.24, 0.72, 0.9, 2.19, 2.7, 3.22, 3.47, 3.69],
+      [0.76, 1.35, 1.64, 2.6, 3.44, 3.81],
+      [0.07, 0.58, 1.2, 1.76, 2.05, 2.2, 2.71, 3.19, 3.48, 3.78],
+      [1.14, 1.32, 1.69, 2.61, 3.19, 3.52]
+    ];
+  };
+
+  // src/bbcut/CageCut.ts
+  var CageCut = class extends BBCutProc {
+    _subdivfunc;
+    _permutefunc;
+    _blockarray = [];
+    constructor({
+      phraselength = 8,
+      subdivfunc = [0.5, 0.25, 0.25],
+      permutefunc = (a) => a
+    } = {}) {
+      super(0.5, phraselength);
+      this._subdivfunc = subdivfunc;
+      this._permutefunc = permutefunc;
+    }
+    chooseblock() {
+      if (this.phrasepos >= this.currphraselength - 1e-3) {
+        this.newPhraseAccounting();
+        const form = normalizeSum(resolve(this._subdivfunc));
+        this._blockarray = form.map(
+          (blockProp) => form.map((cutProp) => this.currphraselength * blockProp * cutProp)
+        );
+      }
+      const beatsleft = this.currphraselength - this.phrasepos;
+      let cuts = this._permutefunc(
+        (this._blockarray[this.block] ?? [beatsleft]).slice()
+      );
+      this.blocklength = sum(cuts);
+      if (this.blocklength > beatsleft) {
+        let accumulated = 0;
+        let cutoffIndex = 0;
+        for (let i = 0; i < cuts.length; i++) {
+          accumulated += cuts[i];
+          if (accumulated > beatsleft - 1e-3) {
+            cutoffIndex = i;
+            break;
+          }
+        }
+        cuts = cuts.slice(0, cutoffIndex + 1);
+        cuts[cutoffIndex] = (cuts[cutoffIndex] ?? 0) - (accumulated - beatsleft);
+        if (cuts.length < 1) cuts = [beatsleft];
+        this.blocklength = beatsleft;
+      }
+      this.cuts = cuts;
+      this._listener?.chooseoffset?.(
+        this.phrasepos,
+        this.beatspersubdiv,
+        this.currphraselength
+      );
+      this.updateblock();
+      this.endBlockAccounting();
+    }
+  };
+
+  // src/bbcut/TimelineCut.ts
+  var TimelineCut = class extends BBCutProc {
+    _timelinefunc;
+    _blockfunc;
+    _freeze;
+    _blockarray = null;
+    constructor({
+      phraselength = 4,
+      timelinefunc = [3, 3, 2],
+      blockfunc = (dur, _i) => [dur],
+      freeze = false
+    } = {}) {
+      super(0.5, phraselength);
+      this._timelinefunc = timelinefunc;
+      this._blockfunc = blockfunc;
+      this._freeze = freeze;
+    }
+    chooseblock() {
+      if (this.phrasepos >= this.currphraselength - 1e-3) {
+        this.newPhraseAccounting();
+        if (!resolve(this._freeze) || this._blockarray === null) {
+          const form = normalizeSum(resolve(this._timelinefunc));
+          this._blockarray = form.map(
+            (prop, i) => this._blockfunc(this.currphraselength * prop, i)
+          );
+        }
+      }
+      const beatsleft = this.currphraselength - this.phrasepos;
+      let cuts = (this._blockarray[this.block] ?? [beatsleft]).slice();
+      this.blocklength = sum(cuts);
+      if (this.blocklength > beatsleft) {
+        let accumulated = 0;
+        let cutoffIndex = 0;
+        for (let i = 0; i < cuts.length; i++) {
+          accumulated += cuts[i];
+          if (accumulated > beatsleft - 1e-3) {
+            cutoffIndex = i;
+            break;
+          }
+        }
+        cuts = cuts.slice(0, cutoffIndex + 1);
+        cuts[cutoffIndex] = (cuts[cutoffIndex] ?? 0) - (accumulated - beatsleft);
+        if (cuts.length < 1) cuts = [beatsleft];
+        this.blocklength = beatsleft;
+      }
+      this.cuts = cuts;
+      this._listener?.chooseoffset?.(
+        this.phrasepos,
+        this.beatspersubdiv,
+        this.currphraselength
+      );
+      this.updateblock();
+      this.endBlockAccounting();
+    }
+  };
+
+  // src/bbcut/BBCPPermute.ts
+  var BBCPPermute = class extends BBCutProc {
+    _subdivfunc;
+    _permutefunc;
+    _repeatsfunc;
+    _subdiv = 0;
+    _stepIndex = 0;
+    // steps through the phrase subdivision grid
+    constructor({
+      phraselength = 4,
+      subdivfunc = 8,
+      permutefunc = (index, n) => index % n,
+      repeatsfunc = 1
+    } = {}) {
+      super(0.5, phraselength);
+      this._subdivfunc = subdivfunc;
+      this._permutefunc = permutefunc;
+      this._repeatsfunc = repeatsfunc;
+    }
+    chooseblock() {
+      if (this.phrasepos >= this.currphraselength - 1e-3) {
+        this.newPhraseAccounting();
+        this._subdiv = Math.round(resolve(this._subdivfunc));
+        this.beatspersubdiv = this.currphraselength / this._subdiv;
+        this._stepIndex = 0;
+      }
+      const beatsleft = this.currphraselength - this.phrasepos;
+      this.blocklength = this.beatspersubdiv;
+      if (this.blocklength > beatsleft - 1e-3) this.blocklength = beatsleft;
+      const repeats = Math.max(
+        1,
+        Math.round(
+          typeof this._repeatsfunc === "function" ? this._repeatsfunc(this._stepIndex, this._subdiv, this.phrasepos) : resolve(this._repeatsfunc)
+        )
+      );
+      const cutsize = this.blocklength / repeats;
+      this.cuts = Array.from({ length: repeats }, () => cutsize);
+      this.cuts[repeats - 1] = cutsize + (this.blocklength - cutsize * repeats);
+      const permutedIndex = this._permutefunc(this._stepIndex, this._subdiv);
+      const offsetProp = permutedIndex % this._subdiv * (1 / this._subdiv);
+      this._listener?.setoffset?.(offsetProp);
+      this._stepIndex += 1;
+      this.updateblock(repeats > 1 ? 1 : 0);
+      this.endBlockAccounting();
+    }
+  };
+
+  // src/webview/main.ts
+  function send(payload) {
+    const w = window;
+    const msg = { method: "close_and_send", params: [payload] };
+    if (w.webkit?.messageHandlers?.live) w.webkit.messageHandlers.live.postMessage(msg);
+    else if (w.liveActionsSend) w.liveActionsSend(JSON.stringify(msg));
+  }
+  var ctx = window.__CTX__ ?? {
+    hasClip: false,
+    totalLengthBeats: 16,
+    loopLengthBeats: 4
+  };
+  var ALGORITHMS = {
+    BBCutProc11: {
+      label: "BBCutProc11 (Classic)",
+      params: [
+        { key: "sdiv", label: "Subdivisions", default: 8, step: 1 },
+        { key: "repeatschance", label: "Repeats chance", default: 0.2, step: 0.05 },
+        { key: "repeatsspeed", label: "Repeats speed", default: 2, step: 1 },
+        { key: "repeatsarea", label: "Repeats area", default: 0.5, step: 0.05 }
+      ],
+      build: (p) => new BBCutProc11({
+        sdiv: p.sdiv,
+        repeatschance: p.repeatschance,
+        repeatsspeed: p.repeatsspeed,
+        repeatsarea: p.repeatsarea
+      })
+    },
+    ChooseCutProc: {
+      label: "ChooseCutProc",
+      params: [
+        { key: "rollchance", label: "Roll chance", default: 0.1, step: 0.05 },
+        { key: "rollallowed", label: "Roll allowed (beats)", default: 2, step: 0.25 }
+      ],
+      build: (p) => new ChooseCutProc({ rollchance: p.rollchance, rollallowed: p.rollallowed })
+    },
+    ChooseBlockProc: {
+      label: "ChooseBlockProc",
+      params: [],
+      build: () => new ChooseBlockProc()
+    },
+    WarpCutProc1: {
+      label: "WarpCutProc1",
+      params: [
+        { key: "straightChance", label: "Straight chance", default: 0.5, step: 0.05 },
+        { key: "arithmeticChance", label: "Arithmetic chance", default: 0.7, step: 0.05 },
+        { key: "accelChance", label: "Accel chance", default: 0.6, step: 0.05 },
+        { key: "accelFactor", label: "Accel factor", default: 0.9, step: 0.01 }
+      ],
+      build: (p) => new WarpCutProc1({
+        probs: [p.straightChance, p.arithmeticChance, p.accelChance],
+        accel: p.accelFactor
+      })
+    },
+    SQPusher1: {
+      label: "SQPusher1",
+      params: [
+        { key: "activity", label: "Activity", default: 0.1, step: 0.05 },
+        { key: "fillfreq", label: "Fill frequency (phrases)", default: 4, step: 1 },
+        { key: "fillscramble", label: "Fill scramble", default: 0, step: 0.05 }
+      ],
+      build: (p) => new SQPusher1({ activity: p.activity, fillfreq: p.fillfreq, fillscramble: p.fillscramble })
+    },
+    SQPusher2: {
+      label: "SQPusher2 (Data)",
+      params: [
+        { key: "scramble", label: "Scramble", default: 0, step: 0.05 },
+        { key: "quant", label: "Quantise", default: 0, step: 0.05 }
+      ],
+      build: (p) => new SQPusher2({ scramble: p.scramble, quant: p.quant })
+    },
+    CageCut: {
+      label: "CageCut (Cage)",
+      params: [],
+      build: () => new CageCut()
+    },
+    TimelineCut: {
+      label: "TimelineCut",
+      params: [],
+      build: () => new TimelineCut()
+    },
+    BBCPPermute: {
+      label: "BBCPPermute",
+      params: [{ key: "subdivfunc", label: "Subdivisions", default: 8, step: 1 }],
+      build: (p) => new BBCPPermute({ subdivfunc: p.subdivfunc })
+    },
+    ThrashCutProc1: {
+      label: "ThrashCutProc1",
+      params: [
+        { key: "kickoffset", label: "Kick offset (beats)", default: 0, step: 0.05 },
+        { key: "snareoffset", label: "Snare offset (beats)", default: 0.125, step: 0.05 },
+        { key: "stopchance", label: "Stop chance", default: 0.125, step: 0.05 }
+      ],
+      build: (p) => new ThrashCutProc1({
+        kickoffset: p.kickoffset,
+        snareoffset: p.snareoffset,
+        stopchance: p.stopchance
+      })
+    }
+  };
+  var ALGORITHM_ORDER = [
+    "BBCutProc11",
+    "ChooseCutProc",
+    "ChooseBlockProc",
+    "WarpCutProc1",
+    "SQPusher1",
+    "SQPusher2",
+    "CageCut",
+    "TimelineCut",
+    "BBCPPermute",
+    "ThrashCutProc1"
+  ];
+  var currentAlgorithm = "BBCutProc11";
+  var currentParams = {};
+  function resetParamsForAlgorithm(id) {
+    currentParams = {};
+    for (const f of ALGORITHMS[id].params) currentParams[f.key] = f.default;
+  }
+  resetParamsForAlgorithm(currentAlgorithm);
+  function el(id) {
+    const found = document.getElementById(id);
+    if (!found) throw new Error(`missing #${id}`);
+    return found;
+  }
+  function renderParamFields() {
+    const host = el("paramFields");
+    host.innerHTML = "";
+    const spec = ALGORITHMS[currentAlgorithm];
+    if (spec.params.length === 0) {
+      const p = document.createElement("div");
+      p.className = "no-params";
+      p.textContent = "No user parameters for this procedure.";
+      host.appendChild(p);
+      return;
+    }
+    for (const field of spec.params) {
+      const row = document.createElement("div");
+      row.className = "field-row";
+      const label = document.createElement("label");
+      label.textContent = field.label;
+      label.htmlFor = `field-${field.key}`;
+      const input = document.createElement("input");
+      input.type = "number";
+      input.id = `field-${field.key}`;
+      input.step = String(field.step);
+      input.value = String(currentParams[field.key] ?? field.default);
+      input.addEventListener("input", () => {
+        const v = parseFloat(input.value);
+        currentParams[field.key] = Number.isFinite(v) ? v : field.default;
+      });
+      row.appendChild(label);
+      row.appendChild(input);
+      host.appendChild(row);
+    }
+  }
+  function populateAlgorithmSelect() {
+    const sel = el("algorithm");
+    sel.innerHTML = "";
+    for (const id of ALGORITHM_ORDER) {
+      const opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = ALGORITHMS[id].label;
+      sel.appendChild(opt);
+    }
+    sel.value = currentAlgorithm;
+    sel.addEventListener("change", () => {
+      currentAlgorithm = sel.value;
+      resetParamsForAlgorithm(currentAlgorithm);
+      renderParamFields();
+    });
+  }
+  var MIN_LOOP_BEATS = 0.25;
+  function applyRequest() {
+    const rawTotal = parseFloat(el("totalLength").value);
+    const totalLengthBeats = Number.isFinite(rawTotal) && rawTotal > 0 ? rawTotal : ctx.totalLengthBeats;
+    const rawLoop = parseFloat(el("loopLength").value);
+    const loopLengthBeats = Number.isFinite(rawLoop) && rawLoop >= MIN_LOOP_BEATS ? rawLoop : Math.max(MIN_LOOP_BEATS, ctx.loopLengthBeats);
+    if (currentAlgorithm === "WarpCutProc1" && typeof currentParams.accelFactor === "number") {
+      currentParams.accelFactor = Math.min(0.99, Math.max(0.01, currentParams.accelFactor));
+    }
+    const spec = ALGORITHMS[currentAlgorithm];
+    const proc = spec.build(currentParams);
+    const blocks = generateCutSequence(proc, totalLengthBeats, loopLengthBeats);
+    const { slices, rollGroups } = mapToSliceDefinitions(
+      blocks,
+      0,
+      // clipStartTime -- honest 0 default; real Arrangement placement is Step 4/5
+      0,
+      // clipLoopStart
+      loopLengthBeats,
+      ctx.filePath ?? ""
+    );
+    return {
+      algorithm: currentAlgorithm,
+      params: { ...currentParams },
+      totalLengthBeats,
+      loopLengthBeats,
+      slices,
+      rollGroups
+    };
+  }
+  function init() {
+    el("clipChip").textContent = ctx.hasClip ? ctx.clipName ?? "clip" : "no clip context yet";
+    el("totalLength").value = String(ctx.totalLengthBeats);
+    el("loopLength").value = String(ctx.loopLengthBeats);
+    populateAlgorithmSelect();
+    renderParamFields();
+    el("cancel").addEventListener("click", () => send(null));
+    el("apply").addEventListener("click", () => {
+      const req = applyRequest();
+      send(JSON.stringify(req));
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") send(null);
+    });
+  }
+  init();
+})();
+</script>
+</body>
+</html>

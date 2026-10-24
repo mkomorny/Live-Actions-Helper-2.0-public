@@ -1,0 +1,5259 @@
+{
+ "_meta": {
+  "class_count": 62,
+  "member_count": 930,
+  "note": "Runtime-introspected reference. Repo targets Live 12.3+, so members added in later builds (e.g. SimplerDevice.replace_sample, 12.4+) are absent here and must be listed in test_lom_surface.VERSION_GAP.",
+  "source": "B:\\DATABASES\\Music_Audio\\Ableton_Live\\LiveAPI_LOM\\markdown\\general",
+  "source_live_version": "12.3.6"
+ },
+ "classes": {
+  "Application": {
+   "average_process_usage": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   },
+   "browser": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.Browser"
+   },
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "None"
+   },
+   "control_surfaces": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[object]"
+   },
+   "current_dialog_button_count": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "current_dialog_message": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "str"
+   },
+   "get_bugfix_version": {
+    "kind": "method",
+    "signature": "get_bugfix_version( (Application)arg1) -> int :"
+   },
+   "get_build_id": {
+    "kind": "method",
+    "signature": "get_build_id( (Application)arg1) -> str :"
+   },
+   "get_document": {
+    "kind": "method",
+    "signature": "get_document( (Application)arg1) -> Song :"
+   },
+   "get_major_version": {
+    "kind": "method",
+    "signature": "get_major_version( (Application)arg1) -> int :"
+   },
+   "get_minor_version": {
+    "kind": "method",
+    "signature": "get_minor_version( (Application)arg1) -> int :"
+   },
+   "get_variant": {
+    "kind": "method",
+    "signature": "get_variant( (Application)arg1) -> str :"
+   },
+   "get_version_string": {
+    "kind": "method",
+    "signature": "get_version_string( (Application)arg1) -> str :"
+   },
+   "has_option": {
+    "kind": "method",
+    "signature": "has_option( (Application)arg1, (object)arg2) -> bool :"
+   },
+   "number_of_push_apps_running": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "open_dialog_count": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "peak_process_usage": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   },
+   "press_current_dialog_button": {
+    "kind": "method",
+    "signature": "press_current_dialog_button( (Application)arg1, (int)arg2) -> None :"
+   },
+   "show_message": {
+    "kind": "method",
+    "signature": "show_message( (Application)arg1, (Text)text [, (int)buttons=Application.MessageButtons.OK_BUTTON [, (bool)enable_markup=False [, (bool)show_success_icon=False]]]) -> int :"
+   },
+   "show_on_the_fly_message": {
+    "kind": "method",
+    "signature": "show_on_the_fly_message( (Application)arg1, (str)message [, (int)buttons=Application.MessageButtons.OK_BUTTON [, (bool)enable_markup=False [, (bool)show_success_icon=False [, (int)push_dialog_type=Application.PushDialogType.MESSAGE_BOX]]]]) -> int :"
+   },
+   "unavailable_features": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Application.UnavailableFeatureVector"
+   },
+   "view": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Application.Application.View"
+   }
+  },
+  "BeatTime": {
+   "bars": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "int"
+   },
+   "beats": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "int"
+   },
+   "sub_division": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "int"
+   },
+   "ticks": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "int"
+   }
+  },
+  "Browser": {
+   "audio_effects": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.BrowserItem"
+   },
+   "clips": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.BrowserItem"
+   },
+   "colors": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.BrowserItemVector"
+   },
+   "current_project": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.BrowserItem"
+   },
+   "drums": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.BrowserItem"
+   },
+   "filter_type": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "full_refresh": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": null
+   },
+   "hotswap_target": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "None"
+   },
+   "instruments": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.BrowserItem"
+   },
+   "legacy_libraries": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.BrowserItemVector"
+   },
+   "load_item": {
+    "kind": "method",
+    "signature": "load_item( (Browser)arg1, (BrowserItem)arg2) -> None :"
+   },
+   "max_for_live": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.BrowserItem"
+   },
+   "midi_effects": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.BrowserItem"
+   },
+   "packs": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.BrowserItem"
+   },
+   "plugins": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.BrowserItem"
+   },
+   "preview_item": {
+    "kind": "method",
+    "signature": "preview_item( (Browser)arg1, (BrowserItem)arg2) -> None :"
+   },
+   "relation_to_hotswap_target": {
+    "kind": "method",
+    "signature": "relation_to_hotswap_target( (Browser)arg1, (BrowserItem)arg2) -> Relation :"
+   },
+   "samples": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.BrowserItem"
+   },
+   "sounds": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.BrowserItem"
+   },
+   "stop_preview": {
+    "kind": "method",
+    "signature": "stop_preview( (Browser)arg1) -> None :"
+   },
+   "user_folders": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.BrowserItemVector"
+   },
+   "user_library": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.BrowserItem"
+   }
+  },
+  "BrowserItem": {
+   "children": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.BrowserItemVector"
+   },
+   "is_device": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_folder": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_loadable": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_selected": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "iter_children": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Browser.BrowserItemIterator"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "str"
+   },
+   "source": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "str"
+   },
+   "uri": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "str"
+   }
+  },
+  "CCFeedbackRule": {
+   "cc_no": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "int"
+   },
+   "cc_value_map": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "tuple"
+   },
+   "channel": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "int"
+   },
+   "delay_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "float"
+   },
+   "enabled": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   }
+  },
+  "CcControlDevice": {
+   "custom_bool_target": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "custom_bool_target_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "custom_float_target_0": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "custom_float_target_0_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "custom_float_target_1": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "custom_float_target_10": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "custom_float_target_10_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "custom_float_target_11": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "custom_float_target_11_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "custom_float_target_1_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "custom_float_target_2": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "custom_float_target_2_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "custom_float_target_3": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "custom_float_target_3_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "custom_float_target_4": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "custom_float_target_4_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "custom_float_target_5": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "custom_float_target_5_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "custom_float_target_6": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "custom_float_target_6_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "custom_float_target_7": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "custom_float_target_7_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "custom_float_target_8": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "custom_float_target_8_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "custom_float_target_9": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "custom_float_target_9_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "resend": {
+    "kind": "method",
+    "signature": "resend( (CcControlDevice)self) -> None :"
+   }
+  },
+  "Chain": {
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.RackDevice.RackDevice"
+   },
+   "color": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "color_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "delete_device": {
+    "kind": "method",
+    "signature": "delete_device( (Chain)arg1, (int)arg2) -> None :"
+   },
+   "devices": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.LomObject.LomObject]"
+   },
+   "duplicate_device": {
+    "kind": "method",
+    "signature": "duplicate_device( (Chain)arg1, (int)arg2) -> None :"
+   },
+   "has_audio_input": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "has_audio_output": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "has_midi_input": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "has_midi_output": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "insert_device": {
+    "kind": "method",
+    "signature": "insert_device( (Chain)arg1, (str)DeviceName [, (int)DeviceIndex=-1]) -> LomObject :"
+   },
+   "is_auto_colored": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "mixer_device": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.ChainMixerDevice.ChainMixerDevice"
+   },
+   "mute": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "muted_via_solo": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "str"
+   },
+   "solo": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   }
+  },
+  "ChainMixerDevice": {
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Chain.Chain"
+   },
+   "chain_activator": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.DeviceParameter.DeviceParameter"
+   },
+   "panning": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.DeviceParameter.DeviceParameter"
+   },
+   "sends": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector"
+   },
+   "volume": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.DeviceParameter.DeviceParameter"
+   }
+  },
+  "Clip": {
+   "add_new_notes": {
+    "kind": "method",
+    "signature": "add_new_notes( (Clip)arg1, (object)arg2) -> IntU64Vector :"
+   },
+   "add_warp_marker": {
+    "kind": "method",
+    "signature": "add_warp_marker( (Clip)self, (object)warp_marker) -> None :"
+   },
+   "apply_note_modifications": {
+    "kind": "method",
+    "signature": "apply_note_modifications( (Clip)arg1, (MidiNoteVector)arg2) -> None :"
+   },
+   "automation_envelope": {
+    "kind": "method",
+    "signature": "automation_envelope( (Clip)arg1, (DeviceParameter)arg2) -> Envelope :"
+   },
+   "automation_envelopes": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.Envelope.Envelope]"
+   },
+   "available_warp_modes": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.IntVector"
+   },
+   "beat_to_sample_time": {
+    "kind": "method",
+    "signature": "beat_to_sample_time( (Clip)self, (float)beat_time) -> float :"
+   },
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.ClipSlot.ClipSlot"
+   },
+   "clear_all_envelopes": {
+    "kind": "method",
+    "signature": "clear_all_envelopes( (Clip)arg1) -> None :"
+   },
+   "clear_envelope": {
+    "kind": "method",
+    "signature": "clear_envelope( (Clip)arg1, (DeviceParameter)arg2) -> None :"
+   },
+   "color": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "color_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "create_automation_envelope": {
+    "kind": "method",
+    "signature": "create_automation_envelope( (Clip)arg1, (DeviceParameter)arg2) -> Envelope :"
+   },
+   "crop": {
+    "kind": "method",
+    "signature": "crop( (Clip)arg1) -> None :"
+   },
+   "deselect_all_notes": {
+    "kind": "method",
+    "signature": "deselect_all_notes( (Clip)arg1) -> None :"
+   },
+   "duplicate_loop": {
+    "kind": "method",
+    "signature": "duplicate_loop( (Clip)arg1) -> None :"
+   },
+   "duplicate_notes_by_id": {
+    "kind": "method",
+    "signature": "duplicate_notes_by_id( (Clip)self, (object)note_ids [, (object)destination_time=None [, (int)transposition_amount=0]]) -> IntU64Vector :"
+   },
+   "duplicate_region": {
+    "kind": "method",
+    "signature": "duplicate_region( (Clip)self, (float)region_start, (float)region_length, (float)destination_time [, (int)pitch=-1 [, (int)transposition_amount=0]]) -> None :"
+   },
+   "end_marker": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "end_time": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   },
+   "file_path": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "str"
+   },
+   "fire": {
+    "kind": "method",
+    "signature": "fire( (Clip)arg1) -> None :"
+   },
+   "gain": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "gain_display_string": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "str"
+   },
+   "get_all_notes_extended": {
+    "kind": "method",
+    "signature": "get_all_notes_extended( (Clip)arg1) -> MidiNoteVector :"
+   },
+   "get_notes": {
+    "kind": "method",
+    "signature": "get_notes( (Clip)self, (float)from_time, (int)from_pitch, (float)time_span, (int)pitch_span) -> tuple :"
+   },
+   "get_notes_by_id": {
+    "kind": "method",
+    "signature": "get_notes_by_id( (Clip)arg1, (object)note_ids) -> MidiNoteVector :"
+   },
+   "get_notes_extended": {
+    "kind": "method",
+    "signature": "get_notes_extended( (Clip)arg1, (int)from_pitch, (int)pitch_span, (float)from_time, (float)time_span) -> MidiNoteVector :"
+   },
+   "get_selected_notes": {
+    "kind": "method",
+    "signature": "get_selected_notes( (Clip)arg1) -> tuple :"
+   },
+   "get_selected_notes_extended": {
+    "kind": "method",
+    "signature": "get_selected_notes_extended( (Clip)arg1) -> MidiNoteVector :"
+   },
+   "groove": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "None"
+   },
+   "has_envelopes": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "has_groove": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_arrangement_clip": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_audio_clip": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_midi_clip": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_overdubbing": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_playing": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "is_recording": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_session_clip": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_take_lane_clip": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_triggered": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "launch_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "launch_quantization": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "legato": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "length": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "loop_end": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "loop_jump": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": null
+   },
+   "loop_start": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "looping": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "move_playing_pos": {
+    "kind": "method",
+    "signature": "move_playing_pos( (Clip)arg1, (float)arg2) -> None :"
+   },
+   "move_warp_marker": {
+    "kind": "method",
+    "signature": "move_warp_marker( (Clip)self, (float)marker_beat_time, (float)beat_time_distance) -> None :"
+   },
+   "muted": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "str"
+   },
+   "note_number_to_name": {
+    "kind": "method",
+    "signature": "note_number_to_name( (Clip)self, (int)midi_pitch) -> str :"
+   },
+   "notes": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": null
+   },
+   "pitch_coarse": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "pitch_fine": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "playing_position": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   },
+   "playing_status": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": null
+   },
+   "position": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "quantize": {
+    "kind": "method",
+    "signature": "quantize( (Clip)arg1, (int)arg2, (float)arg3) -> None :"
+   },
+   "quantize_pitch": {
+    "kind": "method",
+    "signature": "quantize_pitch( (Clip)arg1, (int)arg2, (int)arg3, (float)arg4) -> None :"
+   },
+   "ram_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "remove_notes": {
+    "kind": "method",
+    "signature": "remove_notes( (Clip)arg1, (float)arg2, (int)arg3, (float)arg4, (int)arg5) -> None :"
+   },
+   "remove_notes_by_id": {
+    "kind": "method",
+    "signature": "remove_notes_by_id( (Clip)arg1, (object)arg2) -> None :"
+   },
+   "remove_notes_extended": {
+    "kind": "method",
+    "signature": "remove_notes_extended( (Clip)arg1, (int)from_pitch, (int)pitch_span, (float)from_time, (float)time_span) -> None :"
+   },
+   "remove_warp_marker": {
+    "kind": "method",
+    "signature": "remove_warp_marker( (Clip)self, (float)beat_time) -> None :"
+   },
+   "replace_selected_notes": {
+    "kind": "method",
+    "signature": "replace_selected_notes( (Clip)arg1, (tuple)arg2) -> None :"
+   },
+   "sample_length": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "sample_rate": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "sample_to_beat_time": {
+    "kind": "method",
+    "signature": "sample_to_beat_time( (Clip)self, (float)sample_time) -> float :"
+   },
+   "scrub": {
+    "kind": "method",
+    "signature": "scrub( (Clip)self, (float)scrub_position) -> None :"
+   },
+   "seconds_to_sample_time": {
+    "kind": "method",
+    "signature": "seconds_to_sample_time( (Clip)self, (float)seconds) -> float :"
+   },
+   "select_all_notes": {
+    "kind": "method",
+    "signature": "select_all_notes( (Clip)arg1) -> None :"
+   },
+   "select_notes_by_id": {
+    "kind": "method",
+    "signature": "select_notes_by_id( (Clip)arg1, (object)arg2) -> None :"
+   },
+   "set_fire_button_state": {
+    "kind": "method",
+    "signature": "set_fire_button_state( (Clip)arg1, (bool)arg2) -> None :"
+   },
+   "set_notes": {
+    "kind": "method",
+    "signature": "set_notes( (Clip)arg1, (tuple)arg2) -> None :"
+   },
+   "signature_denominator": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "signature_numerator": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "start_marker": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "start_time": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   },
+   "stop": {
+    "kind": "method",
+    "signature": "stop( (Clip)arg1) -> None :"
+   },
+   "stop_scrub": {
+    "kind": "method",
+    "signature": "stop_scrub( (Clip)arg1) -> None :"
+   },
+   "velocity_amount": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "view": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Clip.Clip.View"
+   },
+   "warp_markers": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Clip.WarpMarkerVector"
+   },
+   "warp_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "warping": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "will_record_on_start": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   }
+  },
+  "ClipSlot": {
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Track.Track"
+   },
+   "clip": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Clip.Clip"
+   },
+   "color": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "color_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "controls_other_clips": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "create_audio_clip": {
+    "kind": "method",
+    "signature": "create_audio_clip( (ClipSlot)arg1, (object)arg2) -> Clip :"
+   },
+   "create_clip": {
+    "kind": "method",
+    "signature": "create_clip( (ClipSlot)arg1, (float)arg2) -> Clip :"
+   },
+   "delete_clip": {
+    "kind": "method",
+    "signature": "delete_clip( (ClipSlot)arg1) -> None :"
+   },
+   "duplicate_clip_to": {
+    "kind": "method",
+    "signature": "duplicate_clip_to( (ClipSlot)arg1, (ClipSlot)arg2) -> None :"
+   },
+   "fire": {
+    "kind": "method",
+    "signature": "fire( (ClipSlot)arg1) -> None :"
+   },
+   "has_clip": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "has_stop_button": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "is_group_slot": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_playing": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_recording": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_triggered": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "playing_status": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.ClipSlot.ClipSlotPlayingState"
+   },
+   "set_fire_button_state": {
+    "kind": "method",
+    "signature": "set_fire_button_state( (ClipSlot)arg1, (bool)arg2) -> None :"
+   },
+   "stop": {
+    "kind": "method",
+    "signature": "stop( (ClipSlot)arg1) -> None :"
+   },
+   "will_record_on_start": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   }
+  },
+  "CompressorDevice": {
+   "available_input_routing_channels": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Track.RoutingChannelVector"
+   },
+   "available_input_routing_types": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Track.RoutingTypeVector"
+   },
+   "input_routing_channel": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "Live.Track.RoutingChannel"
+   },
+   "input_routing_type": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "Live.Track.RoutingType"
+   },
+   "is_active": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_using_compare_preset_b": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "latency_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "latency_in_samples": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "str"
+   },
+   "parameters": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.ATimeableValueVector"
+   }
+  },
+  "ControlDescription": {
+   "id": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "str"
+   }
+  },
+  "ControlSurfaceProxy": {
+   "control_descriptions": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": null
+   },
+   "control_values_arrived": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": null
+   },
+   "enable_receive_midi": {
+    "kind": "method",
+    "signature": "enable_receive_midi( (ControlSurfaceProxy)arg1, (bool)arg2) -> None :"
+   },
+   "fetch_received_midi_messages": {
+    "kind": "method",
+    "signature": "fetch_received_midi_messages( (ControlSurfaceProxy)arg1) -> tuple :"
+   },
+   "fetch_received_values": {
+    "kind": "method",
+    "signature": "fetch_received_values( (ControlSurfaceProxy)arg1) -> tuple :"
+   },
+   "grab_control": {
+    "kind": "method",
+    "signature": "grab_control( (ControlSurfaceProxy)arg1, (int)arg2) -> None :"
+   },
+   "midi_received": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": null
+   },
+   "pad_layout": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": null
+   },
+   "release_control": {
+    "kind": "method",
+    "signature": "release_control( (ControlSurfaceProxy)arg1, (int)arg2) -> None :"
+   },
+   "send_midi": {
+    "kind": "method",
+    "signature": "send_midi( (ControlSurfaceProxy)arg1, (tuple)arg2) -> None :"
+   },
+   "send_value": {
+    "kind": "method",
+    "signature": "send_value( (ControlSurfaceProxy)arg1, (tuple)arg2) -> None :"
+   },
+   "subscribe_to_control": {
+    "kind": "method",
+    "signature": "subscribe_to_control( (ControlSurfaceProxy)arg1, (int)arg2) -> None :"
+   },
+   "type_name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": null
+   },
+   "unsubscribe_from_control": {
+    "kind": "method",
+    "signature": "unsubscribe_from_control( (ControlSurfaceProxy)arg1, (int)arg2) -> None :"
+   }
+  },
+  "CuePoint": {
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Song.Song"
+   },
+   "jump": {
+    "kind": "method",
+    "signature": "jump( (CuePoint)arg1) -> None :"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "str"
+   },
+   "time": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   }
+  },
+  "Device": {
+   "can_compare_ab": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "can_have_chains": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "can_have_drum_pads": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Track.Track"
+   },
+   "class_display_name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "str"
+   },
+   "class_name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "str"
+   },
+   "is_active": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_using_compare_preset_b": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "latency_in_ms": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   },
+   "latency_in_samples": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "str"
+   },
+   "parameters": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Device.ATimeableValueVector"
+   },
+   "save_preset_to_compare_ab_slot": {
+    "kind": "method",
+    "signature": "save_preset_to_compare_ab_slot( (Device)arg1) -> None :"
+   },
+   "store_chosen_bank": {
+    "kind": "method",
+    "signature": "store_chosen_bank( (Device)arg1, (int)arg2, (int)arg3) -> None :"
+   },
+   "type": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.DeviceType"
+   },
+   "view": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.Device.View"
+   }
+  },
+  "DeviceIO": {
+   "available_routing_channels": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Track.RoutingChannelVector"
+   },
+   "available_routing_types": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Track.RoutingTypeVector"
+   },
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.MaxDevice.MaxDevice"
+   },
+   "default_external_routing_channel_is_none": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "routing_channel": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "Live.Track.RoutingChannel"
+   },
+   "routing_type": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "Live.Track.RoutingType"
+   }
+  },
+  "DeviceParameter": {
+   "automation_state": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "begin_gesture": {
+    "kind": "method",
+    "signature": "begin_gesture( (DeviceParameter)arg1) -> None :"
+   },
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.Device"
+   },
+   "default_value": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "display_value": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "end_gesture": {
+    "kind": "method",
+    "signature": "end_gesture( (DeviceParameter)arg1) -> None :"
+   },
+   "is_enabled": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_quantized": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "max": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "min": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "str"
+   },
+   "original_name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "str"
+   },
+   "re_enable_automation": {
+    "kind": "method",
+    "signature": "re_enable_automation( (DeviceParameter)arg1) -> None :"
+   },
+   "short_value_items": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "state": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "str_for_value": {
+    "kind": "method",
+    "signature": "str_for_value( (DeviceParameter)arg1, (float)arg2) -> str :"
+   },
+   "value": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "value_items": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   }
+  },
+  "DriftDevice": {
+   "is_active": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_using_compare_preset_b": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "latency_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "latency_in_samples": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "mod_matrix_filter_source_1_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "mod_matrix_filter_source_1_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "mod_matrix_filter_source_2_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "mod_matrix_filter_source_2_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "mod_matrix_lfo_source_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "mod_matrix_lfo_source_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "mod_matrix_pitch_source_1_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "mod_matrix_pitch_source_1_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "mod_matrix_pitch_source_2_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "mod_matrix_pitch_source_2_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "mod_matrix_shape_source_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "mod_matrix_shape_source_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "mod_matrix_source_1_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "mod_matrix_source_1_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "mod_matrix_source_2_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "mod_matrix_source_2_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "mod_matrix_source_3_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "mod_matrix_source_3_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "mod_matrix_target_1_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "mod_matrix_target_1_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "mod_matrix_target_2_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "mod_matrix_target_2_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "mod_matrix_target_3_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "mod_matrix_target_3_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "str"
+   },
+   "parameters": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.ATimeableValueVector"
+   },
+   "pitch_bend_range": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "voice_count_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "voice_count_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "voice_mode_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "voice_mode_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   }
+  },
+  "DrumCellDevice": {
+   "gain": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "is_active": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_using_compare_preset_b": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "latency_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "latency_in_samples": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "str"
+   },
+   "parameters": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.ATimeableValueVector"
+   }
+  },
+  "DrumChain": {
+   "choke_group": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "color": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "int"
+   },
+   "color_index": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "int"
+   },
+   "devices": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.RackDevice.RackDevice]"
+   },
+   "in_note": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "is_auto_colored": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "mute": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "muted_via_solo": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "str"
+   },
+   "out_note": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "solo": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   }
+  },
+  "DrumPad": {
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.RackDevice.RackDevice"
+   },
+   "chains": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector"
+   },
+   "delete_all_chains": {
+    "kind": "method",
+    "signature": "delete_all_chains( (DrumPad)arg1) -> None :"
+   },
+   "mute": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "str"
+   },
+   "note": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "solo": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   }
+  },
+  "Envelope": {
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Clip.Clip"
+   },
+   "delete_events_in_range": {
+    "kind": "method",
+    "signature": "delete_events_in_range( (Envelope)arg1, (float)arg2, (float)arg3) -> None :"
+   },
+   "events_in_range": {
+    "kind": "method",
+    "signature": "events_in_range( (Envelope)arg1, (float)arg2, (float)arg3) -> EnvelopeEventVector :"
+   },
+   "insert_step": {
+    "kind": "method",
+    "signature": "insert_step( (Envelope)arg1, (float)arg2, (float)arg3, (float)arg4) -> None :"
+   },
+   "value_at_time": {
+    "kind": "method",
+    "signature": "value_at_time( (Envelope)arg1, (float)arg2) -> float :"
+   }
+  },
+  "EnvelopeEvent": {
+   "control_coefficients": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "Live.Envelope.EnvelopeEventControlCoefficients"
+   },
+   "time": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "float"
+   },
+   "value": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "float"
+   }
+  },
+  "EnvelopeEventControlCoefficients": {
+   "x1": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "float"
+   },
+   "x2": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "float"
+   },
+   "y1": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "float"
+   },
+   "y2": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "float"
+   }
+  },
+  "Eq8Device": {
+   "edit_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "global_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "is_active": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_using_compare_preset_b": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "latency_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "latency_in_samples": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "str"
+   },
+   "oversample": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "parameters": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.ATimeableValueVector"
+   },
+   "view": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Eq8Device.Eq8Device.View"
+   }
+  },
+  "Groove": {
+   "base": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "Live.Groove.Base"
+   },
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.GroovePool.GroovePool"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "str"
+   },
+   "quantization_amount": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "random_amount": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "timing_amount": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "velocity_amount": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   }
+  },
+  "GroovePool": {
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Song.Song"
+   },
+   "grooves": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.Groove.Groove]"
+   }
+  },
+  "HybridReverbDevice": {
+   "ir_attack_time": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "ir_category_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "ir_category_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "ir_decay_time": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "ir_file_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "ir_file_list": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "ir_size_factor": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "ir_time_shaping_on": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "is_active": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_using_compare_preset_b": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "latency_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "latency_in_samples": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "str"
+   },
+   "parameters": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.ATimeableValueVector"
+   }
+  },
+  "ListenerHandle": {
+   "disconnect": {
+    "kind": "method",
+    "signature": "disconnect( (ListenerHandle)arg1) -> None :"
+   },
+   "listener_func": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": null
+   },
+   "listener_self": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": null
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": null
+   }
+  },
+  "LooperDevice": {
+   "clear": {
+    "kind": "method",
+    "signature": "clear( (LooperDevice)arg1) -> None :"
+   },
+   "double_length": {
+    "kind": "method",
+    "signature": "double_length( (LooperDevice)arg1) -> None :"
+   },
+   "double_speed": {
+    "kind": "method",
+    "signature": "double_speed( (LooperDevice)arg1) -> None :"
+   },
+   "export_to_clip_slot": {
+    "kind": "method",
+    "signature": "export_to_clip_slot( (LooperDevice)arg1, (ClipSlot)arg2) -> None :"
+   },
+   "half_length": {
+    "kind": "method",
+    "signature": "half_length( (LooperDevice)arg1) -> None :"
+   },
+   "half_speed": {
+    "kind": "method",
+    "signature": "half_speed( (LooperDevice)arg1) -> None :"
+   },
+   "is_active": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_using_compare_preset_b": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "latency_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "latency_in_samples": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "loop_length": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "str"
+   },
+   "overdub": {
+    "kind": "method",
+    "signature": "overdub( (LooperDevice)arg1) -> None :"
+   },
+   "overdub_after_record": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "parameters": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.ATimeableValueVector"
+   },
+   "play": {
+    "kind": "method",
+    "signature": "play( (LooperDevice)arg1) -> None :"
+   },
+   "record": {
+    "kind": "method",
+    "signature": "record( (LooperDevice)arg1) -> None :"
+   },
+   "record_length_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "record_length_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "stop": {
+    "kind": "method",
+    "signature": "stop( (LooperDevice)arg1) -> None :"
+   },
+   "tempo": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   },
+   "undo": {
+    "kind": "method",
+    "signature": "undo( (LooperDevice)arg1) -> None :"
+   }
+  },
+  "MaxDevice": {
+   "audio_inputs": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.DeviceIO.DeviceIO]"
+   },
+   "audio_outputs": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.DeviceIO.DeviceIO]"
+   },
+   "bank_parameters_changed": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": null
+   },
+   "get_bank_count": {
+    "kind": "method",
+    "signature": "get_bank_count( (MaxDevice)arg1) -> int :"
+   },
+   "get_bank_name": {
+    "kind": "method",
+    "signature": "get_bank_name( (MaxDevice)arg1, (int)arg2) -> str :"
+   },
+   "get_bank_parameters": {
+    "kind": "method",
+    "signature": "get_bank_parameters( (MaxDevice)arg1, (int)arg2) -> list :"
+   },
+   "get_value_item_icons": {
+    "kind": "method",
+    "signature": "get_value_item_icons( (MaxDevice)arg1, (DeviceParameter)arg2) -> list :"
+   },
+   "is_active": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "latency_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "latency_in_samples": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "midi_inputs": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector"
+   },
+   "midi_outputs": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "str"
+   },
+   "parameters": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.ATimeableValueVector"
+   }
+  },
+  "MeldDevice": {
+   "is_active": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_using_compare_preset_b": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "latency_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "latency_in_samples": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "mono_poly": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "str"
+   },
+   "parameters": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.ATimeableValueVector"
+   },
+   "poly_voices": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "selected_engine": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "unison_voices": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   }
+  },
+  "MidiNote": {
+   "duration": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "float"
+   },
+   "mute": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "note_id": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "pitch": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "int"
+   },
+   "probability": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "float"
+   },
+   "release_velocity": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "float"
+   },
+   "start_time": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "float"
+   },
+   "velocity": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "float"
+   },
+   "velocity_deviation": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "float"
+   }
+  },
+  "MixerDevice": {
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Track.Track"
+   },
+   "crossfade_assign": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "crossfader": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.DeviceParameter.DeviceParameter"
+   },
+   "cue_volume": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.DeviceParameter.DeviceParameter"
+   },
+   "left_split_stereo": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.DeviceParameter.DeviceParameter"
+   },
+   "panning": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.DeviceParameter.DeviceParameter"
+   },
+   "panning_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "right_split_stereo": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.DeviceParameter.DeviceParameter"
+   },
+   "sends": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.DeviceParameter.DeviceParameter]"
+   },
+   "song_tempo": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.DeviceParameter.DeviceParameter"
+   },
+   "track_activator": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.DeviceParameter.DeviceParameter"
+   },
+   "volume": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.DeviceParameter.DeviceParameter"
+   }
+  },
+  "NoteFeedbackRule": {
+   "channel": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "int"
+   },
+   "delay_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "float"
+   },
+   "enabled": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "note_no": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "int"
+   },
+   "vel_map": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "tuple"
+   }
+  },
+  "PitchBendFeedbackRule": {
+   "channel": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "int"
+   },
+   "delay_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "float"
+   },
+   "enabled": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "value_pair_map": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "tuple"
+   }
+  },
+  "PitchClassAndOctave": {
+   "index_in_octave": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "octave": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   }
+  },
+  "PluginDevice": {
+   "get_parameter_names": {
+    "kind": "method",
+    "signature": "get_parameter_names( (PluginDevice)arg1 [, (int)begin=0 [, (int)end=-1]]) -> StringVector :"
+   },
+   "is_active": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "latency_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "latency_in_samples": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "str"
+   },
+   "parameters": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.ATimeableValueVector"
+   },
+   "presets": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "selected_preset_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   }
+  },
+  "ProgressDialog": {
+   "end_modal_loop": {
+    "kind": "method",
+    "signature": "end_modal_loop( (ProgressDialog)arg1) -> None :"
+   },
+   "run_in_modal_loop": {
+    "kind": "method",
+    "signature": "run_in_modal_loop( (ProgressDialog)arg1) -> None :"
+   },
+   "set_status_message": {
+    "kind": "method",
+    "signature": "set_status_message( (object)arg1, (str)msg) -> None :"
+   }
+  },
+  "PythonLicensingBridge": {
+   "authorize_with_sassafras": {
+    "kind": "method",
+    "signature": "authorize_with_sassafras( (PythonLicensingBridge)arg1) -> None :"
+   },
+   "base_product_id": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": null
+   },
+   "create_new_live_set": {
+    "kind": "method",
+    "signature": "create_new_live_set( (PythonLicensingBridge)arg1) -> None :"
+   },
+   "deauthenticate_user": {
+    "kind": "method",
+    "signature": "deauthenticate_user( (PythonLicensingBridge)arg1) -> None :"
+   },
+   "get_progress_dialog": {
+    "kind": "method",
+    "signature": "get_progress_dialog( (PythonLicensingBridge)arg1) -> ProgressDialog :"
+   },
+   "get_session_id": {
+    "kind": "method",
+    "signature": "get_session_id( (PythonLicensingBridge)arg1) -> str :"
+   },
+   "get_startup_dialog": {
+    "kind": "method",
+    "signature": "get_startup_dialog( (PythonLicensingBridge)arg1, (object)authorize_callable, (object)authorize_later_callable) -> StartupDialog :"
+   },
+   "get_trial_time_left": {
+    "kind": "method",
+    "signature": "get_trial_time_left( (PythonLicensingBridge)arg1) -> str :"
+   },
+   "in_sassafras_mode": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": null
+   },
+   "invoke_pack_installation_callback": {
+    "kind": "method",
+    "signature": "invoke_pack_installation_callback( (PythonLicensingBridge)arg1) -> None :"
+   },
+   "license_must_match_variant": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": null
+   },
+   "load_and_convert_legacy_unlock_cfg": {
+    "kind": "method",
+    "signature": "load_and_convert_legacy_unlock_cfg( (PythonLicensingBridge)arg1) -> dict :"
+   },
+   "process_license_response": {
+    "kind": "method",
+    "signature": "process_license_response( (PythonLicensingBridge)arg1, (list)license_response_lines) -> UnlockStatus :"
+   },
+   "process_trial_response": {
+    "kind": "method",
+    "signature": "process_trial_response( (PythonLicensingBridge)arg1, (str)trial_response_line) -> bool :"
+   },
+   "random_number_for_trial_authorization": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": null
+   },
+   "request_exit": {
+    "kind": "method",
+    "signature": "request_exit( (PythonLicensingBridge)arg1 [, (int)exit_code=0]) -> None :"
+   },
+   "save_current_set": {
+    "kind": "method",
+    "signature": "save_current_set( (PythonLicensingBridge)arg1) -> None :"
+   },
+   "set_has_unsaved_changes": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": null
+   },
+   "set_network_timer": {
+    "kind": "method",
+    "signature": "set_network_timer( (PythonLicensingBridge)arg1, (object)callback, (int)interval_in_ms) -> None :"
+   },
+   "store_session_id": {
+    "kind": "method",
+    "signature": "store_session_id( (PythonLicensingBridge)arg1, (str)session_id) -> None :"
+   }
+  },
+  "RackDevice": {
+   "add_macro": {
+    "kind": "method",
+    "signature": "add_macro( (RackDevice)arg1) -> None :"
+   },
+   "can_show_chains": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "chain_selector": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.DeviceParameter.DeviceParameter"
+   },
+   "chains": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector"
+   },
+   "copy_pad": {
+    "kind": "method",
+    "signature": "copy_pad( (RackDevice)arg1, (int)arg2, (int)arg3) -> None :"
+   },
+   "delete_selected_variation": {
+    "kind": "method",
+    "signature": "delete_selected_variation( (Device)arg1) -> None :"
+   },
+   "drum_pads": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.DrumPad.DrumPad]"
+   },
+   "has_drum_pads": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "has_macro_mappings": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "insert_chain": {
+    "kind": "method",
+    "signature": "insert_chain( (RackDevice)arg1 [, (int)Index=-1]) -> LomObject :"
+   },
+   "is_active": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_showing_chains": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "latency_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "latency_in_samples": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "macros_mapped": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "tuple[bool, ...]"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "str"
+   },
+   "parameters": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.ATimeableValueVector"
+   },
+   "randomize_macros": {
+    "kind": "method",
+    "signature": "randomize_macros( (RackDevice)arg1) -> None :"
+   },
+   "recall_last_used_variation": {
+    "kind": "method",
+    "signature": "recall_last_used_variation( (Device)arg1) -> None :"
+   },
+   "recall_selected_variation": {
+    "kind": "method",
+    "signature": "recall_selected_variation( (Device)arg1) -> None :"
+   },
+   "remove_macro": {
+    "kind": "method",
+    "signature": "remove_macro( (RackDevice)arg1) -> None :"
+   },
+   "return_chains": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector"
+   },
+   "selected_variation_index": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "int"
+   },
+   "store_variation": {
+    "kind": "method",
+    "signature": "store_variation( (Device)arg1) -> None :"
+   },
+   "variation_count": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "view": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.RackDevice.RackDevice.View"
+   },
+   "visible_drum_pads": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.DrumPad.DrumPad]"
+   },
+   "visible_macro_count": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   }
+  },
+  "ReferencePitch": {
+   "frequency": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "index_in_octave": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "octave": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   }
+  },
+  "RoarDevice": {
+   "env_listen": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "is_active": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_using_compare_preset_b": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "latency_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "latency_in_samples": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "str"
+   },
+   "parameters": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.ATimeableValueVector"
+   },
+   "routing_mode_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "routing_mode_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   }
+  },
+  "RoutingChannel": {
+   "display_name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "str"
+   },
+   "layout": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Track.RoutingChannelLayout"
+   }
+  },
+  "RoutingType": {
+   "attached_object": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Track.Track"
+   },
+   "category": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "display_name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "str"
+   }
+  },
+  "Sample": {
+   "beat_to_sample_time": {
+    "kind": "method",
+    "signature": "beat_to_sample_time( (Sample)self, (float)beat_time) -> float :"
+   },
+   "beats_granulation_resolution": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "beats_transient_envelope": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "beats_transient_loop_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.SimplerDevice.SimplerDevice"
+   },
+   "clear_slices": {
+    "kind": "method",
+    "signature": "clear_slices( (Sample)self) -> None :"
+   },
+   "complex_pro_envelope": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "complex_pro_formants": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "end_marker": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "file_path": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "str"
+   },
+   "gain": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "gain_display_string": {
+    "kind": "method",
+    "signature": "gain_display_string( (Sample)self) -> str :"
+   },
+   "insert_slice": {
+    "kind": "method",
+    "signature": "insert_slice( (Sample)self, (int)slice_time) -> None :"
+   },
+   "length": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "move_slice": {
+    "kind": "method",
+    "signature": "move_slice( (Sample)self, (int)old_time, (int)new_time) -> int :"
+   },
+   "remove_slice": {
+    "kind": "method",
+    "signature": "remove_slice( (Sample)self, (int)slice_time) -> None :"
+   },
+   "reset_slices": {
+    "kind": "method",
+    "signature": "reset_slices( (Sample)self) -> None :"
+   },
+   "sample_rate": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "sample_to_beat_time": {
+    "kind": "method",
+    "signature": "sample_to_beat_time( (Sample)self, (float)sample_time) -> float :"
+   },
+   "slices": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "tuple"
+   },
+   "slicing_beat_division": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "slicing_region_count": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "slicing_sensitivity": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "slicing_style": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "start_marker": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "texture_flux": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "texture_grain_size": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "tones_grain_size": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "warp_markers": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Clip.WarpMarkerVector"
+   },
+   "warp_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "warping": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   }
+  },
+  "Scene": {
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Song.Song"
+   },
+   "clip_slots": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.ClipSlot.ClipSlot]"
+   },
+   "color": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "color_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "None"
+   },
+   "fire": {
+    "kind": "method",
+    "signature": "fire( (Scene)arg1 [, (bool)force_legato=False [, (bool)can_select_scene_on_launch=True]]) -> None :"
+   },
+   "fire_as_selected": {
+    "kind": "method",
+    "signature": "fire_as_selected( (Scene)arg1 [, (bool)force_legato=False]) -> None :"
+   },
+   "is_empty": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_triggered": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "str"
+   },
+   "set_fire_button_state": {
+    "kind": "method",
+    "signature": "set_fire_button_state( (Scene)arg1, (bool)arg2) -> None :"
+   },
+   "tempo": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "tempo_enabled": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "time_signature_denominator": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "time_signature_enabled": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "time_signature_numerator": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   }
+  },
+  "ShifterDevice": {
+   "is_active": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_using_compare_preset_b": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "latency_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "latency_in_samples": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "str"
+   },
+   "parameters": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.ATimeableValueVector"
+   },
+   "pitch_bend_range": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "pitch_mode_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "pitch_mode_list": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   }
+  },
+  "SimplerDevice": {
+   "can_warp_as": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "can_warp_double": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "can_warp_half": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "crop": {
+    "kind": "method",
+    "signature": "crop( (SimplerDevice)self) -> None :"
+   },
+   "guess_playback_length": {
+    "kind": "method",
+    "signature": "guess_playback_length( (SimplerDevice)self) -> float :"
+   },
+   "is_active": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_using_compare_preset_b": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "latency_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "latency_in_samples": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "multi_sample_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "str"
+   },
+   "note_pitch_bend_range": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "pad_slicing": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "parameters": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.ATimeableValueVector"
+   },
+   "pitch_bend_range": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "playback_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "playing_position": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   },
+   "playing_position_enabled": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "retrigger": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "reverse": {
+    "kind": "method",
+    "signature": "reverse( (SimplerDevice)self) -> None :"
+   },
+   "sample": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Sample.Sample"
+   },
+   "slicing_playback_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "view": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.SimplerDevice.SimplerDevice.View"
+   },
+   "voices": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "warp_as": {
+    "kind": "method",
+    "signature": "warp_as( (SimplerDevice)self, (float)beat_time) -> None :"
+   },
+   "warp_double": {
+    "kind": "method",
+    "signature": "warp_double( (SimplerDevice)self) -> None :"
+   },
+   "warp_half": {
+    "kind": "method",
+    "signature": "warp_half( (SimplerDevice)self) -> None :"
+   }
+  },
+  "SmptTime": {
+   "frames": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "int"
+   },
+   "hours": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "int"
+   },
+   "minutes": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "int"
+   },
+   "seconds": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "int"
+   }
+  },
+  "Song": {
+   "appointed_device": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "None"
+   },
+   "arrangement_overdub": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "back_to_arranger": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "begin_undo_step": {
+    "kind": "method",
+    "signature": "begin_undo_step( (Song)arg1) -> None :"
+   },
+   "can_capture_midi": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "can_jump_to_next_cue": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "can_jump_to_prev_cue": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "can_redo": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "can_undo": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "None"
+   },
+   "capture_and_insert_scene": {
+    "kind": "method",
+    "signature": "capture_and_insert_scene( (Song)arg1 [, (int)CaptureMode=Song.CaptureMode.all]) -> None :"
+   },
+   "capture_midi": {
+    "kind": "method",
+    "signature": "capture_midi( (Song)arg1 [, (int)Destination=Song.CaptureDestination.auto]) -> None :"
+   },
+   "clip_trigger_quantization": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "Live.Song.Quantization"
+   },
+   "continue_playing": {
+    "kind": "method",
+    "signature": "continue_playing( (Song)arg1) -> None :"
+   },
+   "count_in_duration": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "create_audio_track": {
+    "kind": "method",
+    "signature": "create_audio_track( (Song)arg1 [, (object)Index=None]) -> Track :"
+   },
+   "create_midi_track": {
+    "kind": "method",
+    "signature": "create_midi_track( (Song)arg1 [, (object)Index=None]) -> Track :"
+   },
+   "create_return_track": {
+    "kind": "method",
+    "signature": "create_return_track( (Song)arg1) -> Track :"
+   },
+   "create_scene": {
+    "kind": "method",
+    "signature": "create_scene( (Song)arg1, (int)arg2) -> Scene :"
+   },
+   "cue_points": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.Song.CuePoint]"
+   },
+   "current_song_time": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "data": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": null
+   },
+   "delete_return_track": {
+    "kind": "method",
+    "signature": "delete_return_track( (Song)arg1, (int)arg2) -> None :"
+   },
+   "delete_scene": {
+    "kind": "method",
+    "signature": "delete_scene( (Song)arg1, (int)arg2) -> None :"
+   },
+   "delete_track": {
+    "kind": "method",
+    "signature": "delete_track( (Song)arg1, (int)arg2) -> None :"
+   },
+   "duplicate_scene": {
+    "kind": "method",
+    "signature": "duplicate_scene( (Song)arg1, (int)arg2) -> None :"
+   },
+   "duplicate_track": {
+    "kind": "method",
+    "signature": "duplicate_track( (Song)arg1, (int)arg2) -> None :"
+   },
+   "end_undo_step": {
+    "kind": "method",
+    "signature": "end_undo_step( (Song)arg1) -> None :"
+   },
+   "exclusive_arm": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "exclusive_solo": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "file_path": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "str"
+   },
+   "find_device_position": {
+    "kind": "method",
+    "signature": "find_device_position( (Song)arg1, (Device)device, (LomObject)target, (int)target_position) -> int :"
+   },
+   "force_link_beat_time": {
+    "kind": "method",
+    "signature": "force_link_beat_time( (Song)arg1) -> None :"
+   },
+   "get_beats_loop_length": {
+    "kind": "method",
+    "signature": "get_beats_loop_length( (Song)arg1) -> BeatTime :"
+   },
+   "get_beats_loop_start": {
+    "kind": "method",
+    "signature": "get_beats_loop_start( (Song)arg1) -> BeatTime :"
+   },
+   "get_current_beats_song_time": {
+    "kind": "method",
+    "signature": "get_current_beats_song_time( (Song)arg1) -> BeatTime :"
+   },
+   "get_current_smpte_song_time": {
+    "kind": "method",
+    "signature": "get_current_smpte_song_time( (Song)arg1, (int)arg2) -> SmptTime :"
+   },
+   "get_data": {
+    "kind": "method",
+    "signature": "get_data( (Song)arg1, (object)key, (object)default_value) -> object :"
+   },
+   "groove_amount": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "groove_pool": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.GroovePool.GroovePool"
+   },
+   "is_ableton_link_enabled": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "is_ableton_link_start_stop_sync_enabled": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "is_counting_in": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_cue_point_selected": {
+    "kind": "method",
+    "signature": "is_cue_point_selected( (Song)arg1) -> bool :"
+   },
+   "is_playing": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "jump_by": {
+    "kind": "method",
+    "signature": "jump_by( (Song)arg1, (float)arg2) -> None :"
+   },
+   "jump_to_next_cue": {
+    "kind": "method",
+    "signature": "jump_to_next_cue( (Song)arg1) -> None :"
+   },
+   "jump_to_prev_cue": {
+    "kind": "method",
+    "signature": "jump_to_prev_cue( (Song)arg1) -> None :"
+   },
+   "last_event_time": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "loop": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "loop_length": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "loop_start": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "master_track": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Track.Track"
+   },
+   "metronome": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "midi_recording_quantization": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "Live.Song.RecordingQuantization"
+   },
+   "move_device": {
+    "kind": "method",
+    "signature": "move_device( (Song)arg1, (Device)device, (LomObject)target, (int)target_position) -> int :"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "str"
+   },
+   "nudge_down": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "nudge_up": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "overdub": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "play_selection": {
+    "kind": "method",
+    "signature": "play_selection( (Song)arg1) -> None :"
+   },
+   "punch_in": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "punch_out": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "re_enable_automation": {
+    "kind": "method",
+    "signature": "re_enable_automation( (Song)arg1) -> None :"
+   },
+   "re_enable_automation_enabled": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "record_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "redo": {
+    "kind": "method",
+    "signature": "redo( (Song)arg1) -> str :"
+   },
+   "return_tracks": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.Track.Track]"
+   },
+   "root_note": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "scale_information": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": null
+   },
+   "scale_intervals": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.IntVector"
+   },
+   "scale_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "scale_name": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "str"
+   },
+   "scenes": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.Scene.Scene]"
+   },
+   "scrub_by": {
+    "kind": "method",
+    "signature": "scrub_by( (Song)arg1, (float)arg2) -> None :"
+   },
+   "select_on_launch": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "session_automation_record": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "session_record": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "session_record_status": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "set_data": {
+    "kind": "method",
+    "signature": "set_data( (Song)arg1, (object)key, (object)value) -> None :"
+   },
+   "set_or_delete_cue": {
+    "kind": "method",
+    "signature": "set_or_delete_cue( (Song)arg1) -> None :"
+   },
+   "signature_denominator": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "signature_numerator": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "song_length": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   },
+   "start_playing": {
+    "kind": "method",
+    "signature": "start_playing( (Song)arg1) -> None :"
+   },
+   "start_time": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "stop_all_clips": {
+    "kind": "method",
+    "signature": "stop_all_clips( (Song)arg1 [, (bool)Quantized=True]) -> None :"
+   },
+   "stop_playing": {
+    "kind": "method",
+    "signature": "stop_playing( (Song)arg1) -> None :"
+   },
+   "swing_amount": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "tap_tempo": {
+    "kind": "method",
+    "signature": "tap_tempo( (Song)arg1) -> None :"
+   },
+   "tempo": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "float"
+   },
+   "tempo_follower_enabled": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "tracks": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.Track.Track]"
+   },
+   "trigger_session_record": {
+    "kind": "method",
+    "signature": "trigger_session_record( (Song)self [, (float)record_length=1.7976931348623157e+308]) -> None :"
+   },
+   "tuning_system": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.TuningSystem.TuningSystem"
+   },
+   "undo": {
+    "kind": "method",
+    "signature": "undo( (Song)arg1) -> str :"
+   },
+   "view": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Song.Song.View"
+   },
+   "visible_tracks": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.Track.Track]"
+   }
+  },
+  "SpectralResonatorDevice": {
+   "frequency_dial_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "frequency_dial_mode_list": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "is_active": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_using_compare_preset_b": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "latency_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "latency_in_samples": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "midi_gate": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "midi_gate_list": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "mod_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "mod_mode_list": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "mono_poly": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "mono_poly_list": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "str"
+   },
+   "parameters": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.ATimeableValueVector"
+   },
+   "pitch_bend_range": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "pitch_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "pitch_mode_list": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "polyphony": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   }
+  },
+  "StartupDialog": {
+   "end_modal_loop": {
+    "kind": "method",
+    "signature": "end_modal_loop( (StartupDialog)arg1) -> None :"
+   },
+   "run_in_modal_loop": {
+    "kind": "method",
+    "signature": "run_in_modal_loop( (StartupDialog)arg1, (bool)show_only_offline_auth_instructions) -> None :"
+   },
+   "set_notification_message": {
+    "kind": "method",
+    "signature": "set_notification_message( (StartupDialog)arg1, (object)notification_text, (bool)show_progress_bar) -> None :"
+   }
+  },
+  "TakeLane": {
+   "arrangement_clips": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.Clip.Clip]"
+   },
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Track.Track"
+   },
+   "create_audio_clip": {
+    "kind": "method",
+    "signature": "create_audio_clip( (TakeLane)arg1, (object)arg2, (float)arg3) -> Clip :"
+   },
+   "create_midi_clip": {
+    "kind": "method",
+    "signature": "create_midi_clip( (TakeLane)arg1, (float)arg2, (float)arg3) -> Clip :"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "str"
+   }
+  },
+  "Text": {
+   "text": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": null
+   }
+  },
+  "Timer": {
+   "restart": {
+    "kind": "method",
+    "signature": "restart( (Timer)arg1) -> None :"
+   },
+   "running": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "start": {
+    "kind": "method",
+    "signature": "start( (Timer)arg1) -> None :"
+   },
+   "stop": {
+    "kind": "method",
+    "signature": "stop( (Timer)arg1) -> None :"
+   }
+  },
+  "Track": {
+   "arm": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "arrangement_clips": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.Clip.Clip]"
+   },
+   "available_input_routing_channels": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Track.RoutingChannelVector"
+   },
+   "available_input_routing_types": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Track.RoutingTypeVector"
+   },
+   "available_output_routing_channels": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Track.RoutingChannelVector"
+   },
+   "available_output_routing_types": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Track.RoutingTypeVector"
+   },
+   "back_to_arranger": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "can_be_armed": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "can_be_frozen": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "can_show_chains": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Song.Song"
+   },
+   "clip_slots": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.ClipSlot.ClipSlot]"
+   },
+   "color": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "color_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "create_audio_clip": {
+    "kind": "method",
+    "signature": "create_audio_clip( (Track)arg1, (object)arg2, (float)arg3) -> Clip :"
+   },
+   "create_midi_clip": {
+    "kind": "method",
+    "signature": "create_midi_clip( (Track)arg1, (float)arg2, (float)arg3) -> Clip :"
+   },
+   "create_take_lane": {
+    "kind": "method",
+    "signature": "create_take_lane( (Track)arg1) -> LomObject :"
+   },
+   "current_input_routing": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "str"
+   },
+   "current_input_sub_routing": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "str"
+   },
+   "current_monitoring_state": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "current_output_routing": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "str"
+   },
+   "current_output_sub_routing": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "str"
+   },
+   "data": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": null
+   },
+   "delete_clip": {
+    "kind": "method",
+    "signature": "delete_clip( (Track)arg1, (Clip)arg2) -> None :"
+   },
+   "delete_device": {
+    "kind": "method",
+    "signature": "delete_device( (Track)arg1, (int)arg2) -> None :"
+   },
+   "devices": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.Device.Device]"
+   },
+   "duplicate_clip_slot": {
+    "kind": "method",
+    "signature": "duplicate_clip_slot( (Track)arg1, (int)arg2) -> int :"
+   },
+   "duplicate_clip_to_arrangement": {
+    "kind": "method",
+    "signature": "duplicate_clip_to_arrangement( (Track)self, (Clip)clip, (float)destination_time) -> Clip :"
+   },
+   "duplicate_device": {
+    "kind": "method",
+    "signature": "duplicate_device( (Track)arg1, (int)arg2) -> None :"
+   },
+   "fired_slot_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "fold_state": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "get_data": {
+    "kind": "method",
+    "signature": "get_data( (Track)arg1, (object)key, (object)default_value) -> object :"
+   },
+   "group_track": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Track.Track"
+   },
+   "has_audio_input": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "has_audio_output": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "has_midi_input": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "has_midi_output": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "implicit_arm": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "input_meter_left": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   },
+   "input_meter_level": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   },
+   "input_meter_right": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   },
+   "input_routing_channel": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "Live.Track.RoutingChannel"
+   },
+   "input_routing_type": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "Live.Track.RoutingType"
+   },
+   "input_routings": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "input_sub_routings": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "insert_device": {
+    "kind": "method",
+    "signature": "insert_device( (Track)arg1, (str)DeviceName [, (int)DeviceIndex=-1]) -> LomObject :"
+   },
+   "is_foldable": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_frozen": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_grouped": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_part_of_selection": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_showing_chains": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "is_visible": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "jump_in_running_session_clip": {
+    "kind": "method",
+    "signature": "jump_in_running_session_clip( (Track)arg1, (float)arg2) -> None :"
+   },
+   "mixer_device": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.MixerDevice.MixerDevice"
+   },
+   "mute": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "muted_via_solo": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "str"
+   },
+   "output_meter_left": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   },
+   "output_meter_level": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   },
+   "output_meter_right": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   },
+   "output_routing_channel": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "Live.Track.RoutingChannel"
+   },
+   "output_routing_type": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "Live.Track.RoutingType"
+   },
+   "output_routings": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "output_sub_routings": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "performance_impact": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "float"
+   },
+   "playing_slot_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "set_data": {
+    "kind": "method",
+    "signature": "set_data( (Track)arg1, (object)key, (object)value) -> None :"
+   },
+   "solo": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "stop_all_clips": {
+    "kind": "method",
+    "signature": "stop_all_clips( (Track)arg1 [, (bool)Quantized=True]) -> None :"
+   },
+   "take_lanes": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.Vector[Live.TakeLane.TakeLane]"
+   },
+   "view": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Track.Track.View"
+   }
+  },
+  "TuningSystem": {
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Song.Song"
+   },
+   "highest_note": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "Live.TuningSystem.PitchClassAndOctave"
+   },
+   "lowest_note": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "Live.TuningSystem.PitchClassAndOctave"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "str"
+   },
+   "note_tunings": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "list[float]"
+   },
+   "number_of_notes_in_pseudo_octave": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "pseudo_octave_in_cents": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "reference_pitch": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "Live.TuningSystem.ReferencePitch"
+   }
+  },
+  "UnlockStatus": {
+   "authorization_deactivated": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "authorization_expired": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "has_max_unlock_products": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "temp_demo_mode": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "time_limited": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "unlock_error": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "unlocked": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   }
+  },
+  "View": {
+   "add_is_view_visible_listener": {
+    "kind": "method",
+    "signature": "add_is_view_visible_listener( (View)arg1, (object)arg2, (object)arg3) -> None :"
+   },
+   "available_main_views": {
+    "kind": "method",
+    "signature": "available_main_views( (View)arg1) -> StringVector :"
+   },
+   "browse_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "bool"
+   },
+   "canonical_parent": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Track.Track"
+   },
+   "detail_clip": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "None"
+   },
+   "device_insert_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "draw_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "drum_pads_scroll_position": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "focus_view": {
+    "kind": "method",
+    "signature": "focus_view( (View)arg1, (object)arg2) -> None :"
+   },
+   "focused_document_view": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "str"
+   },
+   "follow_song": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "grid_is_triplet": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "grid_quantization": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "Live.Clip.GridQuantization"
+   },
+   "hide_envelope": {
+    "kind": "method",
+    "signature": "hide_envelope( (View)arg1) -> None :"
+   },
+   "hide_view": {
+    "kind": "method",
+    "signature": "hide_view( (View)arg1, (object)arg2) -> None :"
+   },
+   "highlighted_clip_slot": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "Live.ClipSlot.ClipSlot"
+   },
+   "is_collapsed": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "is_showing_chain_devices": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "bool"
+   },
+   "is_view_visible": {
+    "kind": "method",
+    "signature": "is_view_visible( (View)arg1, (object)identifier [, (bool)main_window_only=True]) -> bool :"
+   },
+   "is_view_visible_has_listener": {
+    "kind": "method",
+    "signature": "is_view_visible_has_listener( (View)arg1, (object)arg2, (object)arg3) -> bool :"
+   },
+   "remove_is_view_visible_listener": {
+    "kind": "method",
+    "signature": "remove_is_view_visible_listener( (View)arg1, (object)arg2, (object)arg3) -> None :"
+   },
+   "sample_end": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "sample_env_fade_in": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "sample_env_fade_out": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "sample_loop_end": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "sample_loop_fade": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "sample_loop_start": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "sample_start": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "int"
+   },
+   "scroll_view": {
+    "kind": "method",
+    "signature": "scroll_view( (View)arg1, (int)arg2, (object)arg3, (bool)arg4) -> None :"
+   },
+   "select_device": {
+    "kind": "method",
+    "signature": "select_device( (View)arg1, (Device)arg2 [, (bool)ShouldAppointDevice=True]) -> None :"
+   },
+   "select_envelope_parameter": {
+    "kind": "method",
+    "signature": "select_envelope_parameter( (View)arg1, (DeviceParameter)arg2) -> None :"
+   },
+   "select_instrument": {
+    "kind": "method",
+    "signature": "select_instrument( (View)arg1) -> bool :"
+   },
+   "selected_band": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "selected_chain": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "None"
+   },
+   "selected_device": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Device.Device"
+   },
+   "selected_drum_pad": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "Live.DrumPad.DrumPad"
+   },
+   "selected_parameter": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "None"
+   },
+   "selected_scene": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "Live.Scene.Scene"
+   },
+   "selected_slice": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "selected_track": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "Live.Track.Track"
+   },
+   "show_envelope": {
+    "kind": "method",
+    "signature": "show_envelope( (View)arg1) -> None :"
+   },
+   "show_loop": {
+    "kind": "method",
+    "signature": "show_loop( (View)arg1) -> None :"
+   },
+   "show_view": {
+    "kind": "method",
+    "signature": "show_view( (View)arg1, (object)arg2) -> None :"
+   },
+   "toggle_browse": {
+    "kind": "method",
+    "signature": "toggle_browse( (View)arg1) -> None :"
+   },
+   "view_focus_changed": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": null
+   },
+   "zoom_view": {
+    "kind": "method",
+    "signature": "zoom_view( (View)arg1, (int)arg2, (object)arg3, (bool)arg4) -> None :"
+   }
+  },
+  "WarpMarker": {
+   "beat_time": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "sample_time": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   }
+  },
+  "WavetableDevice": {
+   "add_parameter_to_modulation_matrix": {
+    "kind": "method",
+    "signature": "add_parameter_to_modulation_matrix( (WavetableDevice)self, (DeviceParameter)parameter) -> int :"
+   },
+   "filter_routing": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "get_modulation_target_parameter_name": {
+    "kind": "method",
+    "signature": "get_modulation_target_parameter_name( (WavetableDevice)self, (int)target_index) -> str :"
+   },
+   "get_modulation_value": {
+    "kind": "method",
+    "signature": "get_modulation_value( (WavetableDevice)self, (int)target_index, (int)source) -> float :"
+   },
+   "is_active": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "bool"
+   },
+   "is_parameter_modulatable": {
+    "kind": "method",
+    "signature": "is_parameter_modulatable( (WavetableDevice)self, (DeviceParameter)parameter) -> bool :"
+   },
+   "is_using_compare_preset_b": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "bool"
+   },
+   "latency_in_ms": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "float"
+   },
+   "latency_in_samples": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "int"
+   },
+   "modulation_matrix_changed": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": null
+   },
+   "mono_poly": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "name": {
+    "kind": "property",
+    "listenable": false,
+    "settable": true,
+    "type": "str"
+   },
+   "oscillator_1_effect_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "oscillator_1_wavetable_category": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "oscillator_1_wavetable_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "oscillator_1_wavetables": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "oscillator_2_effect_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "oscillator_2_wavetable_category": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "oscillator_2_wavetable_index": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "oscillator_2_wavetables": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "oscillator_wavetable_categories": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   },
+   "parameters": {
+    "kind": "property",
+    "listenable": false,
+    "settable": false,
+    "type": "Live.Device.ATimeableValueVector"
+   },
+   "poly_voices": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "set_modulation_value": {
+    "kind": "method",
+    "signature": "set_modulation_value( (WavetableDevice)self, (int)target_index, (int)source, (float)value) -> None :"
+   },
+   "unison_mode": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "unison_voice_count": {
+    "kind": "property",
+    "listenable": true,
+    "settable": true,
+    "type": "int"
+   },
+   "visible_modulation_target_names": {
+    "kind": "property",
+    "listenable": true,
+    "settable": false,
+    "type": "Live.Base.StringVector"
+   }
+  }
+ }
+}

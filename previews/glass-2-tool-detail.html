@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glass HUD — Page 2: Tool Detail & Execution View</title>
+<style>
+  :root {
+    --bg-dark: #07090e;
+    --glass-surface: rgba(18, 22, 34, 0.65);
+    --glass-surface-hover: rgba(28, 34, 52, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-border-hover: rgba(255, 255, 255, 0.16);
+    --glass-card: rgba(14, 18, 28, 0.55);
+    --accent-cyan: #06b6d4;
+    --accent-violet: #8b5cf6;
+    --accent-emerald: #10b981;
+    --accent-amber: #f59e0b;
+    --accent-rose: #f43f5e;
+    --text-main: #f8fafc;
+    --text-sub: #94a3b8;
+    --text-dim: #64748b;
+    --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+    --font-mono: "SF Mono", "Consolas", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-image: 
+      radial-gradient(circle at 20% 20%, rgba(139, 92, 246, 0.15), transparent 45%),
+      radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.12), transparent 45%);
+  }
+
+  /* Header */
+  .hud-top-bar {
+    height: 56px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(10, 13, 20, 0.7);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  .nav-back-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--glass-border);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+  }
+  .nav-back-btn:hover { background: rgba(255,255,255,0.12); border-color: var(--glass-border-hover); }
+
+  /* Tool Mode Switcher Tabs */
+  .tool-switcher-pills {
+    display: flex;
+    background: rgba(255,255,255,0.04);
+    padding: 3px;
+    border-radius: 30px;
+    border: 1px solid var(--glass-border);
+    gap: 2px;
+  }
+  .tool-tab-pill {
+    background: transparent;
+    border: none;
+    color: var(--text-sub);
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .tool-tab-pill.active {
+    background: var(--glass-surface-hover);
+    color: #fff;
+  }
+
+  /* Main Workspace Split */
+  .tool-workspace {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 16px;
+    padding: 14px 20px;
+    overflow: hidden;
+  }
+
+  /* Left Column: Target Tracks */
+  .tracks-sidebar {
+    background: var(--glass-surface);
+    backdrop-filter: blur(25px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar-head {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-sub);
+    text-transform: uppercase;
+  }
+  .track-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .track-card {
+    background: var(--glass-card);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+  .track-card.ticked {
+    border-color: var(--accent-cyan);
+    background: rgba(6, 182, 212, 0.12);
+  }
+
+  /* Right Column: Active Tool Detail Pane */
+  .tool-detail-pane {
+    background: var(--glass-surface);
+    backdrop-filter: blur(25px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  }
+
+  /* Tool Accent Header Banner */
+  .tool-banner {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(6, 182, 212, 0.1));
+    position: relative;
+    overflow: hidden;
+  }
+  .tool-banner::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent-violet), var(--accent-cyan));
+  }
+
+  .tool-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .tool-banner-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent-violet), var(--accent-cyan));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; color: #fff;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+  }
+  .tool-banner-name { font-size: 18px; font-weight: 800; color: #fff; }
+  .tool-banner-desc { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+
+  .tool-banner-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .btn-ghost-glass {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--glass-border);
+    color: var(--text-sub);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-ghost-glass:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+  /* Form Body */
+  .tool-form-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .form-section-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .form-group-full { grid-column: span 2; }
+
+  .field-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-sub);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .glass-input, .glass-select {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #fff;
+    font-size: 12px;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.15s ease;
+  }
+  .glass-input:focus, .glass-select:focus {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
+  }
+  .glass-select option {
+    background: #111520;
+    color: #fff;
+  }
+
+  /* Preset Pill Tags */
+  .token-pills-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+  }
+  .token-pill {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--accent-cyan);
+    cursor: pointer;
+  }
+  .token-pill:hover { background: rgba(6, 182, 212, 0.2); }
+
+  /* Sticky Run Footer */
+  .sticky-run-footer {
+    padding: 16px 24px;
+    background: rgba(10, 13, 20, 0.85);
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .run-action-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .btn-primary-run {
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 10px 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.35);
+    transition: transform 0.1s ease, box-shadow 0.15s ease;
+  }
+  .btn-primary-run:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 25px rgba(6, 182, 212, 0.5);
+  }
+  .btn-primary-run:active { transform: scale(0.98); }
+
+  /* Last Result Banner */
+  .result-banner {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 8px;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #e2e8f0;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="hud-top-bar">
+    <button class="nav-back-btn" onclick="alert('Navigating back to Tools Catalog...')">
+      <span>← Back to Tools</span>
+    </button>
+
+    <div class="tool-switcher-pills">
+      <button class="tool-tab-pill active" onclick="switchToolView('detect')">Detect Key</button>
+      <button class="tool-tab-pill" onclick="switchToolView('audio')">Audio Sample (17-DSP)</button>
+      <button class="tool-tab-pill" onclick="switchToolView('namer')">Clip Namer</button>
+      <button class="tool-tab-pill" onclick="switchToolView('tts')">TTS Vocal</button>
+    </div>
+
+    <div style="font-size:11px; color:var(--accent-cyan); font-family:var(--font-mono)">
+      ● TARGET: 3 TRACKS
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <main class="tool-workspace">
+    <!-- Left: Target Tracks Picker -->
+    <aside class="tracks-sidebar">
+      <div class="sidebar-head">
+        <span>Target Tracks</span>
+        <span style="color:var(--accent-cyan); font-family:var(--font-mono)">3 TICKED</span>
+      </div>
+      <div class="track-scroll">
+        <div class="track-card ticked">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" checked style="accent-color:var(--accent-cyan);">
+            <div style="width:4px; height:20px; background:#ff4757; border-radius:2px;"></div>
+            <span style="font-size:11px; font-weight:700;">1. 909 Main Beat</span>
+          </div>
+          <span style="font-size:8px; color:var(--accent-cyan); font-family:var(--font-mono)">MIDI</span>
+        </div>
+
+        <div class="track-card ticked">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" checked style="accent-color:var(--accent-cyan);">
+            <div style="width:4px; height:20px; background:#ffa502; border-radius:2px;"></div>
+            <span style="font-size:11px; font-weight:700;">2. Acid 303 Bass</span>
+          </div>
+          <span style="font-size:8px; color:var(--accent-cyan); font-family:var(--font-mono)">MIDI</span>
+        </div>
+
+        <div class="track-card">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" style="accent-color:var(--accent-cyan);">
+            <div style="width:4px; height:20px; background:#2ed573; border-radius:2px;"></div>
+            <span style="font-size:11px; font-weight:700;">3. Amen Break</span>
+          </div>
+          <span style="font-size:8px; color:var(--accent-emerald); font-family:var(--font-mono)">AUDIO</span>
+        </div>
+
+        <div class="track-card ticked">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" checked style="accent-color:var(--accent-cyan);">
+            <div style="width:4px; height:20px; background:#a55eea; border-radius:2px;"></div>
+            <span style="font-size:11px; font-weight:700;">4. Vocal Lead</span>
+          </div>
+          <span style="font-size:8px; color:var(--accent-emerald); font-family:var(--font-mono)">AUDIO</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right: Active Tool Form -->
+    <section class="tool-detail-pane">
+      <!-- Tool Header Banner -->
+      <div class="tool-banner" id="banner-detect">
+        <div class="tool-title-wrap">
+          <div class="tool-banner-icon">🎹</div>
+          <div>
+            <div class="tool-banner-name">Detect Key</div>
+            <div class="tool-banner-desc">Krumhansl-Schmuckler harmonic analysis with bass & cadence structural weighting.</div>
+          </div>
+        </div>
+        <div class="tool-banner-actions">
+          <button class="btn-ghost-glass">Reset Defaults</button>
+          <button class="btn-ghost-glass">Open Logs ↗</button>
+        </div>
+      </div>
+
+      <!-- Form Inputs Area -->
+      <div class="tool-form-body">
+        <div class="form-section-title">Harmonic Profiling Parameters</div>
+
+        <div class="form-grid">
+          <!-- Scope -->
+          <div>
+            <label class="field-label">Analysis Scope</label>
+            <select class="glass-select">
+              <option value="clip">Selected MIDI Clip (Detail View)</option>
+              <option value="track">Ticked Tracks Combined</option>
+              <option value="set">Full Ableton Set (Set-Wide)</option>
+            </select>
+          </div>
+
+          <!-- Weight Profile -->
+          <div>
+            <label class="field-label">Pitch Profile Weights</label>
+            <select class="glass-select">
+              <option value="krumhansl">Krumhansl-Kessler (Standard)</option>
+              <option value="temperley">Temperley (Polyphonic/Cadence)</option>
+            </select>
+          </div>
+
+          <!-- Max Results -->
+          <div>
+            <label class="field-label">Max Ranked Results</label>
+            <input type="number" class="glass-input" value="3" min="1" max="12">
+          </div>
+
+          <!-- Strict Mode -->
+          <div>
+            <label class="field-label">Close-Call Sensitivity</label>
+            <select class="glass-select">
+              <option value="balanced">Balanced (Flag within 8%)</option>
+              <option value="strict">Strict (Flag within 4%)</option>
+              <option value="permissive">Permissive (Top only)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sticky Execution Footer -->
+      <div class="sticky-run-footer">
+        <div class="run-action-row">
+          <button class="btn-primary-run" onclick="simulateRun()">
+            <span>▶ Run Key Analysis</span>
+          </button>
+          <span style="font-size:11px; color:var(--text-sub); font-family:var(--font-mono)">
+            OSC Route: /live-actions/run detect-key
+          </span>
+        </div>
+
+        <div class="result-banner" id="run-result">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="color:var(--accent-emerald); font-weight:bold;">✓ Result:</span>
+            <span>D Dorian 100% (close: C Major 91%) · A Minor 84% — 312 notes analyzed across 3 clips.</span>
+          </div>
+          <button class="btn-ghost-glass" style="padding:3px 8px;">Apply Scale to Set</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function simulateRun() {
+      const banner = document.getElementById('run-result');
+      banner.style.opacity = '0.5';
+      setTimeout(() => {
+        banner.style.opacity = '1';
+        alert("✓ Executed Detect Key! Result: D Dorian (100%).");
+      }, 350);
+    }
+
+    function switchToolView(tool) {
+      document.querySelectorAll('.tool-tab-pill').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      alert(`Switched preview to ${tool.toUpperCase()} parameters form.`);
+    }
+  </script>
+</body>
+</html>

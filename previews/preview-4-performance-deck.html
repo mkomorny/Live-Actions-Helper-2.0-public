@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Actions Helper — Design 4: Performance Macro Deck</title>
+<style>
+  :root {
+    --bg-dark: #0a0d14;
+    --panel-bg: #121824;
+    --card-surface: #1a2234;
+    --card-hover: #222d44;
+    --border-color: #27344d;
+    --macro-blue: #3b82f6;
+    --macro-pink: #ec4899;
+    --macro-amber: #f59e0b;
+    --macro-emerald: #10b981;
+    --macro-purple: #a855f7;
+    --macro-red: #ef4444;
+    --text-light: #f8fafc;
+    --text-muted: #94a3b8;
+    --font-ui: "Inter", -apple-system, sans-serif;
+    --font-mono: "SF Mono", "Consolas", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text-light);
+    font-family: var(--font-ui);
+    min-height: 100vh;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* Header Performance Strip */
+  .deck-header-strip {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .deck-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .deck-logo {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--macro-blue), var(--macro-emerald));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: #fff;
+  }
+  .deck-name { font-size: 14px; font-weight: 800; }
+  .deck-badge { font-size: 10px; background: rgba(59, 130, 246, 0.2); color: var(--macro-blue); padding: 2px 8px; border-radius: 20px; font-weight: 700; }
+
+  .live-status-pill {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid var(--macro-emerald);
+    color: var(--macro-emerald);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .live-status-pill::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--macro-emerald);
+    box-shadow: 0 0 8px var(--macro-emerald);
+  }
+
+  /* SECTION 1: Arrangement Song Structure Visualizer */
+  .arrangement-timeline-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .timeline-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
+
+  .song-structure-blocks {
+    display: flex;
+    gap: 8px;
+    height: 54px;
+  }
+  .structure-block {
+    flex: 1;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.15s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .structure-block:hover { transform: translateY(-2px); }
+  .structure-block.active {
+    border-color: #fff;
+    box-shadow: 0 0 16px rgba(255,255,255,0.3);
+  }
+
+  .block-intro { background: #3b82f6; }
+  .block-verse { background: #8b5cf6; flex: 2; }
+  .block-chorus { background: #ec4899; flex: 2; }
+  .block-breakdown { background: #f59e0b; }
+  .block-drop { background: #ef4444; flex: 2; }
+  .block-outro { background: #10b981; }
+
+  .block-name { font-size: 11px; font-weight: 800; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.6); }
+  .block-bars { font-size: 9px; font-family: var(--font-mono); color: rgba(255,255,255,0.8); }
+
+  /* SECTION 2: 2-Column Split: Tracks Strip + 4x4 Macro Deck */
+  .deck-main-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 14px;
+  }
+
+  /* Left Track Selector */
+  .tracks-deck-panel {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .deck-panel-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+
+  .track-deck-row {
+    background: var(--card-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .track-deck-row:hover { background: var(--card-hover); }
+  .track-deck-row.active {
+    border-color: var(--macro-blue);
+    background: rgba(59, 130, 246, 0.15);
+  }
+
+  .deck-track-info { display: flex; align-items: center; gap: 8px; }
+  .deck-track-color { width: 10px; height: 10px; border-radius: 3px; }
+  .deck-track-title { font-size: 11px; font-weight: 700; }
+
+  /* 4x4 Stream Deck Macro Matrix */
+  .macro-grid-container {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .macro-key-pad {
+    background: var(--card-surface);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: all 0.1s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .macro-key-pad:hover {
+    background: var(--card-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  }
+  .macro-key-pad:active {
+    transform: scale(0.96);
+  }
+
+  .pad-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .pad-icon-big { font-size: 24px; }
+  .pad-num { font-family: var(--font-mono); font-size: 10px; font-weight: bold; color: var(--text-muted); }
+
+  .pad-body { margin-top: 8px; }
+  .pad-action-name { font-size: 13px; font-weight: 800; color: #fff; margin-bottom: 2px; }
+  .pad-action-sub { font-size: 10px; color: var(--text-muted); line-height: 1.3; }
+
+  .pad-progress-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .pad-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--macro-blue);
+    transition: width 0.3s ease;
+  }
+
+  /* Specific color accents per pad */
+  .pad-breakdowns:hover { border-color: var(--macro-pink); }
+  .pad-bbencut:hover { border-color: var(--macro-blue); }
+  .pad-detectkey:hover { border-color: var(--macro-amber); }
+  .pad-mutate:hover { border-color: var(--macro-purple); }
+  .pad-skeleton:hover { border-color: var(--macro-emerald); }
+  .pad-clipnamer:hover { border-color: var(--macro-red); }
+</style>
+</head>
+<body>
+
+  <!-- Top Strip -->
+  <header class="deck-header-strip">
+    <div class="deck-title-group">
+      <div class="deck-logo">⚡</div>
+      <span class="deck-name">Live Actions Performance Deck</span>
+      <span class="deck-badge">STAGE & STUDIO MODE</span>
+    </div>
+
+    <div class="live-status-pill">
+      LIVE 12 CONNECTED · 128 BPM
+    </div>
+  </header>
+
+  <!-- Section 1: Arrangement Timeline Quick-Jump -->
+  <section class="arrangement-timeline-card">
+    <div class="timeline-header">
+      <span class="timeline-title">📍 Arrangement Structure & Locators</span>
+      <span style="font-size:10px; font-family:var(--font-mono); color:var(--macro-emerald);">KEY: D MINOR · 72 BARS TOTAL</span>
+    </div>
+
+    <div class="song-structure-blocks">
+      <div class="structure-block block-intro" onclick="jumpSection(this, 'Intro')">
+        <span class="block-name">INTRO</span>
+        <span class="block-bars">8 BARS</span>
+      </div>
+      <div class="structure-block block-verse" onclick="jumpSection(this, 'Verse')">
+        <span class="block-name">VERSE 1</span>
+        <span class="block-bars">16 BARS</span>
+      </div>
+      <div class="structure-block block-chorus active" onclick="jumpSection(this, 'Chorus')">
+        <span class="block-name">CHORUS</span>
+        <span class="block-bars">16 BARS</span>
+      </div>
+      <div class="structure-block block-breakdown" onclick="jumpSection(this, 'Breakdown')">
+        <span class="block-name">BREAKDOWN</span>
+        <span class="block-bars">8 BARS</span>
+      </div>
+      <div class="structure-block block-drop" onclick="jumpSection(this, 'Drop')">
+        <span class="block-name">MAIN DROP</span>
+        <span class="block-bars">16 BARS</span>
+      </div>
+      <div class="structure-block block-outro" onclick="jumpSection(this, 'Outro')">
+        <span class="block-name">OUTRO</span>
+        <span class="block-bars">8 BARS</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: Main Performance Split -->
+  <main class="deck-main-grid">
+    <!-- Left: Target Tracks -->
+    <aside class="tracks-deck-panel">
+      <span class="deck-panel-title">Target Tracks (3)</span>
+      
+      <div class="track-deck-row active" onclick="this.classList.toggle('active')">
+        <div class="deck-track-info">
+          <div class="deck-track-color" style="background:#ef4444;"></div>
+          <span class="deck-track-title">1. Main Drums</span>
+        </div>
+        <span style="font-size:9px; color:var(--macro-blue); font-weight:bold;">MIDI</span>
+      </div>
+
+      <div class="track-deck-row active" onclick="this.classList.toggle('active')">
+        <div class="deck-track-info">
+          <div class="deck-track-color" style="background:#f59e0b;"></div>
+          <span class="deck-track-title">2. Bassline 303</span>
+        </div>
+        <span style="font-size:9px; color:var(--macro-blue); font-weight:bold;">MIDI</span>
+      </div>
+
+      <div class="track-deck-row" onclick="this.classList.toggle('active')">
+        <div class="deck-track-info">
+          <div class="deck-track-color" style="background:#10b981;"></div>
+          <span class="deck-track-title">3. Amen Break</span>
+        </div>
+        <span style="font-size:9px; color:var(--macro-emerald); font-weight:bold;">AUDIO</span>
+      </div>
+
+      <div class="track-deck-row active" onclick="this.classList.toggle('active')">
+        <div class="deck-track-info">
+          <div class="deck-track-color" style="background:#a855f7;"></div>
+          <span class="deck-track-title">4. Vocal Lead</span>
+        </div>
+        <span style="font-size:9px; color:var(--macro-emerald); font-weight:bold;">AUDIO</span>
+      </div>
+    </aside>
+
+    <!-- Right: 4x2 Stream Deck Action Matrix -->
+    <section class="macro-grid-container">
+      <!-- Pad 1 -->
+      <div class="macro-key-pad pad-breakdowns" onclick="fireMacro(this, 'Breakdowns')">
+        <div class="pad-header">
+          <span class="pad-icon-big">⚡</span>
+          <span class="pad-num">M1</span>
+        </div>
+        <div class="pad-body">
+          <div class="pad-action-name">Breakdown Roll</div>
+          <div class="pad-action-sub">Generate 8-bar build fill</div>
+        </div>
+        <div class="pad-progress-bar"><div class="pad-progress-fill"></div></div>
+      </div>
+
+      <!-- Pad 2 -->
+      <div class="macro-key-pad pad-bbencut" onclick="fireMacro(this, 'BBenCut')">
+        <div class="pad-header">
+          <span class="pad-icon-big">✂</span>
+          <span class="pad-num">M2</span>
+        </div>
+        <div class="pad-body">
+          <div class="pad-action-name">Slice Breakbeat</div>
+          <div class="pad-action-sub">BBenCut 16-beat roll render</div>
+        </div>
+        <div class="pad-progress-bar"><div class="pad-progress-fill"></div></div>
+      </div>
+
+      <!-- Pad 3 -->
+      <div class="macro-key-pad pad-detectkey" onclick="fireMacro(this, 'Detect Key')">
+        <div class="pad-header">
+          <span class="pad-icon-big">🎹</span>
+          <span class="pad-num">M3</span>
+        </div>
+        <div class="pad-body">
+          <div class="pad-action-name">Detect Key</div>
+          <div class="pad-action-sub">Analyze Set pitch classes</div>
+        </div>
+        <div class="pad-progress-bar"><div class="pad-progress-fill"></div></div>
+      </div>
+
+      <!-- Pad 4 -->
+      <div class="macro-key-pad pad-mutate" onclick="fireMacro(this, 'Mutate')">
+        <div class="pad-header">
+          <span class="pad-icon-big">🧬</span>
+          <span class="pad-num">M4</span>
+        </div>
+        <div class="pad-body">
+          <div class="pad-action-name">Mutate 4 Takes</div>
+          <div class="pad-action-sub">Spawn variation clips</div>
+        </div>
+        <div class="pad-progress-bar"><div class="pad-progress-fill"></div></div>
+      </div>
+
+      <!-- Pad 5 -->
+      <div class="macro-key-pad pad-skeleton" onclick="fireMacro(this, 'Skeleton')">
+        <div class="pad-header">
+          <span class="pad-icon-big">📐</span>
+          <span class="pad-num">M5</span>
+        </div>
+        <div class="pad-body">
+          <div class="pad-action-name">Drop Skeleton</div>
+          <div class="pad-action-sub">Write arrangement locators</div>
+        </div>
+        <div class="pad-progress-bar"><div class="pad-progress-fill"></div></div>
+      </div>
+
+      <!-- Pad 6 -->
+      <div class="macro-key-pad pad-clipnamer" onclick="fireMacro(this, 'Clip Namer')">
+        <div class="pad-header">
+          <span class="pad-icon-big">🏷</span>
+          <span class="pad-num">M6</span>
+        </div>
+        <div class="pad-body">
+          <div class="pad-action-name">Batch Namer</div>
+          <div class="pad-action-sub">{track} {bar} rename</div>
+        </div>
+        <div class="pad-progress-bar"><div class="pad-progress-fill"></div></div>
+      </div>
+
+      <!-- Pad 7 -->
+      <div class="macro-key-pad" onclick="fireMacro(this, 'Empty Clips')">
+        <div class="pad-header">
+          <span class="pad-icon-big">📦</span>
+          <span class="pad-num">M7</span>
+        </div>
+        <div class="pad-body">
+          <div class="pad-action-name">Create Empty</div>
+          <div class="pad-action-sub">Fill next slots on tracks</div>
+        </div>
+        <div class="pad-progress-bar"><div class="pad-progress-fill"></div></div>
+      </div>
+
+      <!-- Pad 8 -->
+      <div class="macro-key-pad" onclick="fireMacro(this, 'DSP Prep')">
+        <div class="pad-header">
+          <span class="pad-icon-big">🔊</span>
+          <span class="pad-num">M8</span>
+        </div>
+        <div class="pad-body">
+          <div class="pad-action-name">Normalize DSP</div>
+          <div class="pad-action-sub">ffmpeg trim & gain prep</div>
+        </div>
+        <div class="pad-progress-bar"><div class="pad-progress-fill"></div></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function jumpSection(el, name) {
+      document.querySelectorAll('.structure-block').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function fireMacro(el, name) {
+      const fill = el.querySelector('.pad-progress-fill');
+      fill.style.width = '100%';
+      setTimeout(() => {
+        fill.style.width = '0%';
+      }, 500);
+    }
+  </script>
+</body>
+</html>

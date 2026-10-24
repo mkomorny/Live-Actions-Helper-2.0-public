@@ -1,0 +1,11 @@
+{
+  "id": "breakdowns",
+  "name": "Breakdowns",
+  "description": "Transitional drum fills — pick genre, technique, and where to insert. Audition first; nothing writes until Insert fill.",
+  "accent": "#FF8C32",
+  "version": "0.1",
+  "enabled": true,
+  "ui": "webview",
+  "dialog": "ui/dialog.html",
+  "dialogStatus": "Breakdowns is open in its dialog window. Audition writes nothing.\nWhen you click 'Insert fill', notes will be placed on your selected tracks."
+}

@@ -1,0 +1,11 @@
+{
+  "id": "bbencut",
+  "name": "BBenCut",
+  "description": "Algorithmic breakbeat cutting for an Arrangement clip -- pick a cut procedure and parameters. Apply computes the cut sequence; nothing is placed into Live yet.",
+  "accent": "#7C5CFF",
+  "version": "0.1",
+  "enabled": true,
+  "ui": "webview",
+  "dialog": "ui/dialog.html",
+  "dialogStatus": "BBenCut is open in its dialog window. This build only computes the cut sequence -- it does not place clips into Live yet."
+}

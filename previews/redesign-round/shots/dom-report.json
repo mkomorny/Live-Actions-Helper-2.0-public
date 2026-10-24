@@ -1,0 +1,89 @@
+{
+ "themes": [
+  "acetate-dubplate",
+  "amethyst-dusk",
+  "aurora-borealis-geomagnetic",
+  "broadcast-on-air",
+  "charcoal-amber-capsule",
+  "charcoal-lime-pastel-cards",
+  "cyber-neon-pink",
+  "max-msp-patcher",
+  "risograph-art-studio",
+  "studio-patchbay",
+  "theatre-lighting-plot"
+ ],
+ "layouts": {
+  "a": {
+   "identicalAcrossThemes": true,
+   "distinctMarkups": 1,
+   "hashes": {
+    "acetate-dubplate": "b6fcad0ac048",
+    "amethyst-dusk": "b6fcad0ac048",
+    "aurora-borealis-geomagnetic": "b6fcad0ac048",
+    "broadcast-on-air": "b6fcad0ac048",
+    "charcoal-amber-capsule": "b6fcad0ac048",
+    "charcoal-lime-pastel-cards": "b6fcad0ac048",
+    "cyber-neon-pink": "b6fcad0ac048",
+    "max-msp-patcher": "b6fcad0ac048",
+    "risograph-art-studio": "b6fcad0ac048",
+    "studio-patchbay": "b6fcad0ac048",
+    "theatre-lighting-plot": "b6fcad0ac048"
+   },
+   "jsErrors": 0
+  },
+  "b": {
+   "identicalAcrossThemes": true,
+   "distinctMarkups": 1,
+   "hashes": {
+    "acetate-dubplate": "c62d48765607",
+    "amethyst-dusk": "c62d48765607",
+    "aurora-borealis-geomagnetic": "c62d48765607",
+    "broadcast-on-air": "c62d48765607",
+    "charcoal-amber-capsule": "c62d48765607",
+    "charcoal-lime-pastel-cards": "c62d48765607",
+    "cyber-neon-pink": "c62d48765607",
+    "max-msp-patcher": "c62d48765607",
+    "risograph-art-studio": "c62d48765607",
+    "studio-patchbay": "c62d48765607",
+    "theatre-lighting-plot": "c62d48765607"
+   },
+   "jsErrors": 0
+  },
+  "c": {
+   "identicalAcrossThemes": true,
+   "distinctMarkups": 1,
+   "hashes": {
+    "acetate-dubplate": "73a53dc6a8d4",
+    "amethyst-dusk": "73a53dc6a8d4",
+    "aurora-borealis-geomagnetic": "73a53dc6a8d4",
+    "broadcast-on-air": "73a53dc6a8d4",
+    "charcoal-amber-capsule": "73a53dc6a8d4",
+    "charcoal-lime-pastel-cards": "73a53dc6a8d4",
+    "cyber-neon-pink": "73a53dc6a8d4",
+    "max-msp-patcher": "73a53dc6a8d4",
+    "risograph-art-studio": "73a53dc6a8d4",
+    "studio-patchbay": "73a53dc6a8d4",
+    "theatre-lighting-plot": "73a53dc6a8d4"
+   },
+   "jsErrors": 0
+  },
+  "d": {
+   "identicalAcrossThemes": true,
+   "distinctMarkups": 1,
+   "hashes": {
+    "acetate-dubplate": "7eda89106fcf",
+    "amethyst-dusk": "7eda89106fcf",
+    "aurora-borealis-geomagnetic": "7eda89106fcf",
+    "broadcast-on-air": "7eda89106fcf",
+    "charcoal-amber-capsule": "7eda89106fcf",
+    "charcoal-lime-pastel-cards": "7eda89106fcf",
+    "cyber-neon-pink": "7eda89106fcf",
+    "max-msp-patcher": "7eda89106fcf",
+    "risograph-art-studio": "7eda89106fcf",
+    "studio-patchbay": "7eda89106fcf",
+    "theatre-lighting-plot": "7eda89106fcf"
+   },
+   "jsErrors": 0
+  }
+ }
+}

@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glass HUD — All 14 Tools Interactive Visual Explorer</title>
+<style>
+  :root {
+    --bg-dark: #07090e;
+    --glass-surface: rgba(18, 22, 34, 0.65);
+    --glass-surface-hover: rgba(28, 34, 52, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-border-hover: rgba(255, 255, 255, 0.16);
+    --glass-card: rgba(14, 18, 28, 0.55);
+    --accent-cyan: #06b6d4;
+    --accent-violet: #8b5cf6;
+    --accent-emerald: #10b981;
+    --accent-amber: #f59e0b;
+    --accent-rose: #f43f5e;
+    --text-main: #f8fafc;
+    --text-sub: #94a3b8;
+    --text-dim: #64748b;
+    --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+    --font-mono: "SF Mono", "Consolas", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-image: 
+      radial-gradient(circle at 10% 15%, rgba(139, 92, 246, 0.15), transparent 45%),
+      radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.12), transparent 45%);
+  }
+
+  /* Header */
+  .hud-top-bar {
+    height: 56px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(10, 13, 20, 0.7);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--glass-border);
+    flex-shrink: 0;
+  }
+
+  .hud-brand { display: flex; align-items: center; gap: 10px; }
+  .brand-badge-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent-violet), var(--accent-cyan));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 900; color: #fff;
+    box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+  }
+  .brand-text { font-size: 14px; font-weight: 800; }
+  .brand-sub { font-size: 10px; color: var(--text-sub); }
+
+  .view-mode-toggle {
+    display: flex;
+    background: rgba(255,255,255,0.04);
+    padding: 3px;
+    border-radius: 30px;
+    border: 1px solid var(--glass-border);
+    gap: 2px;
+  }
+  .mode-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-sub);
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .mode-btn.active {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(6, 182, 212, 0.4));
+    color: #fff;
+  }
+
+  /* Main Workspace */
+  .workspace-container {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 16px;
+    padding: 14px 20px;
+    overflow: hidden;
+  }
+
+  /* Left Sidebar: 14 Tools Index */
+  .tools-nav-sidebar {
+    background: var(--glass-surface);
+    backdrop-filter: blur(25px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  }
+
+  .sidebar-search-bar {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(14, 18, 28, 0.4);
+  }
+  .search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 11px;
+    width: 100%;
+  }
+
+  .tools-list-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .category-divider {
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 8px 8px 4px;
+  }
+
+  .tool-list-item {
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .tool-list-item:hover {
+    background: var(--glass-surface-hover);
+    border-color: var(--glass-border-hover);
+  }
+  .tool-list-item.active {
+    background: rgba(6, 182, 212, 0.12);
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.15);
+  }
+
+  .tool-item-meta { display: flex; align-items: center; gap: 8px; }
+  .tool-color-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .tool-item-name { font-size: 11px; font-weight: 700; color: #fff; }
+
+  .tool-item-badge {
+    font-size: 8px;
+    font-family: var(--font-mono);
+    font-weight: bold;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.06);
+    color: var(--text-sub);
+  }
+
+  /* Right Screen: Active Tool Glass Canvas */
+  .tool-stage-panel {
+    background: var(--glass-surface);
+    backdrop-filter: blur(30px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    position: relative;
+  }
+
+  /* Tool Banner */
+  .tool-active-banner {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  .tool-active-banner::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: var(--active-accent, linear-gradient(90deg, var(--accent-violet), var(--accent-cyan)));
+  }
+
+  .banner-left { display: flex; align-items: center; gap: 14px; }
+  .tool-avatar-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; color: #fff;
+    background: rgba(255,255,255,0.1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+  .tool-headline-title { font-size: 18px; font-weight: 800; color: #fff; }
+  .tool-headline-desc { font-size: 12px; color: var(--text-sub); margin-top: 2px; max-width: 600px; }
+
+  /* Form & Interactive Elements Area */
+  .tool-stage-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .col-full { grid-column: span 2; }
+
+  .label-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-sub);
+    margin-bottom: 6px;
+    display: block;
+  }
+  .field-hint {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  .glass-input, .glass-select, .glass-textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #fff;
+    font-size: 12px;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.15s ease;
+  }
+  .glass-input:focus, .glass-select:focus, .glass-textarea:focus {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.25);
+  }
+  .glass-select option { background: #10141f; color: #fff; }
+
+  /* Token Pills */
+  .preset-pills-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .pill-tag {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--accent-cyan);
+    cursor: pointer;
+  }
+  .pill-tag:hover { background: rgba(6, 182, 212, 0.2); border-color: var(--accent-cyan); }
+
+  /* Webview Dialog Simulation Frame */
+  .embedded-webview-view {
+    background: rgba(14, 18, 28, 0.6);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Sticky Footer */
+  .tool-stage-footer {
+    padding: 16px 24px;
+    background: rgba(10, 13, 20, 0.85);
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .btn-run-action {
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    padding: 10px 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.35);
+    transition: transform 0.1s ease;
+  }
+  .btn-run-action:hover { transform: scale(1.02); }
+
+  .osc-payload-preview {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    background: rgba(0,0,0,0.3);
+    padding: 6px 12px;
+    border-radius: 6px;
+    max-width: 450px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="hud-top-bar">
+    <div class="hud-brand">
+      <div class="brand-badge-icon">LA</div>
+      <div>
+        <div class="brand-text">All 14 Tools Explorer</div>
+        <div class="brand-sub">Glassmorphism UI Inspector</div>
+      </div>
+    </div>
+
+    <div class="view-mode-toggle">
+      <button class="mode-btn active" onclick="setFilter('all')">All 14 Tools</button>
+      <button class="mode-btn" onclick="setFilter('midi')">MIDI / Generative</button>
+      <button class="mode-btn" onclick="setFilter('audio')">Audio / DSP</button>
+      <button class="mode-btn" onclick="setFilter('structure')">Arrangement</button>
+      <button class="mode-btn" onclick="setFilter('host')">Host Runtime</button>
+    </div>
+
+    <div style="font-size:11px; color:var(--accent-emerald); font-family:var(--font-mono)">
+      ● 14 MANIFESTS LOADED
+    </div>
+  </header>
+
+  <!-- Main Split Layout -->
+  <div class="workspace-container">
+    <!-- Left Navigation: All 14 Tools -->
+    <aside class="tools-nav-sidebar">
+      <div class="sidebar-search-bar">
+        <span>🔍</span>
+        <input type="text" class="search-input" id="tool-search" placeholder="Search tool manifests..." oninput="filterTools(this.value)">
+      </div>
+
+      <div class="tools-list-scroll" id="tools-list">
+        <!-- Generative MIDI -->
+        <div class="category-divider">Generative & MIDI Tools</div>
+        <div class="tool-list-item active" data-id="breakdowns" onclick="loadTool('breakdowns')">
+          <div class="tool-item-meta">
+            <div class="tool-color-dot" style="background:#FF8C32;"></div>
+            <span class="tool-item-name">Breakdowns</span>
+          </div>
+          <span class="tool-item-badge">WEBVIEW</span>
+        </div>
+        <div class="tool-list-item" data-id="mutate" onclick="loadTool('mutate')">
+          <div class="tool-item-meta">
+            <div class="tool-color-dot" style="background:#a78bfa;"></div>
+            <span class="tool-item-name">Mutate Variations</span>
+          </div>
+          <span class="tool-item-badge">MIDI</span>
+        </div>
+        <div class="tool-list-item" data-id="detect-key" onclick="loadTool('detect-key')">
+          <div class="tool-item-meta">
+            <div class="tool-color-dot" style="background:#e879f9;"></div>
+            <span class="tool-item-name">Detect Key</span>
+          </div>
+          <span class="tool-item-badge">THEORY</span>
+        </div>
+        <div class="tool-list-item" data-id="empty-clips" onclick="loadTool('empty-clips')">
+          <div class="tool-item-meta">
+            <div class="tool-color-dot" style="background:#22d3ee;"></div>
+            <span class="tool-item-name">Empty Clips</span>
+          </div>
+          <span class="tool-item-badge">SLOTS</span>
+        </div>
+
+        <!-- Audio DSP -->
+        <div class="category-divider">Audio DSP & Slicers</div>
+        <div class="tool-list-item" data-id="bbencut" onclick="loadTool('bbencut')">
+          <div class="tool-item-meta">
+            <div class="tool-color-dot" style="background:#7C5CFF;"></div>
+            <span class="tool-item-name">BBenCut Slicer</span>
+          </div>
+          <span class="tool-item-badge">WEBVIEW</span>
+        </div>
+        <div class="tool-list-item" data-id="audio-sample" onclick="loadTool('audio-sample')">
+          <div class="tool-item-meta">
+            <div class="tool-color-dot" style="background:#38BDF8;"></div>
+            <span class="tool-item-name">Audio Sample DSP (17 Ops)</span>
+          </div>
+          <span class="tool-item-badge">FFMPEG</span>
+        </div>
+        <div class="tool-list-item" data-id="tts-vocal" onclick="loadTool('tts-vocal')">
+          <div class="tool-item-meta">
+            <div class="tool-color-dot" style="background:#22C55E;"></div>
+            <span class="tool-item-name">TTS Vocal Synthesis</span>
+          </div>
+          <span class="tool-item-badge">AI HOST</span>
+        </div>
+
+        <!-- Arrangement & Structure -->
+        <div class="category-divider">Arrangement & Locators</div>
+        <div class="tool-list-item" data-id="arrangement-skeleton" onclick="loadTool('arrangement-skeleton')">
+          <div class="tool-item-meta">
+            <div class="tool-color-dot" style="background:#eab308;"></div>
+            <span class="tool-item-name">Arrangement Skeleton</span>
+          </div>
+          <span class="tool-item-badge">LOCATORS</span>
+        </div>
+        <div class="tool-list-item" data-id="arrangement-helper" onclick="loadTool('arrangement-helper')">
+          <div class="tool-item-meta">
+            <div class="tool-color-dot" style="background:#8B5CF6;"></div>
+            <span class="tool-item-name">Arrangement Helper</span>
+          </div>
+          <span class="tool-item-badge">WEBVIEW</span>
+        </div>
+
+        <!-- Organization & Batch -->
+        <div class="category-divider">Organization & Batch Tools</div>
+        <div class="tool-list-item" data-id="clip-namer" onclick="loadTool('clip-namer')">
+          <div class="tool-item-meta">
+            <div class="tool-color-dot" style="background:#3b82f6;"></div>
+            <span class="tool-item-name">Clip Namer</span>
+          </div>
+          <span class="tool-item-badge">TOKENS</span>
+        </div>
+        <div class="tool-list-item" data-id="color-clips" onclick="loadTool('color-clips')">
+          <div class="tool-item-meta">
+            <div class="tool-color-dot" style="background:#fb7185;"></div>
+            <span class="tool-item-name">Color Clips</span>
+          </div>
+          <span class="tool-item-badge">HEX</span>
+        </div>
+        <div class="tool-list-item" data-id="duplicate-clips" onclick="loadTool('duplicate-clips')">
+          <div class="tool-item-meta">
+            <div class="tool-color-dot" style="background:#f59e0b;"></div>
+            <span class="tool-item-name">Duplicate Clips</span>
+          </div>
+          <span class="tool-item-badge">BATCH</span>
+        </div>
+        <div class="tool-list-item" data-id="reveal-device" onclick="loadTool('reveal-device')">
+          <div class="tool-item-meta">
+            <div class="tool-color-dot" style="background:#818cf8;"></div>
+            <span class="tool-item-name">Reveal Device</span>
+          </div>
+          <span class="tool-item-badge">MAX PAT</span>
+        </div>
+        <div class="tool-list-item" data-id="track-batch" onclick="loadTool('track-batch')">
+          <div class="tool-item-meta">
+            <div class="tool-color-dot" style="background:#34d399;"></div>
+            <span class="tool-item-name">Track Batch</span>
+          </div>
+          <span class="tool-item-badge">MIXER</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Screen: Active Tool Details -->
+    <main class="tool-stage-panel" id="tool-stage">
+      <!-- Active Banner -->
+      <div class="tool-active-banner" id="active-banner">
+        <div class="banner-left">
+          <div class="tool-avatar-icon" id="tool-avatar">⚡</div>
+          <div>
+            <div class="tool-headline-title" id="tool-title">Breakdowns</div>
+            <div class="tool-headline-desc" id="tool-desc">Transitional drum fills — pick genre, technique, and where to insert. Audition first; nothing writes until Insert fill.</div>
+          </div>
+        </div>
+        <div>
+          <span class="tool-item-badge" id="tool-runtime-badge" style="font-size:10px; padding:3px 8px;">WEBVIEW UI</span>
+        </div>
+      </div>
+
+      <!-- Form Inputs Body -->
+      <div class="tool-stage-body" id="tool-form-content">
+        <!-- Rendered dynamically by loadTool() -->
+      </div>
+
+      <!-- Sticky Run Footer -->
+      <footer class="tool-stage-footer">
+        <button class="btn-run-action" id="btn-run-primary" onclick="simulateExecution()">
+          <span id="run-button-label">▶ Run on Ticked Tracks</span>
+        </button>
+        <div class="osc-payload-preview" id="osc-payload-display">
+          /live-actions/run breakdowns {"tracks":["live_set tracks 0"]}
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const TOOLS_DATA = {
+      "breakdowns": {
+        name: "Breakdowns",
+        desc: "Transitional drum fills — pick genre, technique, and where to insert. Audition first; nothing writes until Insert fill.",
+        accent: "#FF8C32",
+        icon: "⚡",
+        badge: "WEBVIEW MODAL",
+        runLabel: "▶ Insert Fill into Live",
+        render: () => `
+          <div class="embedded-webview-view">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight:bold; font-size:12px; color:var(--accent-cyan);">⚡ Breakdowns Interactive Webview Dialog</span>
+              <span class="pill-tag">Web Audio Engine</span>
+            </div>
+            <div style="height:90px; background:#080a10; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--text-sub); font-family:var(--font-mono); font-size:11px;">
+              [ MIDI Snare Roll & Riser Audition Player Canvas ]
+            </div>
+          </div>
+          <div class="field-grid">
+            <div>
+              <label class="label-title">Fill Style / Curve</label>
+              <select class="glass-select">
+                <option>Exponential Snare Roll (32nd crescendo)</option>
+                <option>Polyrhythmic Stutter Fill (Triplet feel)</option>
+                <option>Tom & Kick Breakdown Riser</option>
+              </select>
+            </div>
+            <div>
+              <label class="label-title">Insert Destination</label>
+              <select class="glass-select">
+                <option>newClip (first empty session slot)</option>
+                <option>replace (overwrite selected MIDI clip)</option>
+                <option>append (add fill at end of clip)</option>
+                <option>newTrack (create fresh MIDI track)</option>
+                <option>playhead (Arrangement clip at playhead)</option>
+              </select>
+            </div>
+          </div>
+        `
+      },
+      "mutate": {
+        name: "Mutate Variations",
+        desc: "Write variation clips from the selected MIDI clip on a ticked track. Same math as the Mutate MIDI Tool.",
+        accent: "#a78bfa",
+        icon: "🧬",
+        badge: "MIDI TRANSFORM",
+        runLabel: "▶ Mutate Variation Takes",
+        render: () => `
+          <div class="field-grid">
+            <div>
+              <label class="label-title">How many variations (1-16)</label>
+              <input type="text" class="glass-input" value="4">
+              <div class="field-hint">How many variation clips to generate from source clip.</div>
+            </div>
+            <div>
+              <label class="label-title">Drop notes probability (0-1)</label>
+              <input type="text" class="glass-input" value="0.1">
+              <div class="field-hint">Probability to randomly remove notes (0 = none, 1 = all).</div>
+            </div>
+            <div>
+              <label class="label-title">Swap pitches probability (0-1)</label>
+              <input type="text" class="glass-input" value="0.2">
+              <div class="field-hint">Probability to swap note pitches around.</div>
+            </div>
+            <div>
+              <label class="label-title">Velocity wobble (0-40)</label>
+              <input type="text" class="glass-input" value="15">
+              <div class="field-hint">How much to randomly vary MIDI velocity per note.</div>
+            </div>
+            <div>
+              <label class="label-title">Timing wobble in beats (0-0.25)</label>
+              <input type="text" class="glass-input" value="0">
+              <div class="field-hint">0 = tight, 0.05 = slight groove, 0.25 = loose.</div>
+            </div>
+            <div>
+              <label class="label-title">Variation Mode</label>
+              <select class="glass-select">
+                <option value="independent">independent (each starts from original)</option>
+                <option value="cumulative">cumulative (each builds on previous)</option>
+              </select>
+            </div>
+            <div class="col-full">
+              <label class="label-title">Random Seed</label>
+              <input type="text" class="glass-input" value="1">
+              <div class="field-hint">Change seed number to produce a totally different set of variations.</div>
+            </div>
+          </div>
+        `
+      },
+      "detect-key": {
+        name: "Detect Key",
+        desc: "Find the key (and mode) of a MIDI clip, ticked track(s), or the whole Set. Krumhansl-Schmuckler pitch-class analysis.",
+        accent: "#e879f9",
+        icon: "🎹",
+        badge: "THEORY ENGINE",
+        runLabel: "▶ Detect Key & Mode",
+        render: () => `
+          <div class="field-grid">
+            <div>
+              <label class="label-title">Scope: clip, track, or set</label>
+              <select class="glass-select">
+                <option value="clip">clip (selected detail MIDI clip)</option>
+                <option value="track">track (all clips on ticked MIDI tracks)</option>
+                <option value="set">set (every MIDI clip in the whole Set)</option>
+              </select>
+              <div class="field-hint">Scope clip/set does not require ticking tracks.</div>
+            </div>
+            <div>
+              <label class="label-title">Pitch Weight Profile</label>
+              <select class="glass-select">
+                <option value="krumhansl-kessler">krumhansl-kessler (Classic standard)</option>
+                <option value="temperley">temperley (Cadence/polyphonic weights)</option>
+              </select>
+              <div class="field-hint">Weight table correlated against pitch classes.</div>
+            </div>
+            <div class="col-full">
+              <label class="label-title">How many results to show (1-12)</label>
+              <input type="text" class="glass-input" value="3">
+              <div class="field-hint">Top N key/mode guesses to report, best match first.</div>
+            </div>
+          </div>
+        `
+      },
+      "empty-clips": {
+        name: "Empty Clips",
+        desc: "Create an empty MIDI clip in the first empty slot on each ticked MIDI track.",
+        accent: "#22d3ee",
+        icon: "📦",
+        badge: "SLOT BUILDER",
+        runLabel: "▶ Create Empty Clips",
+        render: () => `
+          <div class="field-grid">
+            <div>
+              <label class="label-title">Length in beats</label>
+              <input type="text" class="glass-input" value="4">
+              <div class="field-hint">4 = 1 bar in 4/4, 8 = 2 bars, 16 = 4 bars.</div>
+            </div>
+            <div>
+              <label class="label-title">Clip name</label>
+              <input type="text" class="glass-input" value="Empty">
+              <div class="field-hint">The name given to each newly created empty MIDI clip.</div>
+            </div>
+          </div>
+        `
+      },
+      "bbencut": {
+        name: "BBenCut Slicer",
+        desc: "Algorithmic breakbeat cutting for an Arrangement clip -- pick a cut procedure and parameters.",
+        accent: "#7C5CFF",
+        icon: "✂",
+        badge: "AUDIO SLICER",
+        runLabel: "▶ Slice Breakbeat in Arrangement",
+        render: () => `
+          <div class="embedded-webview-view">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight:bold; font-size:12px; color:var(--accent-cyan);">✂ BBCut2 Algorithmic Breakbeat Slicer</span>
+              <span class="pill-tag">Bake Safety: 80 Clips</span>
+            </div>
+            <div style="height:90px; background:#080a10; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--text-sub); font-family:var(--font-mono); font-size:11px;">
+              [ Breakbeat Slices Waveform & Roll Pre-Render Canvas ]
+            </div>
+          </div>
+          <div class="field-grid">
+            <div>
+              <label class="label-title">Cut Procedure</label>
+              <select class="glass-select">
+                <option>cutRoll (Classic Jungle Rolls)</option>
+                <option>cutMicro (Stutter Glitch Slices)</option>
+                <option>cutSync (Beat-Synchronized Jumps)</option>
+              </select>
+            </div>
+            <div>
+              <label class="label-title">Total Beats & Loop Length</label>
+              <input type="text" class="glass-input" value="16">
+            </div>
+          </div>
+        `
+      },
+      "audio-sample": {
+        name: "Audio Sample (17-DSP Ops)",
+        desc: "ffmpeg-backed sample prep — trim, fade, normalize, convert, pitch/time, effects, and generators. Runs on desktop host.",
+        accent: "#38BDF8",
+        icon: "🔊",
+        badge: "OFFLINE DSP",
+        runLabel: "▶ Process Audio Sample",
+        render: () => `
+          <div class="field-grid">
+            <div class="col-full">
+              <label class="label-title">Operation Category & Type</label>
+              <select class="glass-select" onchange="alert('Dynamic op fields switched!')">
+                <option>Trim, Fades & Levels — Trim / Cut</option>
+                <option>Trim, Fades & Levels — Auto-Trim Silence</option>
+                <option>Trim, Fades & Levels — Fade In / Out</option>
+                <option>Trim, Fades & Levels — Gain</option>
+                <option>Trim, Fades & Levels — Normalize (LUFS / Peak)</option>
+                <option>Convert — Convert / Resample</option>
+                <option>Reverse, Pitch & Time — Reverse</option>
+                <option>Reverse, Pitch & Time — Pitch & Time Stretch</option>
+                <option>Effects — Echo / Delay</option>
+                <option>Effects — Chorus</option>
+                <option>Effects — Tremolo</option>
+                <option>Effects — Vibrato</option>
+                <option>Effects — EQ / Tone Shape</option>
+                <option>Effects — Bitcrusher / Lo-Fi</option>
+                <option>Generators — Tone Generator</option>
+                <option>Generators — Noise Generator</option>
+                <option>Generators — Silence Generator</option>
+              </select>
+            </div>
+            <div class="col-full">
+              <label class="label-title">Input Audio File</label>
+              <input type="text" class="glass-input" placeholder="Click to browse sample (*.wav, *.aiff, *.mp3, *.flac)...">
+            </div>
+            <div>
+              <label class="label-title">Start Time (sec or mm:ss.ms)</label>
+              <input type="text" class="glass-input" value="0">
+            </div>
+            <div>
+              <label class="label-title">End Time (blank = EOF)</label>
+              <input type="text" class="glass-input" value="2.500">
+            </div>
+            <div class="col-full">
+              <label class="label-title">Destination</label>
+              <select class="glass-select">
+                <option>Leave in output folder</option>
+                <option>Save to PC (Prompt location)</option>
+                <option>Add to Live Set (Place on first ticked audio track)</option>
+              </select>
+            </div>
+          </div>
+        `
+      },
+      "tts-vocal": {
+        name: "TTS Vocal Synthesis",
+        desc: "Generate an AI text-to-speech vocal sample from text using a saved profile. Runs on desktop host.",
+        accent: "#22C55E",
+        icon: "🗣",
+        badge: "NEURAL VOICE",
+        runLabel: "▶ Generate Vocal Sample",
+        render: () => `
+          <div class="field-grid">
+            <div class="col-full">
+              <label class="label-title">Text to Speak</label>
+              <textarea class="glass-textarea" rows="3" placeholder="Enter lyrics, spoken word, vocal stabs, or DJ shouts (up to 2000 chars)...">Drop the bass in three, two, one.</textarea>
+            </div>
+            <div>
+              <label class="label-title">Voice Profile</label>
+              <select class="glass-select">
+                <option>Cyberpunk Female (Echo + Lo-Fi)</option>
+                <option>Deep Club Hypeman (Radio Compression)</option>
+                <option>Sci-Fi Announcer (Vocoded Reverb)</option>
+              </select>
+            </div>
+            <div>
+              <label class="label-title">Voice Override (blank = default)</label>
+              <input type="text" class="glass-input" placeholder="Optional voice ID...">
+            </div>
+            <div>
+              <label class="label-title">Speed Override (1.0 = normal)</label>
+              <input type="text" class="glass-input" value="1.0">
+            </div>
+            <div>
+              <label class="label-title">Destination</label>
+              <select class="glass-select">
+                <option>Save to PC</option>
+                <option>Add to Live Set</option>
+              </select>
+            </div>
+          </div>
+        `
+      },
+      "arrangement-skeleton": {
+        name: "Arrangement Skeleton",
+        desc: "Drop Arrangement locators: Intro 8, Verse 16, Chorus 16, Outro 8. Set-wide, no track tick required.",
+        accent: "#eab308",
+        icon: "📐",
+        badge: "LOCATORS",
+        runLabel: "Drop Locators",
+        render: () => `
+          <div class="field-grid">
+            <div class="col-full">
+              <label class="label-title">Sections and bar lengths</label>
+              <input type="text" class="glass-input" value="Intro 8, Verse 16, Chorus 16, Outro 8">
+              <div class="field-hint">Comma-separated list of Section Name and Bar Length pairs.</div>
+              <div class="preset-pills-wrap">
+                <span class="pill-tag" onclick="setSkeleton('Intro 8, Verse 16, Chorus 16, Verse 16, Chorus 16, Outro 8')">Pop Radio (Verse/Chorus)</span>
+                <span class="pill-tag" onclick="setSkeleton('Intro 16, Build 16, Drop 32, Breakdown 16, Drop 32, Outro 16')">Extended EDM / Club</span>
+                <span class="pill-tag" onclick="setSkeleton('Intro 4, Theme 16, Variation 16, Outro 8')">Fast Beats (Hip-Hop)</span>
+              </div>
+            </div>
+          </div>
+        `
+      },
+      "arrangement-helper": {
+        name: "Arrangement Helper",
+        desc: "Build or re-edit an arrangement from named, colored sections — and move the clips on your ticked tracks to match.",
+        accent: "#8B5CF6",
+        icon: "🗂",
+        badge: "ARRANGER",
+        runLabel: "▶ Open Arranger Webview",
+        render: () => `
+          <div class="embedded-webview-view">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight:bold; font-size:12px; color:var(--accent-violet);">🗂 Arrangement Structure & Clip Mover</span>
+              <span class="pill-tag">Interactive Modal</span>
+            </div>
+            <div style="height:100px; background:#080a10; border-radius:8px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:8px; color:var(--text-sub); font-size:11px;">
+              <div style="display:flex; gap:6px;">
+                <span style="background:#3b82f6; color:#fff; padding:4px 8px; border-radius:4px; font-weight:bold;">Intro [8]</span>
+                <span style="background:#8b5cf6; color:#fff; padding:4px 8px; border-radius:4px; font-weight:bold;">Verse 1 [16]</span>
+                <span style="background:#ec4899; color:#fff; padding:4px 8px; border-radius:4px; font-weight:bold;">Chorus [16]</span>
+                <span style="background:#10b981; color:#fff; padding:4px 8px; border-radius:4px; font-weight:bold;">Outro [8]</span>
+              </div>
+              <span>Arrangement Helper is open in its own dialog window. Move clips on ticked tracks to match.</span>
+            </div>
+          </div>
+        `
+      },
+      "clip-namer": {
+        name: "Clip Namer",
+        desc: "Rename session clips on the tracks you tick. Tokens: {track} {bar} {take} {index}.",
+        accent: "#3b82f6",
+        icon: "🏷",
+        badge: "ORGANIZATION",
+        runLabel: "▶ Batch Rename Clips",
+        render: () => `
+          <div class="field-grid">
+            <div class="col-full">
+              <label class="label-title">Name Pattern</label>
+              <input type="text" class="glass-input" id="namer-pattern" value="{track} {bar} take">
+              <div class="field-hint">Available tokens: {track}, {bar}, {take}, {index}.</div>
+              <div class="preset-pills-wrap">
+                <span class="pill-tag" onclick="insertToken('{track}')">+{track}</span>
+                <span class="pill-tag" onclick="insertToken('{bar}')">+{bar}</span>
+                <span class="pill-tag" onclick="insertToken('{take}')">+{take}</span>
+                <span class="pill-tag" onclick="insertToken('{index}')">+{index}</span>
+              </div>
+            </div>
+          </div>
+        `
+      },
+      "color-clips": {
+        name: "Color Clips",
+        desc: "Set the color of session clips on the ticked tracks. Optionally color those scenes too.",
+        accent: "#fb7185",
+        icon: "🎨",
+        badge: "PALETTE",
+        runLabel: "▶ Apply Color to Clips",
+        render: () => `
+          <div class="field-grid">
+            <div>
+              <label class="label-title">Hex Color (#RRGGBB)</label>
+              <input type="text" class="glass-input" id="color-val" value="#3b82f6">
+              <div class="preset-pills-wrap" style="margin-top:6px;">
+                <span class="pill-tag" style="background:#ff4757; color:#fff;" onclick="setColor('#ff4757')">Red</span>
+                <span class="pill-tag" style="background:#ffa502; color:#000;" onclick="setColor('#ffa502')">Orange</span>
+                <span class="pill-tag" style="background:#2ed573; color:#000;" onclick="setColor('#2ed573')">Green</span>
+                <span class="pill-tag" style="background:#1e90ff; color:#fff;" onclick="setColor('#1e90ff')">Blue</span>
+                <span class="pill-tag" style="background:#a55eea; color:#fff;" onclick="setColor('#a55eea')">Purple</span>
+              </div>
+            </div>
+            <div>
+              <label class="label-title">Also color those scenes? (yes / no)</label>
+              <select class="glass-select">
+                <option value="no">no (only color clips)</option>
+                <option value="yes">yes (also color scene rows)</option>
+              </select>
+            </div>
+          </div>
+        `
+      },
+      "duplicate-clips": {
+        name: "Duplicate Clips",
+        desc: "Copy every session clip on the ticked tracks into the next empty slots.",
+        accent: "#f59e0b",
+        icon: "📋",
+        badge: "BATCH COPY",
+        runLabel: "▶ Duplicate All Session Clips",
+        render: () => `
+          <div style="background:rgba(245, 158, 11, 0.1); border:1px solid rgba(245, 158, 11, 0.3); border-radius:10px; padding:16px; color:#cbd5e1; font-size:12px;">
+            This tool has no input parameters. When you click <strong>Duplicate All Session Clips</strong>, every active clip on your ticked tracks will be safely copied into the first available empty slot below it.
+          </div>
+        `
+      },
+      "reveal-device": {
+        name: "Reveal Device",
+        desc: "Select a converted Extension already on a ticked track (Chord Explorer, Dub Assistant, Mutate Variations…).",
+        accent: "#818cf8",
+        icon: "🔍",
+        badge: "MAX DEVICE",
+        runLabel: "▶ Select & Reveal Device",
+        render: () => `
+          <div class="field-grid">
+            <div class="col-full">
+              <label class="label-title">Device name contains</label>
+              <input type="text" class="glass-input" value="Chord Explorer">
+              <div class="field-hint">Partial device name to search for. Selects the device in Ableton's Detail View.</div>
+              <div class="preset-pills-wrap">
+                <span class="pill-tag" onclick="setDevice('Chord Explorer')">Chord Explorer</span>
+                <span class="pill-tag" onclick="setDevice('Dub Assistant')">Dub Assistant</span>
+                <span class="pill-tag" onclick="setDevice('Mutate Variations')">Mutate Variations</span>
+                <span class="pill-tag" onclick="setDevice('Drum Rack Jumbler')">Drum Rack Jumbler</span>
+              </div>
+            </div>
+          </div>
+        `
+      },
+      "track-batch": {
+        name: "Track Batch",
+        desc: "Rename, arm, mute, or set a send on the ticked tracks.",
+        accent: "#34d399",
+        icon: "🎚",
+        badge: "MIXER AUTOMATION",
+        runLabel: "▶ Apply Track Batch Action",
+        render: () => `
+          <div class="field-grid">
+            <div>
+              <label class="label-title">Action</label>
+              <select class="glass-select">
+                <option value="rename">rename (Batch rename tracks)</option>
+                <option value="arm">arm (Arm ticked tracks)</option>
+                <option value="unarm">unarm (Unarm ticked tracks)</option>
+                <option value="mute">mute (Mute ticked tracks)</option>
+                <option value="unmute">unmute (Unmute ticked tracks)</option>
+                <option value="send">send (Set send level)</option>
+              </select>
+            </div>
+            <div>
+              <label class="label-title">Rename Pattern ({name} {kind} {index})</label>
+              <input type="text" class="glass-input" value="{name}">
+            </div>
+            <div>
+              <label class="label-title">Send Return Letter (A, B, C...)</label>
+              <input type="text" class="glass-input" value="A">
+            </div>
+            <div>
+              <label class="label-title">Send Amount 0-1 (or 0-100)</label>
+              <input type="text" class="glass-input" value="0.5">
+            </div>
+          </div>
+        `
+      }
+    };
+
+    function loadTool(id) {
+      document.querySelectorAll('.tool-list-item').forEach(i => i.classList.remove('active'));
+      const activeItem = document.querySelector(`.tool-list-item[data-id="${id}"]`);
+      if(activeItem) activeItem.classList.add('active');
+
+      const data = TOOLS_DATA[id];
+      if(!data) return;
+
+      document.getElementById('tool-title').textContent = data.name;
+      document.getElementById('tool-desc').textContent = data.desc;
+      document.getElementById('tool-avatar').textContent = data.icon;
+      document.getElementById('tool-runtime-badge').textContent = data.badge;
+      document.getElementById('run-button-label').textContent = data.runLabel;
+      document.getElementById('active-banner').style.setProperty('--active-accent', data.accent);
+      document.getElementById('osc-payload-display').textContent = `/live-actions/run ${id} {"tracks":["live_set tracks 0"]}`;
+
+      document.getElementById('tool-form-content').innerHTML = data.render();
+    }
+
+    function insertToken(tok) {
+      const el = document.getElementById('namer-pattern');
+      if(el) el.value += " " + tok;
+    }
+    function setColor(hex) {
+      const el = document.getElementById('color-val');
+      if(el) el.value = hex;
+    }
+    function setSkeleton(val) {
+      const el = document.querySelector('input[value*="Intro"]');
+      if(el) el.value = val;
+    }
+    function setDevice(name) {
+      const el = document.querySelector('input[value*="Chord"]');
+      if(el) el.value = name;
+    }
+
+    function filterTools(query) {
+      const q = query.toLowerCase();
+      document.querySelectorAll('.tool-list-item').forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(q) ? 'flex' : 'none';
+      });
+    }
+
+    function simulateExecution() {
+      alert("⚡ Executing OSC packet /live-actions/run to 127.0.0.1:11924!");
+    }
+
+    // Load initial tool
+    loadTool('breakdowns');
+  </script>
+</body>
+</html>

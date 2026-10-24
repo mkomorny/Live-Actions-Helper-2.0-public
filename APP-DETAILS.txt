@@ -1,0 +1,1226 @@
+LIVE ACTIONS — APP DETAILS
+==========================
+Written from the code as of 17 August 2026.
+Read this before you add a tool.
+
+What this app is
+----------------
+Live Actions is a Windows desktop host for Ableton Live 12 Standard +
+Max for Live. It is a homemade stand-in for Suite-only Ableton Extensions.
+
+You pick tracks in the desktop window, open a tool, and that tool is
+supposed to change only those tracks. Official Extensions use Live's
+right-click menu. This app cannot add items to that menu. It talks to
+the Set through a Max for Live audio effect on a track and the Live
+Object Model (Live 12 manual chapter 31).
+
+This is not official Ableton Extensions.
+This is not official Producer Pal.
+Do not patch or replace Producer_Pal.amxd from this project.
+
+Repo: https://github.com/mkomorny/Live-Actions-Helper-2.0 (private; Live Actions Helper 2.0, all new work)
+Original Tk app history: https://github.com/mkomorny/live-actions-helper
+
+
+How the pieces fit
+------------------
+  Desktop window (Python / tkinter)
+           |
+           |  OSC on localhost only
+           |  app -> bridge  UDP 11924
+           |  bridge -> app  UDP 11925
+           v
+  Live Actions  (Max Audio Effect on a track)
+           |
+           |  Live Object Model  (live.path / LiveAPI)
+           v
+  The open Live Set
+
+The window lists tools, remembers which tracks you ticked, and opens a
+tool's own screen inside the same window. The bridge is what can read
+and write Live. A tool that never talks to the bridge cannot change
+the Set.
+
+The device face has an **Open desktop host** button. Max for Live
+blocks [system]/[shell], so the button opens liveactions://open
+(registered by install.ps1) via max.launchbrowser() -- the only
+mechanism that works inside the M4L sandbox. A second click raises
+the existing window.
+
+
+Folder map
+----------
+  Live Actions Helper\
+    APP-DETAILS.txt          this file
+    HOW-TO-START.txt         how to launch and drop the bridge
+    README.md                GitHub overview
+    Launch Live Actions.bat  starts the window (the WebView2 shell since the v1.0.67 merge)
+    Launch Live Actions (classic Tk).bat   the old Tk window, kept as a fallback
+    install.ps1              copies the bridge into the User Library
+
+    app\
+      helper.py              window: Actions, tool screens, Genius, Settings
+      settings_store.py      loads/saves %APPDATA%\Live Actions\settings.json
+      genius_client.py       xAI chat for the Genius tab
+      algorithmic_generators.py Euclidean, chord voicings, walking bass, motif, drum grid
+      als_tools.py           offline .als project summary, tracks, MIDI, diff, linter
+      mix_checker.py         heuristic mix analyzer for gain staging and low-end
+      genius\                COPY of Producer Pal Genius, bundled directly
+                              in the app (GENIUS_DIR in genius_client.py).
+                              Not a Settings path. Originals were not
+                              modified. Pal patch scripts are not here.
+
+    bridge\
+      Live Actions Bridge.maxpat
+      live-actions-bridge.js   OSC + Live API (keep next to the .amxd)
+      live-actions-pal.js      Pal-parity Live jobs (included by the bridge)
+
+    tools\                   one subfolder per tool
+      _schema.json
+      clip-namer\tool.json
+      arrangement-skeleton\tool.json
+
+User Library copy of the device (this studio):
+  A:\User Library\Presets\Audio Effects\Max Audio Effect\Live Actions\
+
+Converted Extensions (already Max devices on this PC)
+-----------------------------------------------------
+These are standalone Max for Live devices. They do not go through
+Live Actions OSC. Drop them on their own tracks (or use the clip
+MIDI Tools). Live Actions can sit on an audio track in the same Set.
+
+  MIDI track devices
+    User Library -> MIDI Effects -> Max MIDI Effect
+      Chord Explorer
+      Drum Rack Jumbler
+      Dub Assistant          (own MIDI track; mixer via Live API)
+      Mutate Variations
+      Notation
+      Random Chords Generator
+
+  Clip MIDI Tools (not track devices)
+    User Library -> MIDI Tools
+      Breakdowns             (Generate tab)
+      Mutate                 (Transform tab)
+
+Breakdowns is also a Live Actions tool card (host dialog + bridge
+write). The clip MIDI Tool and the host card are two doors to the
+same job.
+
+To make another converted Extension appear as a Live Actions card:
+  1. tools\<id>\tool.json
+  2. a job in live-actions-bridge.js (or it stays UI-only)
+Do not put the .amxd inside the Live Actions device folder.
+
+Settings file (not in the repo; may contain an API key):
+  %APPDATA%\Live Actions\settings.json
+
+
+What you see in the window
+--------------------------
+Three top buttons (not extra windows):
+
+  Actions   main screen
+  Genius    copied Genius chat + library index
+  Settings  API key, folders, ports
+
+On Actions:
+
+  Live Set          connection line, ping / status / refresh / reset
+  Apply tools to    tick tracks. All / None / Live's selection
+  Tools             one card per tools\<id>\tool.json
+  Log
+
+Click Open on a card. That tool's screen replaces the Actions body
+inside this app. It is not a new top-level tab.
+
+On a tool screen:
+
+  colored banner from tool.json "accent"
+  Back to tools
+  the same track picker (shared ticks)
+  fields from tool.json
+  Run on selected tracks
+
+Track targeting
+---------------
+A tool must not assume the whole Set.
+
+  key examples:  midi:0   audio:2   return:0   master:0
+
+First time tracks load, the default is Live's currently selected
+track, not every track. All / None / Live's selection change the ticks.
+The same ticks are used on the main screen and on the tool screen.
+
+If nothing is ticked, Run stops and tells you to tick a track.
+
+
+Settings
+--------
+Saved under %APPDATA%\Live Actions\settings.json.
+
+  api_key                 xAI key (also reads env XAI_API_KEY)
+  api_base                default https://api.x.ai/v1
+  model                   default grok-4.6
+  tools_dir               folder scanned for */tool.json
+  knowledge_dir           Knowledgebase Library folder
+                          Genius reads INDEX.md inside it
+  samples_dir             Ableton Samples folder
+  listen_port             11925  (app listens)
+  bridge_port             11924  (app sends)
+  pal_local_shortcut      optional path to existing Pal Local
+                          shortcut. This app will not create or
+                          patch Pal files.
+
+Changing ports needs an app restart.
+
+
+How a tool is discovered
+------------------------
+helper.py load_tools() does this:
+
+  1. Look in Settings -> tools_dir (default: this project's tools\).
+  2. Find every immediate child folder that contains tool.json.
+  3. Parse JSON. Skip the file if it is invalid or has no "id".
+  4. Sort by path. Each valid file becomes a card.
+
+Refresh tools after you add or edit a manifest. You do not restart
+Live for a JSON-only change. You do restart / re-drop the bridge if
+you change live-actions-bridge.js -- copying the file to the User
+Library is not enough by itself: Max only reloads it when the device
+is removed and re-added to a track, so a device that was already
+sitting on a track keeps running its old, in-memory copy of the
+script otherwise. install.ps1 stamps a build id into every deploy
+and pings the running device afterward to tell you which case you're
+in -- "Confirmed" (the running device matches) or "STALE" (re-drop
+it) -- instead of leaving that as a silent trap.
+
+
+How to add a tool (UI first)
+----------------------------
+1. Create a folder:
+
+     tools\my-tool\
+
+2. Create tools\my-tool\tool.json. Required key: id.
+
+     {
+       "id": "my-tool",
+       "name": "My Tool",
+       "description": "One line. Shown on the card and on the tool screen.",
+       "accent": "#34d399",
+       "version": "0.1",
+       "enabled": true,
+       "fields": [
+         {
+           "id": "amount",
+           "label": "Amount",
+           "type": "text",
+           "default": "50"
+         }
+       ]
+     }
+
+3. Click Refresh tools. Open the card. Confirm the screen and the
+   track list.
+
+4. That is only the screen unless the bridge knows that id.
+   Breakdowns is implemented. Other ids still need a job in
+   live-actions-bridge.js. See "How to make Run actually change Live".
+
+A tool can also set "ui": "webview" and "dialog": "ui/dialog.html"
+to embed an HTML dialog instead of text fields.
+
+tool.json keys
+--------------
+  id            required. Sent as the first OSC argument to /live-actions/run
+  name          card title and banner
+  description   card subtitle and banner
+  accent        hex color for the card border, Open button, and banner
+  version       string, for you
+  enabled       reserved; the host currently lists any file with an id
+  fields        array of controls on the tool screen
+
+Each field (the host only draws text boxes today):
+
+  id            required. Becomes a key in the Run payload "fields"
+  label         shown above the box
+  type          reserved; treated as text
+  default       starting value
+
+Copy clip-namer or arrangement-skeleton and change the id.
+
+
+What Run sends
+--------------
+If at least one track is ticked, the window sends:
+
+  address   /live-actions/run
+  arg 0     tool id string          e.g. clip-namer
+  arg 1     JSON string:
+
+    {
+      "tracks": [
+        {
+          "key": "midi:0",
+          "index": 0,
+          "kind": "midi",
+          "path": "live_set tracks 0"
+        }
+      ],
+      "fields": {
+        "pattern": "{track} {bar} take"
+      }
+    }
+
+kind is midi, audio, return, or master.
+path is the Live Object Model path the bridge can pass to LiveAPI.
+index is 0-based inside that kind.
+
+Use only payload.tracks. Do not walk the whole Set unless the user
+clicked All.
+
+
+OSC protocol
+------------
+App -> bridge  (UDP 127.0.0.1:11924)
+
+  /live-actions/ping
+  /live-actions/status
+  /live-actions/tracks
+  /live-actions/run          <id> <json>
+  /live-actions/api/get      <lom-path> <property>
+  /live-actions/api/set      <lom-path> <property> <value>
+  /live-actions/api/call     <lom-path> <method> [args...]
+  /live-actions/reset        clears a stranded bridge-side job and re-arms
+                              ready; sent by the app's Reset button
+
+Bridge -> app  (UDP 127.0.0.1:11925)
+
+  /live-actions/hello        ready
+  /live-actions/pong         timestamp
+  /live-actions/status       JSON  {ok, name, tempo, tracks, time_signature}
+  /live-actions/tracks       JSON  {ok, selected_id, tracks:[...]}
+  /live-actions/result       ok|error  message
+  /live-actions/api/reply    JSON  {ok, value?} or {ok:false, error}
+
+/live-actions/reply and /live-actions/result are sent through the bridge's
+sendChunked() (live-actions-bridge.js), not raw sendOsc: a payload over
+4000 chars (REPLY_CHUNK_LIMIT; lowered from ~48KB in v1.0.32 -- that limit
+still sat close enough to Max's own per-atom text ceiling that a large
+Genius/Pal reply occasionally arrived at the app as a fully-reassembled but
+EMPTY string, P4 A2) -- a Genius/Pal read against a large Set is the
+realistic case -- goes out as several <key> <seq> <total> <chunk> messages
+instead of one oversized datagram, since a single legally-sized-but-large
+reply is still worth avoiding even though it fits under UDP's real ceiling.
+Under that size the wire shape is unchanged: <key> <payload>, same as
+before v1.0.12. BridgeClient._reassemble (app/bridge_client.py, moved out of
+helper.py in v1.0.54) does the joining on
+the app side. stringify() (bridge.js) escapes every non-ASCII character to
+\uXXXX before chunking -- a JS string's .length is UTF-16 code units, not
+bytes, so a track/clip name with real unicode could otherwise undercount
+the actual atom size this limit is trying to stay under.
+
+Do not construct LiveAPI in loadbang. The patch uses live.thisdevice
+to bang init. Audio passes plugin~ -> plugout~. Put the device on an
+audio track (or a MIDI track that already has an instrument).
+
+BridgeClient's listener never dies on a bad or oversized packet (v1.0.12) --
+on Windows, a UDP send into a port nothing is bound to yet queues an ICMP
+error against the sending socket, and the next unrelated recvfrom() on that
+same socket raises WSAECONNRESET; this used to kill the app's listener
+thread permanently on the very first missed ping (e.g. before the device is
+dropped, or mid re-drop). It now logs and keeps going. If the bridge still
+looks dead, the sidebar's Reset button (next to Ping/Status/Sync) rebuilds
+the app's socket and sends /live-actions/reset -- re-adding the device is
+no longer the only way back.
+
+udpreceive 11924 takes no arguments -- do not add @fullpacket or a bare
+fullpacket argument. That switches udpreceive into raw OSC FullPacket mode
+(one buffer object per packet), which dispatch() cannot read; it expects
+decoded anything()/list() messages, the default. setStatus() (device face
+text) sends outlet(1, ["set"].concat(words)) -- a "set" message with the
+status text split into individual word atoms, not one atom. textedit does
+not accept a bare string, and a single atom containing spaces round-trips
+through Max's atom-to-text conversion wrapped in quotes.
+
+If the bridge never reaches Connected at all -- Ping/Status time out on
+every attempt, even right after a clean re-drop -- suspect a security
+suite's own firewall (not Windows Firewall; confirmed clean on this dev
+machine) silently dropping inbound UDP to Max.exe. See DEBUGGING TO DO
+LIST.md #9 for the live diagnostic that isolates this to the network layer,
+not the app.
+
+
+How to make Run actually change Live
+------------------------------------
+live-actions-bridge.js handles the shipped ids (tool jobs live directly
+in this file). live-actions-pal.js is pulled in via include() at the
+bottom of it and adds the Pal-parity live_* jobs. Other ids still
+reply with an error until you add a job.
+
+To implement a job:
+
+1. Keep the UI contract above (id + JSON payload).
+2. Edit bridge/live-actions-bridge.js.
+3. In dispatch(), when name === "live-actions/run", parse args[1]
+   as JSON, read payload.tracks, and only touch those paths.
+4. Use LiveAPI the same way statusJson / tracksJson already do.
+   Example: new LiveAPI("live_set tracks 0") then get / set / call.
+5. Copy the js next to the .amxd in the User Library. Remove the
+   device from the track and drop it on again (or Edit in Max and
+   save) so Live loads the new script.
+6. Reply with /live-actions/result  ok  <short message>
+   or /live-actions/result  error  <why>.
+
+Generic Live API from the desktop (no new js job) is already there:
+
+  /live-actions/api/get   live_set tracks 0   name
+  /live-actions/api/set   live_set tracks 0   name   Kick
+  /live-actions/api/call  live_set            create_midi_track  -1
+
+A finished tool can use those from Python later, or stay entirely
+in the Max js. Either way, honor the ticked tracks.
+
+
+Current shipped tools
+---------------------
+  clip-namer
+    Renames session clips on ticked tracks.
+    Tokens: {track} {bar} {take} {index}
+
+  arrangement-skeleton
+    Drops Arrangement locators. Field: Intro 8, Verse 16, Chorus 16, Outro 8.
+    Locators are Set-wide. No track tick required. Switch to Arrangement to see them.
+
+  mutate
+    Writes variation clips from the selected MIDI clip on a ticked track.
+    Same drop / swap / velocity math as the Mutate MIDI Tool.
+
+  empty-clips
+    Creates an empty MIDI clip in the first empty slot on each ticked MIDI track.
+
+  color-clips
+    Sets clip color (#RRGGBB). also_scenes=yes colors those scenes too.
+
+  duplicate-clips
+    Copies every session clip on ticked tracks into empty slots.
+
+  track-batch
+    action: rename, arm, unarm, mute, unmute, send.
+    rename uses {name} {kind} {index}. send uses letter A/B/C and 0-1.
+
+  reveal-device
+    Selects a device whose name contains the field (Chord Explorer, Dub Assistant…).
+    The device must already be on a ticked track.
+
+  breakdowns
+    Full dialog (the Breakdowns engine + UI, MIT, from
+    github.com/dnvsfn/ableton-breakdowns). Opens as its own window
+    (pywebview / Edge). Audition is local Web Audio and writes
+    nothing. Insert fill sends /live-actions/run breakdowns with
+    pitched MIDI notes.
+
+    Insert as (user picks each time):
+      newClip     first empty session slot on each ticked MIDI track
+      replace     overwrite the MIDI clip selected in Live
+      append      add the fill at the end of that selected clip
+      newTrack    create one MIDI track + clip
+      playhead    Arrangement clip at the song playhead
+
+    tool.json uses "ui": "webview" and "dialog": "ui/dialog.html".
+    Rebuild the dialog with:  npm install && npm run build
+    inside tools\breakdowns. After changing the bridge js, copy it
+    next to the User Library .amxd and re-drop the device.
+
+    The webview host (app/webview_pane.py, app/breakdowns_window.py) is
+    shared by every "ui": "webview" tool, not specific to Breakdowns --
+    helper.py's _webview_context()/_on_webview_message() dispatch by
+    tool.json's "id" to add a new one. A per-monitor-DPI-unaware
+    pywebview window opened from a background process on a scaled
+    display does not become visible or focusable on its own (Windows'
+    foreground-lock policy blocks it, and the WS_VISIBLE style bit was
+    observed never getting set): webview_pane.py grants the spawned
+    dialog foreground rights via AllowSetForegroundWindow right after
+    Popen (this process just handled a real click, so it has standing
+    to grant that), and breakdowns_window.py claims them with
+    ShowWindow(SW_SHOW) + SetForegroundWindow once its "shown" event
+    fires. Found and fixed 2026-08-19 -- previously the dialog opened
+    correctly-positioned but invisible until manually alt-tabbed to.
+
+    The redesign's WebView2 shell (a MAIN window, not a child dialog
+    spawned right after a click -- so it has no parent to grant it
+    AllowSetForegroundWindow) was separately spike-tested 2026-09-20 and
+    does NOT reproduce this quirk: SetProcessDpiAwareness(2) +
+    ShowWindow/SetForegroundWindow/BringWindowToTop on the "shown" event
+    is enough on its own. See docs/plans/v1.0.56-slice1-spike-a-and-b.md
+    (the throwaway spike harness was deleted in v1.0.57; the real shell,
+    app/shell.py, uses the same logic via app/single_instance.py).
+
+  WebView2 shell (app/shell.py, v1.0.57+; merged into main in v1.0.67)
+    The redesign's replacement for helper.py's Tk window: Layout A
+    (Workbench) in the Riso Art Studio theme, rendered by WebView2 from
+    app/web/. Run it with "Launch Redesign Shell.bat" (isolated instance
+    "redesign"). Slice 1 delivers the Actions page: tool catalog,
+    inspector, target tracks, connection pip, diagnostics popover,
+    console drawer. Genius, Preferences, the three webview-dialog tools and
+    the host-tool placement dialogs followed in slices 2-4b; slice 4c (v1.0.63)
+    makes the shell this branch's default launch (see "Launch and packaging").
+
+      shell_model.py    SessionModel: ALL state (tracks, ticked targets,
+                        connection, log, per-tool run state). Pure logic,
+                        lock-guarded, no UI import. Emits small JSON events.
+      shell_bridge.py   UiBus (one pusher thread = the only caller of
+                        evaluate_js, strict ordering, gated until the page
+                        has its snapshot), Ticker (1.0 s ping / 4.0 s
+                        offline), ShellApi (window.pywebview.api).
+      single_instance.py mutex + raise event + WM_CLOSE helper (same names
+                        as helper.py, so Tk and shell are one app to a
+                        second launch).
+      shell.py          wiring, window, --demo-state / --cdp-port flags.
+      web/              index.html, css/ (contract.css + components.css are
+                        the previews' own files; build_assets.py regenerates
+                        css/), js/components.js (markup, ported 1:1 from
+                        previews/redesign-round/shared/shared.js) and
+                        js/app.js (controller; renders by region so a
+                        bridge push never wipes typing/focus/scroll).
+
+    Two rules from spike B that must never be broken:
+      1. Shut down with a native WM_CLOSE (single_instance.post_close),
+         never window.destroy() off the GUI thread.
+      2. ShellApi: every public name is callable from the page's
+         JavaScript and pywebview walks every public attribute. Keep all
+         live references and all wiring (_bind) underscore-private;
+         test_shell_bridge enforces the exact public surface.
+    API keys never cross the boundary (snapshot carries ports + theme
+    slug only; Preferences must expose masked keys only).
+
+    Protocol note found in v1.0.57: the bridge sends /live-actions/result
+    as ("ok" | "error", message). The Tk app treats every result as
+    success; the shell reports an "error" result as an error.
+
+    Fonts (v1.0.58): DM Sans + Space Mono are bundled in app/web/fonts/
+    (SIL OFL; see fonts/README.txt). DM Sans is declared as two pinned
+    faces (400, 700) from one variable file, matching the kit's 400/700
+    request so 500/600 text renders bold like the reference shots. The
+    app never fetches fonts from the network.
+
+    Genius chat (v1.0.59): shell_genius.py (GeniusSession) owns the
+    conversation. A bot bubble is an ordered list of parts (think / text /
+    call); token deltas update state at once but are EMITTED at most every
+    50 ms with an absolute offset (lossless, snapshot-safe). Stop closes the
+    turn immediately; a late worker cannot write into the chat. Model text is
+    HTML-escaped before a tiny markdown pass. The page is shell_genius' view:
+    web/js/app.js applyGenius mirrors test_shell_genius.Page.
+
+    Preferences (v1.0.60): shell_prefs.py (PrefsService) owns every setting
+    the modal edits. The page reaches it through ONE method, ShellApi.prefs(op,
+    args); PrefsService.OPS is the whitelist. There is no Save button: each
+    control validates, persists (copy -> write -> adopt) and returns a MASKED
+    snapshot, so API keys (vault, active key, TTS profiles) never leave Python.
+    Network probes (detect provider, models, test key, TTS voices) run on the
+    js_api thread with the shared lock released. web/js/prefs.js is the modal.
+    Chat-header key + model picker (v1.7.0): ops use_key_model (key, base and
+    model in ONE _commit + one genius hook, then the "notice" hook posts a
+    "Now using ..." system line via GeniusSession.notice) and key_models
+    (per-key model list, lock released, cached in memory as the snapshot's
+    modelsByKey). components.js LA.modelSelect; option values are
+    "keyId|model", never a key. genius_client._api_error turns 503/429 into
+    one plain sentence naming the model.
+    Split pickers (v1.10.0): the header now has LA.keySelect (key names only,
+    one optgroup per provider via LA.keysByProvider; value = key id; op
+    use_key) and LA.modelSelect (the ACTIVE key's modelsByKey only; value =
+    model; op use_key_model with activeKeyId). The "keyId|model" value is
+    gone. use_key takes the key's first tested model when its saved one is
+    empty or failed that key's test, and posts the same notice. Preferences
+    groups key rows per provider (prefs.js keyGroup) with the Model box
+    always shown (modelRow). LA.ciSelect ends in "__new__" (LA.CI_NEW), which
+    opens LA.ciModal in its own root #cinew: ci_create then ci_bind.
+    Show thinking + key rename (v1.11.0): settings key show_thinking (default
+    True), op set_show_thinking, snapshot showThinking / modelThinks.
+    modelThinks = ai_providers.supports_thinking(model), a NAME-BASED guess
+    (no /models list reports reasoning). LA.thinkToggle renders the header
+    checkbox when modelThinks or the transcript already has a "think" part;
+    LA.botParts skips think parts when it is off. Display only: the request
+    Genius sends is unchanged and the Thinking log drawer ignores it. Op
+    rename_key changes a vault entry's label only (no genius hook); prefs.js
+    keyRow has a rename mode (UI.renameId, field "keyname:<id>").
+    Asking for thinking (v1.12.0; supersedes "display only" above for Gemini
+    and Claude): when show_thinking is on, genius_client adds
+    gemini_thinking_extra -> payload["extra_body"] = {google: {thinking_config:
+    {include_thoughts: true}}} (Google's endpoint + a thinking Gemini model
+    only) and anthropic_thinking_config -> payload["thinking"] (adaptive +
+    display summarized for 4.7+/Fable/Mythos; adaptive for 4.6; enabled +
+    ANTHROPIC_THINKING_BUDGET for 3.7 and 4.0-4.5, max_tokens raised to
+    match). _stream_round routes Gemini thought chunks (extra_content.google.
+    thought, or <thought> tags via _ThoughtTagSplitter) to on_thinking.
+    _stream_round_anthropic(out_blocks=...) returns the reply's content blocks
+    with signatures; the tool loop sends them back UNCHANGED (required), and
+    with thinking on the forced-final round uses tool_choice none and keeps
+    `tools` (the tool list must not change under thinking blocks). A 400 on
+    the first round with either field present is retried once without it.
+    Tests: test_thinking_requests.py.
+    v1.12.1: _ThoughtTagSplitter drops either tag wherever it appears, paired
+    or not, and flagged thought chunks pass through their own splitter. Gemini
+    can open a thought on a flagged chunk and close it in plain content, which
+    used to leave a bare </thought> in the reply.
+    Working-models only (v1.8.0): key_models / list_models go through
+    _working_models = the provider's chat list (Gemini: NATIVE v1beta
+    models.list, generateContent + non-chat family markers; others: /models),
+    then ai_providers.probe_chat_model per model on 4 threads, lock released:
+    one max_tokens=16 chat request WITH a "ping" tool. 200 ok, 429/503/timeout
+    busy (kept, snapshot busyByKey), else hidden. Live/Lyria/TTS/Imagen/Veo/
+    embedding/agent models can never be the chat model (different protocols).
+    Picking a tested model (use_key_model, set_model) resets api_base to the
+    provider default. shell.clear_http_cache() empties the persistent WebView2
+    profile's Cache + Code Cache at every launch (stale components.js hid the
+    v1.7.0 picker); Local Storage is kept.
+
+    Dialog tools (v1.0.61): Arrangement Helper, BBenCut and Breakdowns open their
+    UNCHANGED tools/*/ui/dialog.html in a second pywebview window of the same
+    process (shell_dialogs.py: DialogHost = one dialog at a time, once-only
+    result, temp-file cleanup; the page-visible api is exactly `receive`).
+    shell_dialog_tools.py holds what helper.py did for them: the __CTX_JSON__
+    context builders, the arrangement_scan pre-open, and the run handlers
+    (Breakdowns insert; BBenCut confirm / bake / roll render / thresholds;
+    Arrangement Helper plan -> cap -> confirm -> execute). Confirmations are
+    the native OK/Cancel box; refusals show in the tool's result box. Never
+    edit or re-theme a dialog (Breakdowns' look and its own theme picker are
+    frozen by the user).
+
+    Host-tool placement (v1.0.62): Audio Sample and TTS Vocal have a
+    `destination` field. shell_placement.py (no UI import) holds the logic:
+    place_generated_file (Add to Live Set: bridge online -> first ticked audio
+    track -> read_track -> ask for a slot -> create_clip), SlotPicker (the one
+    pending "choose a clip slot" question a host worker blocks on; the
+    overwrite-needs-a-second-click rule is enforced in SlotPicker.answer) and
+    offer_save_as (Save to PC: native Save As on the file's folder + name, then
+    copy). shell_model._run_host wires them: the question reaches the page as a
+    `placement` patch (also in the snapshot) and the page answers through
+    ShellApi.place_answer; shell.py passes pywebview's save dialog in through
+    attach_save_dialog. The modal (components.js placeModal, app.js drawPlace)
+    is built from the Preferences modal's parts and draws in its own #place root.
+
+    Launch and packaging (v1.0.63, slice 4c; on main since the v1.0.67 merge):
+    "Launch Live Actions.bat" and install.ps1's liveactions:// handler start
+    app/shell.py; "Launch Live Actions (classic Tk).bat" still starts
+    helper.py, and "Launch Redesign Shell.bat" / "Launch Redesign.bat" stay the
+    isolated-instance launchers. The protocol handler passes the URL as an
+    argument, so shell.parse_args ignores bare arguments (an unknown --flag is
+    still an error). Before anything else shell.py runs
+    shell_launcher.preflight: pywebview, pythonnet and the WebView2 runtime
+    must be present, otherwise a native message box names the fix (the
+    launchers use pythonw, which has no console). shell_launcher.py also holds
+    "Producer Pal Local" (find_pal_local / launch_pal_local, ported from
+    helper.py): a ghost button in the Genius header (not in the demo state)
+    calls ShellApi.open_pal_local, which takes no arguments so the page cannot
+    choose what is launched; "not found" shows a note with an Open Preferences
+    button (Preferences -> Folders holds the path).
+
+    Design kits and persistence (v1.0.64): all eleven kits are installed, not
+    just Riso. web/build_assets.py writes css/themes/<slug>.css for each from
+    the preview theme, replacing its Google Fonts @import with @font-face rules
+    for exactly the families and weights the kit's own @import asked for;
+    web/fetch_fonts.py (re-runnable, size- and WOFF2-checked) downloaded the 37
+    Latin-subset files for the ten other kits (Fontsource, pinned 5.3.0) into
+    web/fonts with each family's licence text (all SIL OFL 1.1). PrefsService
+    offers a kit when its CSS file exists, and the page swaps css/themes/<slug>.css
+    through LA.setTheme; the choice is settings.json "theme". The shell's own
+    CSS/HTML hold no colour literal (test_shell_themes pins that). Breakdowns'
+    own theme lives in localStorage["breakdowns-theme"]; pywebview's default
+    private_mode=True (InPrivate) threw it away on every exit, so shell.py now
+    starts WebView2 with private_mode=False (same per-instance user-data folder
+    as before). Breakdowns' files were not touched. A TTS profile saved in
+    Preferences now refreshes the tool catalog (PrefsService hook "catalog" ->
+    SessionModel.refresh_catalog) so the TTS Vocal Profile dropdown shows it at
+    once; before, it only appeared after a restart.
+
+    Resizable window (v1.4.0): the drag floor dropped from 980x600 to
+    MIN_SIZE 720x520 (shell.py) so the shell can sit in a narrow strip beside
+    Ableton. #app's old min-width:980px is gone; layout-a.css now carries the
+    only @media rules in the shell (none of them fire at the 1360x820 fidelity
+    size, so capture_shell/fidelity_diff stay pixel-identical): >=1200 is
+    unchanged (268/1fr/372, 2-col catalog); 1040-1199 tightens the side panes
+    (232/1fr/320); 860-1039 drops the catalog to 1 column and shrinks pane
+    padding; <860 collapses .A-body to a single column and turns .A-left /
+    .A-right into slide-in overlay drawers (position:absolute, translateX,
+    the existing --la-dur/--la-ease/--la-shadow-lift tokens -- no new ones),
+    toggled by two la-iconbtn buttons in .A-top (CSS-hidden above 860px) and
+    dismissed by the existing .la-scrim, a click outside, Escape, or opening a
+    tool while narrow (auto-opens the right drawer). A resize listener clears
+    the open drawer once the window grows back past 860px. Closed-drawer boxes
+    are clipped with `.A-body { overflow: hidden }` at that tier -- without it
+    a translateX'd-off-canvas drawer still counts toward
+    document.documentElement.scrollWidth even though nothing is visible,
+    which is exactly the overflow theme_audit.py's overflowX check watches
+    for. shell_dev/audit_themes.py gained --size WxH (default 1360x820) so the
+    overflow ladder can be audited at each breakpoint, not just the fidelity
+    size. breakdowns_window.py and shell_dialogs.py keep their 980x640 floor;
+    that HTML has no responsive rules yet.
+
+    Tests and harnesses (app/):  test_shell_model, test_shell_bridge,
+    test_shell_genius, test_shell_prefs, test_shell_dialogs, test_shell_dialog_tools,
+    test_shell_launcher, test_shell_placement, test_shell_themes, test_tts_vocal
+    (the Cartesia request pinned to Cartesia's documented contract; the real ffmpeg
+    step runs) (unit + real-UDP round trip against
+    shell_dev/mock_live.py; shell_dev/mock_llm.py is an OpenAI-compatible SSE +
+    /models + JSON-completion server for the e2e);
+    shell_dev/capture_shell.py (screenshot the real shell over CDP and run
+    fidelity_diff.py), shell_dev/e2e_shell.py (drive the real shell against
+    the mock device; it starts the shell through shell_dev/run_shell_fake_tts.py,
+    which answers ONLY Cartesia's TTS URL itself), shell_dev/audit_themes.py (every
+    kit x every view: fonts loaded, contrast, overflow, screenshots),
+    shell_dev/check_breakdowns_theme.py (Breakdowns' and the shell's theme across
+    real restarts), shell_dev/verify_tts_live.py (the one REAL Cartesia call, only
+    if a Cartesia profile exists), shell_dev/check_instances.py (single-instance +
+    LIVE_ACTIONS_INSTANCE isolation, the liveactions:// argument, and the real
+    Launch Live Actions.bat starting the shell).
+
+  detect-key
+    Finds the key (and mode) of a MIDI clip, ticked track(s), or the
+    whole Set. Krumhansl-Schmuckler-style: literature pitch-class weight
+    tables (krumhansl-kessler or temperley) correlated against clip
+    content, combined with structural evidence -- bass, downbeats, and
+    cadence position -- to name both the diatonic collection and which
+    of its 7 degrees is the tonic, across 7 scale families (Major,
+    Minor, Dorian, Phrygian, Lydian, Mixolydian, Locrian) x 12 roots.
+    Top N results (field: results, default 3), best match first, close
+    call flagged right after the top pick so it isn't cut off by the
+    result string's length limits, e.g.
+    "D Dorian 100% (close: C Major) · A Minor 91% -- 412 notes, 6 clips".
+
+    Fields: scope (clip/track/set, default clip), profile
+    (krumhansl-kessler/temperley), results (1-12, default 3).
+    No track tick required for scope clip or set (tool.json sets
+    top-level "scope":"set" so the host doesn't block Run); tick
+    MIDI track(s) first for scope track.
+
+    Same 7 notes can be 7 different modes -- C D E F G A B is C Major,
+    D Dorian, A Minor, and more, and the note *set* alone can't say
+    which. Home is picked from three signals outside the pitch-class
+    set: which pitch anchors the bass, which pitches land on downbeats,
+    and which pitches the phrase resolves to at the end (cadences weigh
+    more than pickups). This is statistical scoring, not a guarantee --
+    sparse, rootless, or non-cadential material (a static pad with no
+    clear bass or ending) can still tie, and the tool reports that
+    honestly ("close call") instead of asserting a false-confident
+    winner. See the comment above detectKeys() in live-actions-bridge.js
+    and docs/plans/v1.0.4-key-detection-two-pass.md for the full design
+    and reasoning, including why an earlier same-version attempt at this
+    (reweighting one shared histogram) could not work.
+
+    Track/set scope pools every clip's evidence into one combined
+    picture -- that answers "what does this track/Set lean toward,"
+    not "this has one single tonic." The result message says so when
+    more than one clip contributed.
+
+    Reachable from the Tools tab and from Genius (live_detect_key --
+    Genius must call the tool, never guess a key from raw note data).
+
+  bbencut (shipped v1.0.10)
+    Algorithmic breakbeat cutting (BBCut2/BBenCut, MIT, ported from
+    github.com/bencodec/BBenCut, a Suite-only Extension this app
+    substitutes for). Opens as its own dialog window (pywebview /
+    Edge), same shared webview host as Breakdowns. Pick one of 10 cut
+    procedures, set its README-documented parameters plus Total/Loop
+    length in beats, Apply computes the cut sequence client-side.
+
+    Tick exactly one audio track, then double-click the source
+    Arrangement audio clip on that track to load it into Detail View
+    -- that is BBenCut's source-clip anchor (there is no Arrangement
+    time-selection exposed to Max for Live's LiveAPI, so this app
+    can't read "the selected range" the way the original Extension
+    did; Total/Loop length are honest, freely-editable fields instead,
+    not derived from a real selection).
+
+    Apply sends the computed slices to the bridge's runBbencut job,
+    which resolves the real sample file + Arrangement position from
+    the Detail clip (Live 12 Beta: file_path is on the Clip object,
+    not a Sample child), clears that range, and places each slice
+    as a real Arrangement clip. Regular slices are created from the
+    Detail clip's sample. Rendered roll groups are created from the
+    ffmpeg WAV Python substituted into that slice's filePath -- the
+    placement loop must not ignore that path (live-caught: using the
+    source sample for every create_audio_clip filled roll slots with
+    the start of the original break). Every placed clip is forced unlooped
+    and cropped via loop_end/end_marker (the same mechanism
+    setClipLength() uses) -- live-probed against Live 12 Beta:
+    looping=1 does not let the LiveAPI control a clip's Arrangement
+    span (end_time stays full-sample), and clip.set("length"/
+    "end_time") silently no-op, so those are not used. BBenCut's own
+    ported algorithm marks every real slice as "looping" internally
+    (a repeat-to-fill-the-slot request); since that can't be honored
+    here, a slice whose intended loop window is narrower than its
+    Arrangement slot plays extra real source material instead of
+    repeating -- runBbencut counts this and reports it in the result
+    message rather than leaving a gap or faking a loop. Placed clips
+    are fresh copies of the source file, not the source clip object --
+    warp markers, warp mode, gain, and pitch are not carried over yet;
+    test on an unwarped or simply-warped-at-song-tempo break.
+
+    Roll-group slices (very short cuts BBenCut normally pre-renders to
+    a WAV) are pre-rendered via ffmpeg (app\bbencut\roll_render.py) on
+    a worker thread before the run is sent to the bridge -- but ONLY
+    when the source clip is unwarped. That's a deliberate Pass-1 gate,
+    not a missing feature: ffmpeg needs real seconds, and this tool has
+    no way to read Ableton's warp-marker geometry, so it does not
+    guess a beats-to-seconds mapping for a warped source. A warped
+    source clip still places every non-roll slice correctly; only its
+    roll groups keep being skipped and reported, with a clear per-
+    group reason (warped source, tempo unavailable, missing file, or a
+    cut past the end of the source file -- rejected, never silently
+    clamped). Rendered WAVs land under <Ableton Samples folder>\BBenCut
+    Rolls\, not a temp folder, so Collect All & Save keeps finding them.
+    Rendered roll clips are still forced warping=1 like every other
+    placed clip (see above) -- Live's own warp engine re-normalizes
+    the clip's Arrangement span regardless of the extracted WAV's real
+    length, so a wrong beats-to-seconds guess would grab the wrong
+    grain of audio, not misplace the clip.
+
+    Before any of the above happens, Apply now shows a blocking "Confirm
+    Placement" dialog (Tk messagebox.askyesno) stating the exact clip
+    count and that this is that many individual undo steps, not one
+    atomic action -- this app has no transaction wrap anywhere. Decline
+    and nothing is sent. Above a hard BAKE_THRESHOLD (80 clips,
+    app\bbencut\bake_render.py -- inherited from the master plan's own
+    suggestion, not yet live-timed against this machine; see the
+    elapsed-ms figure runBbencut now logs on every run for that
+    measurement) the run is never placed as individual clips at all:
+    on an unwarped source it's baked into one WAV (ffmpeg atrim+concat
+    across every slice, same mechanism as roll rendering, just the
+    whole run instead of one small group) and placed as a single
+    Arrangement clip -- one undo step, not eighty-plus -- after a
+    separate "Confirm Bake" dialog. On a warped source over the
+    threshold, the run is refused outright with a clear reason; there
+    is no unsafe fallback that just floods the placement loop anyway.
+    Rendered bakes land under <Ableton Samples folder>\BBenCut Bakes\,
+    same reasoning as the Rolls folder. A failed source-clip read now
+    blocks the whole run rather than degrading gracefully -- Step 5
+    would still send with roll slices left unrendered; Step 6 treats
+    "can't confirm what's about to happen" as a hard stop everywhere
+    a confirmation dialog exists.
+
+    The master plan's "OSC flooding" concern for large runs turned out
+    not to match the real architecture: runBbencut is one synchronous
+    loop inside a single Max js-engine call, not a series of per-clip
+    OSC round-trips. The actual risk is Live's UI blocking for however
+    long that loop takes with no progress shown -- Task-based chunking
+    (the same pattern runSkeleton already uses) is deliberately NOT
+    built this pass; the bake threshold already bounds the worst case,
+    and building a tick-based state machine against an unmeasured
+    number would be solving a problem nobody has confirmed exists yet.
+    The new elapsed-ms logging is how that gets a real number before
+    anyone decides to build it.
+
+    tool.json uses "ui": "webview" and "dialog": "ui/dialog.html".
+    Rebuild the dialog with: npm install && npm run build inside
+    tools\bbencut. After changing the bridge js, copy it next to the
+    User Library .amxd and re-drop the device.
+
+    Live-verified end to end for v1.0.10: the Confirm Placement/Confirm
+    Bake/refusal dialogs, a real bake producing a correct single WAV +
+    clip, the warped-over-threshold refusal, a real-audio A/B listen
+    confirming a rendered roll/bake actually matches the intended grain
+    (not just its timing/placement), and clicking through the actual Tk
+    Apply button end-to-end (not just posting the OSC job directly). Full
+    step-by-step history: docs\plans\bbencut-step4-bridge-placement.md,
+    bbencut-step5-roll-rendering.md, bbencut-step6-bake-and-safety.md.
+
+    Still not carried over from the source clip: warp markers, warp
+    mode, gain, and pitch (placed clips are fresh copies of the source
+    file, not the source clip object -- see above). Test on an unwarped
+    or simply-warped-at-song-tempo break for best results.
+
+  audio-sample (shipped v1.0.11)
+    ffmpeg-backed sample prep -- trim, fade, gain, normalize, convert,
+    reverse, pitch/time stretch, six effects, three generators (17
+    operations across 5 categories: Trim/Fades/Levels, Convert,
+    Reverse/Pitch/Time, Effects, Generators). Same runtime: "host"
+    mechanism TTS Vocal introduced in v1.0.5 -- runs on the desktop
+    host on a worker thread, no bridge connection or Live session
+    required. See "How the pieces fit": a runtime: "host" tool never
+    goes through OSC at all.
+
+    All 17 ops live in one tool screen behind a single Operation
+    select; tool.json's per-op field ids are namespaced (e.g.
+    trim__start, bitcrush__bits) so two ops can each own a
+    same-named field without colliding in the flat submitted-fields
+    payload -- app\audio_sample\__init__.py un-namespaces the active
+    op's own fields before calling it. That manifest is generated by
+    make_tool_json.py in the sibling ffmpeg tools repo, not hand-
+    edited; the category-name table and field-prefix scheme are
+    duplicated byte-for-byte in this app's __init__.py so a display
+    name built by one side always resolves on the other.
+
+    app\audio_sample\ffmpeg_util.py and ops\*.py are a manual, one-way
+    vendor of the same-named files in the sibling ffmpeg tools dev
+    harness (see each file's header note) -- not a shared package or
+    submodule, so a bugfix on either side has to be re-applied by
+    hand on the other. This keeps the repo self-contained and
+    restorable from a bare clone, per this project's own versioning
+    rule.
+
+    Output folder: new audio_sample_output_dir setting, falls back to
+    <Ableton Samples folder>\Audio Samples. Shares the ffmpeg_path
+    setting TTS Vocal already added. Settings UI already had both
+    fields (Group 4, "AUDIO TOOLS (TTS + SAMPLES)").
+
+    Verified without Live open (host runtime doesn't need it): ran
+    the module directly against the real ffmpeg/ffprobe on this
+    machine -- Tone Generator produced a real ffprobe-confirmed
+    pcm_s24le/48000/stereo/1.5s WAV with no input file, then Trim,
+    Convert (WAV->MP3), and Bitcrusher each ran against that file and
+    ffprobe-confirmed correct output (0.800s trim, mp3 codec with
+    duration preserved, real bitcrushed WAV); sequential output
+    filenames confirmed across repeated runs; a missing-input-file
+    call returned an honest {"ok": false} message instead of raising.
+    Full writeup and what wasn't independently exercised (the
+    remaining 13 ops share the same run()/finish() plumbing as the
+    three above, not separately smoke-tested; the Tk Settings UI and
+    tool-screen field rendering were read, not clicked through):
+    docs\plans\v1.0.11-audio-sample.md.
+
+
+Genius tab
+----------
+Uses a copy of Producer Pal Genius bundled at app\genius\ (not a
+Settings path — see GENIUS_DIR in genius_client.py) plus
+knowledge_dir\INDEX.md, music_db_dir, and samples_dir. Genius talks to
+Live through the Live Actions Bridge (`live_*`), not official Pal MCP /
+Producer_Pal.amxd.
+
+Knowledge has two sources, and Genius is told (app\genius\indexes\INDEX.md)
+to prefer the first:
+  music_db_dir   B:\AI Directories_Databases\datasets\Music_Audio by
+                 default. Per-topic SQLite FTS5 databases (Ableton
+                 Training, Sound Design, Music Theory, Production_DJing,
+                 Drum Pads, Novation, M4L Device Info, audio analysis/
+                 splitting, misc, research, plus an "Ableton Live Helper"
+                 RAG Q&A corpus). `library_db_search` (app\genius_db.py)
+                 shells out to each topic's own search.py --json rather
+                 than reimplementing FTS5 SQL, so a schema change on the
+                 database side doesn't need a matching code change here.
+                 The RAG topic's caveats (inspiration only, verify exact
+                 numbers, prefer live Live state) are prepended to every
+                 result, not just described in the prompt.
+  knowledge_dir  B:\Documents\TRAINING DOCS by default. Still the only
+                 source for named third-party plugin manuals and the
+                 official Live PDF — not in the database. `library_read`
+                 / `library_search` (raw md/pdf) as before.
+
+Pal-parity tools: connect, read/update set (tempo, scale, locators,
+metronome, clip_trigger_quantization), tracks, scenes, clips (MIDI + audio +
+arrangement, incl. audio from a sample file via ClipSlot/Track.create_audio_clip),
+notes, surgical note removal (live_remove_notes), native devices (insert/read/update
+via Track.insert_device — Live 12.3+, native devices only; read/write PARAMETERS
+on any already-present device, native or third-party VST/AU, works uniformly through
+Device.parameters regardless — insertion is the native-only part, not
+parameter control; Rack macros via live_read_macros / live_update_macro),
+VU/peak metering (live_read_meter), delete/duplicate, select, playback,
+disk sample search (samples_dir), context memory, raw live_api.
+Acoustic Analysis & Ears (v1.0.16): live_analyze_audio, live_compare_audio,
+live_record_audio, live_record_and_analyze. Genius extras:
+library_read / library_search (md + pdf), library_db_search (Music/Audio
+FTS5 database — see below), and live_run_action for host tools (mutate,
+skeleton, breakdowns…).
+
+v1.0.24 Genius prompt: skill + system prompt allow live_inspect_plugin,
+live_read_device, and live_update_device on an already-present
+PluginDevice. Results are LOM-visible knobs only (wavetable/mod-matrix
+leftover state may be missing). presets[] from inspect is a catalog,
+not a load command. Do not invent param names. Still cannot add VST/AU
+from the browser. Official Pal MCP copies (ppal-*) are unchanged.
+
+live_record_to_arrangement (v1.0.15) records a Session scene's
+performance into the Arrangement timeline — arms Song.record_mode
+(the global Arrangement Record button) and fires the scene, same as
+pressing Record then launching a scene by hand. Different from
+live_create_scene capture=true (Song.capture_and_insert_scene), which
+only snapshots currently-playing clips into a NEW SESSION scene; this
+one writes into the Arrangement. Never blocks the Max js engine: with
+duration_beats it computes ms from the Set's current tempo and
+schedules a Task (same skeletonTask/skeletonTick pattern arrangement-
+skeleton already established) to flip record_mode back off; without
+duration_beats, recording keeps going until called again with
+op="stop". palRecordToArrangement / arrRecAutoStop in
+bridge/live-actions-pal.js. Not yet live-verified in Ableton — code +
+node --check only; see docs/plans/v1.0.15-record-to-arrangement.md.
+
+Genius "Ears" and Acoustic Analysis (v1.0.16):
+Genius can now critically listen to audio files and live track output.
+  live_analyze_audio       Extracts integrated/short-term LUFS, True Peak (dBTP),
+                           10-band log spectrum (sub/low/mid/high/etc in dBFS),
+                           spectral centroid (brightness Hz), rolloff, flatness,
+                           transient punch (crest factor of low band), and stereo
+                           correlation/width. Standalone Python DSP in
+                           app\audio_analysis.py.
+  live_compare_audio       Objective A/B diffing before and after parameter or
+                           device tweaks with perceptual thresholds (e.g. 0.5 dB
+                           loudness, 150 Hz brightness) and an executive headline.
+  live_record_audio        Captures live track audio via DirectShow loopback
+                           (Voicemeeter VAIO / virtual cables) via ffmpeg
+                           (app\audio_record.py).
+  live_record_and_analyze  Closed-loop critical listening: solos target track,
+                           starts transport playback, captures audio, stops,
+                           restores solo, and returns acoustic metrics.
+  live_read_meter          Real-time VU and peak metering via LOM properties
+                           (output_meter_left, output_meter_right, output_meter_level)
+                           on tracks, master bus, or return tracks.
+  live_read_macros /       Introspects and modifies Rack device Macro 1-16
+  live_update_macro        parameters by index or name, natively or normalized 0..1.
+  live_remove_notes        Surgically deletes notes matching pitch and time bounds
+                           via Clip.remove_notes_extended without deleting the clip.
+
+Arrangement Timeline Tools (v1.0.17):
+Genius can duplicate Session clips directly into the Arrangement timeline,
+inspect all clips along the timeline, rename/color/mute them, and surgically
+delete timeline clips.
+  live_duplicate_to_arrangement  Duplicates any Session clip directly to a
+                                 target beat offset on a track's Arrangement
+                                 timeline via Track.duplicate_clip_to_arrangement.
+                                 live_duplicate also accepts destination_time.
+  live_read_arrangement_clips    Inspects all clips on a track's Arrangement
+                                 timeline, returning sorted clip entries with
+                                 start_time, end_time, length, name, color,
+                                 is_midi, is_audio, and mute state.
+                                 live_read_track also accepts
+                                 include: ["arrangement-clips"].
+  live_update_arrangement_clip   Renames, colors, or mutes a clip on the
+                                 Arrangement timeline by track and clip index.
+  live_delete                    Supports type="arrangement_clip" to surgically
+                                 delete a timeline clip via Track.delete_clip.
+
+Arrangement Notes, Take Lanes & Transport (v1.0.19):
+Genius can now inspect and manipulate MIDI notes directly inside Arrangement
+clips, move arrangement clips across tracks/time, inspect and create take lane
+clips, and perform transport undo/redo/jump/overdub.
+  live_read_arrangement_notes    Read MIDI notes directly from an arrangement clip.
+  live_write_arrangement_notes   Write/replace notes in an arrangement clip.
+  live_remove_arrangement_notes  Surgically remove notes from an arrangement clip.
+  live_move_arrangement_clip     Move/reposition an arrangement clip across time or tracks.
+  live_read_take_lanes           Inspect take lanes on an audio or MIDI track.
+  live_update_take_lane          Rename a take lane.
+  live_create_take_lane_clip     Create a new MIDI clip on a take lane.
+  live_read_arrangement_length   Query total song length in beats.
+  live_undo / live_redo          Trigger native Live undo/redo.
+  live_jump_to_time              Set current playhead song time.
+  live_set_overdub               Toggle arrangement overdub or session record.
+
+Batch Tracks, Scrubbing, Drum Pads & View Focus (v1.0.20):
+Genius can batch modify track states, stop all clips set-wide, control clip
+launch/quantization/gain/pitch/warp modes, adjust track delay and monitoring,
+scrub transport and navigate cue locators, reorder devices in chains, inspect
+and mutate Drum Rack pads, and focus GUI views.
+  live_batch_tracks              Set-wide track batch modifications (unarm_all,
+                                 unmute_all, unsolo_all, solo_exclusive).
+  live_stop_all_clips            Stop all playing session clips across the Set.
+  live_tap_tempo                 Trigger song tap tempo calculation.
+  live_continue_playing          Resume playback from current playhead position.
+  live_scrub                     Scrub playhead forward or backward by beat delta.
+  live_jump_cue                  Jump arrangement playhead to next or prev cue marker.
+  live_set_punch                 Toggle punch_in and punch_out markers.
+  live_set_cue_volume            Adjust headphone cue/preview volume.
+  live_move_device               Reorder devices within or across track chains.
+  live_read_drum_pads            Inspect Drum Rack pads (mute, solo, chains count).
+  live_update_drum_pad           Mutate Drum Rack pad mute, solo, or name.
+  live_focus_view                Focus GUI view (session, arrangement, detail, clip,
+                                 device) and toggle draw/follow modes.
+  live_update_clip (expanded)    Control launch_mode, launch_quantization,
+                                 velocity_amount, gain, pitch, warp_mode, ram_mode.
+  live_update_track (expanded)   Control monitoring state, track delay_ms, crossfade_assign.
+  live_update_device (expanded)  Control is_collapsed state in Detail View.
+
+Verification Diff Loop, Link Discovery, Recipes & Plugin Discovery (v1.0.21):
+Genius can capture deep session snapshots, diff changes before and after
+mutations to verify results, discover Ableton Link status, execute 14 embedded
+production recipes, and inspect third-party VST/AU plugins and exposed presets.
+  live_session_snapshot          Capture deep structural JSON snapshot of the Live Set.
+  live_session_diff              Compare previous snapshot with current Live state to
+                                 compute exact recursive path deltas (added, removed, changed).
+  live_read_link_status          Discover Ableton Link connection state, peers, and sync.
+  live_list_recipes              Catalog 14 embedded production recipes across 7 categories.
+  live_apply_recipe              Execute declarative multi-step genre recipes with overrides.
+  live_inspect_plugin            Introspect native/VST/AU/M4L devices on a track and list
+                                 all exposed VST/AU factory and user presets.
+
+v1.0.22 added pair-programming selection grounding, clip envelope resetting,
+high-level step-string drum patterns, Roman numeral progressions, and unified editing:
+  live_get_selected              Discover the user's current Live GUI selection in one shot
+                                 (selected track index/name/type, scene, device, and detail clip).
+  live_clear_clip_envelopes      Reset and clear all parameter automation and modulation
+                                 envelopes inside a Session or Arrangement clip via native LOM.
+  live_create_drum_pattern       Write drum clips from step strings ({voice: step_string})
+                                 with velocity scaling ('2'-'9') and polyrhythmic row lengths.
+  live_create_chord_progression  Compose voiced chord progressions from Roman numeral tokens
+                                 ('I', 'vi', 'IV', 'V', 'ii°', 'bVII') or absolute chord names.
+  live_edit_track                Unified track editor (delete, duplicate, rename).
+  live_edit_clip                 Unified clip editor (delete, duplicate, rename).
+  live_edit_scene                Unified scene editor (delete, duplicate, rename).
+
+v1.0.23 added automated Rack magnitude mapping and wet/dry blend modulation:
+  live_map_rack_magnitude        Traverses an Audio or MIDI Effect Rack's chains and nested
+                                 devices, auto-detects Dry/Wet, Mix, Amount, Blend, and Wet
+                                 parameters, ensures Macro 1 is visible, renames Macro 1 to
+                                 'Magnitude' (or custom name), attempts native macro binding,
+                                 and optionally scales overall magnitude level (value or
+                                 value_normalized 0.0-1.0) simultaneously across the macro
+                                 and all underlying effect blend controls.
+
+v1.0.39 added an offline LOM truth table (app/lom_reference.py parses the
+runtime-introspected Live 12.3.6 LiveAPI_LOM reference into app/lom_surface.json;
+app/test_lom_surface.py fails the test suite if any .get/.set/.call/.getcount
+literal in bridge/live-actions-pal.js or live-actions-bridge.js names a member
+absent from every LOM class, or writes one marked settable:false) and 14 new
+actions that passed it, plus 2 fixes the audit found in existing code:
+  live_set_loop_region           Arrangement loop brace on/off + start/length in beats
+                                 (Song.loop / loop_start / loop_length).
+  live_set_groove_amount         Global groove pool amount (Song.groove_amount).
+  live_nudge                     Momentary transport tempo nudge up/down
+                                 (Song.nudge_up / nudge_down).
+  live_set_swing                 Global swing amount (Song.swing_amount).
+  live_set_appointed_device      Appoints a device as the active control-surface
+                                 target (Song.appointed_device).
+  live_set_automation_record     Session View automation recording on/off
+                                 (Song.session_automation_record).
+  live_read_param_range          A parameter's min/max, is_quantized, value_items,
+                                 and real display_value property (not str_for_value) --
+                                 read this before guessing a legal value.
+  live_set_param_raw             Writes a parameter's raw underlying value directly
+                                 within its min/max, bypassing display-string parsing.
+  live_show_message              Posts to Live's own status bar (Application.show_message).
+  live_read_dialog                Reads/dismisses a Live modal dialog blocking the UI
+                                 (Application.current_dialog_message /
+                                 press_current_dialog_button) -- addresses the Class-D
+                                 bug where a blocking dialog times out every other tool.
+  live_read_cpu                   Application.average_process_usage / peak_process_usage.
+  live_view_control               Show/hide/focus/query a Live UI view (Application.View) --
+                                 zoom_view/scroll_view deliberately left out: the
+                                 reference's (int, object, bool) signature doesn't say
+                                 what the int enum means, and it wasn't worth guessing.
+  live_read_selected_notes        Reads only the notes selected in the MIDI editor
+                                 (Clip.get_selected_notes_extended) -- not the whole clip.
+  live_transform_selected_notes   Transforms only the selected notes (invert/retrograde/
+                                 transpose/humanize/etc, reusing algorithmic_generators.
+                                 transform_clip_notes), writing back via the existing
+                                 remove_notes_extended + add_new_notes primitives rather
+                                 than the tuple-based replace_selected_notes call --
+                                 live-actions-bridge.js's own writeNotes() comment
+                                 documents that older API as triggering Live's MPE/
+                                 velocity-deviation warning dialog.
+Fixes: palConnect read app.get("version")/app.get("major_version"), which exist
+on no LOM class -- Application.get_version_string()/get_major_version() are
+methods, not properties, so live_version has silently been "" since it was
+written. palUpdateDevice returned ok:true even when every requested parameter
+was skipped; now ok is false whenever params_skipped is non-empty, matching
+palSetPunch/palFocusView/palUpdateDrumPad's existing convention. The Genius
+system prompt also named three tools that don't exist (live_generate_bassline,
+live_crossfader, live_fold_state) -- corrected to the real names
+(live_generate_walking_bass, live_set_crossfader, live_set_fold_state).
+Audited but NOT changed this pass (recorded in test_lom_surface.py's
+KNOWN_ABSENT/KNOWN_READONLY_WRITES with the reference finding, pending the
+probe runbook in docs/plans/v1.0.39-lom-truth-table-and-verified-actions.md
+Part B): live_set_clip_fades and live_set/get_clip_follow_action reference
+Clip members absent from the 12.3.6 reference and are likely inert;
+live_map_rack_magnitude's rename_macro/macro_map calls are on no class (the
+code already only trusts its own read-back, never these); palUpdateDevice's
+is_active write is on a read-only property (the real switch is the "Device On"
+parameter). Confirmed impossible and removed from consideration entirely:
+Track freeze/flatten (no such member on Track -- removed from
+EXPANSION_ROADMAP.md), render/export/bounce (no such method on Song or
+Application), and setters for Song.exclusive_arm/exclusive_solo/
+count_in_duration/tuning_system (all settable:false -- read-only).
+
+
+
+There is still no Browser / BrowserItem class in the Live Object Model
+exposed to Max for Live, so nothing here can walk Live's browser for
+packs/presets/plug-ins -- those stay drag-and-drop only (unless engine
+E2 is online -- see "Live browser access" in README.md -- in which case
+live_load_browser_item can add them). Loading a sample onto a Drum Rack
+pad doesn't need the browser, though: Genius can search samples_dir
+(live_find_samples / live_library), then set a device param named
+p<note>/sample (e.g. pC1/sample) to the found absolute path.
+live_update_device creates the pad's chain (RackDevice.insert_chain,
+Live 12.3+), puts a Simpler on it (Chain.insert_device, Live 12.3+,
+native only), and loads the file (SimplerDevice.replace_sample). The
+same path (palAssignDeviceSample) also loads a sample directly into a
+Simpler already on a track, not just a Drum Rack pad.
+
+Genius knows the actual running Live version (v1.3.0, app/live_version.py,
+recorded from live_connect and the Remote Script ping) and states whether
+replace_sample exists in that build as a resolved fact rather than a fixed
+"needs 12.4+" claim. Whether or not the version check passes, the bridge
+verifies the load by reading the device's own sample.file_path back after
+calling replace_sample -- Max's LiveAPI.call on a rejected method can post
+to the Max Console instead of throwing, so a clean call is not proof the
+file loaded. On a mismatch, params_skipped/error names the real reason
+(the actual exception, or what the device's sample actually holds) and
+points at live_create_clip sample_file / live_load_browser_item as the
+next tool call -- there is no "tell the user to drag it in by hand" path
+left in the prompt; a genuinely older build gets an honest, specific
+explanation from the read-back instead.
+
+Open Producer Pal Local from the Genius menu only if you want the
+official Pal device instead. This app does not create or patch it.
+
+
+What you must not do
+--------------------
+  Do not add items to Live's native right-click menu. Standard cannot.
+  Do not put Settings -> Extensions packages here. That host is Suite.
+  Do not edit C:\Users\<you>\My Apps\producer-pal-genius
+  Do not edit C:\Users\<you>\My Apps\producer-pal-local
+  Do not edit any Producer_Pal.amxd
+  Do not put API keys in this folder. They belong in AppData.
+  Do not run tools against every track unless the user clicked All.
+
+
+Quick checklist for a new tool
+------------------------------
+  [ ] tools\<id>\tool.json with a unique id, name, description, accent
+  [ ] Refresh tools, open the card, confirm the screen
+  [ ] Track picker shows, ticks persist, Run refuses zero tracks
+  [ ] live-actions-bridge.js handles that id and only payload.tracks
+  [ ] js copied next to the User Library .amxd and the device reloaded
+  [ ] /live-actions/result reports ok or error
+  [ ] Nothing official Pal / Suite Extensions was touched
+
+
+Versions and restore
+---------------------
+Repo: https://github.com/mkomorny/Live-Actions-Helper-2.0 (private)
+Remote name in the working folder: helper2. Since v1.0.67 the working folder
+"Live Actions Helper" is on main, and main pushes to helper2's main.
+The old repo (remote origin, https://github.com/mkomorny/live-actions-helper) keeps the
+original Tk app (its main = v1.0.53); its old redesign branch was deleted in v1.0.68
+(the v1.0.46-v1.0.64 tags keep those commits reachable there, and the 2.0 repo has them all).
+The way back to the Tk app: git checkout v1.0.53, or the classic-Tk launcher.
+
+Every shipped update gets an annotated git tag (vX.Y.Z) pushed to
+helper2 right after the commit, so each version is independently
+restorable straight from GitHub -- not just the latest main. GitHub
+serves an auto-generated zip/tarball for any tag with no extra setup:
+
+  https://github.com/mkomorny/Live-Actions-Helper-2.0/archive/refs/tags/v1.0.3.zip
+
+Restore a specific version:
+
+  git clone https://github.com/mkomorny/Live-Actions-Helper-2.0.git
+  cd Live-Actions-Helper-2.0
+  git checkout v1.0.3
+
+Then, same as a fresh clone:
+  1. cd tools\breakdowns && npm ci        (rebuilds the Breakdowns dialog;
+     deterministic from the committed package-lock.json)
+  2. Run install.ps1 from the repo root.
+  3. Re-enter Settings-tab values (API key, folders) -- these live in
+     %APPDATA%\Live Actions\settings.json, which is intentionally not
+     in the repo.
+
+What a tag does NOT carry, by design (see .gitignore):
+  %APPDATA%\Live Actions\settings.json   (API key, folder paths)
+  tools\breakdowns\node_modules\         (rebuild with npm ci)
+  app\__pycache__\, .remember\           (not app state)
+
+Tags start at v1.0.1 (backfilled onto the commit that shipped it;
+v0.1.0-v1.0.0 predate a reliable commit mapping and were not tagged).

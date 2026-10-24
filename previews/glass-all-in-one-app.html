@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Actions Pro — Complete Glassmorphism Application Prototype</title>
+<style>
+  :root {
+    --bg-dark: #07090e;
+    --glass-surface: rgba(18, 22, 34, 0.65);
+    --glass-surface-hover: rgba(28, 34, 52, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-border-hover: rgba(255, 255, 255, 0.16);
+    --glass-card: rgba(14, 18, 28, 0.55);
+    --accent-cyan: #06b6d4;
+    --accent-violet: #8b5cf6;
+    --accent-emerald: #10b981;
+    --accent-amber: #f59e0b;
+    --accent-rose: #f43f5e;
+    --text-main: #f8fafc;
+    --text-sub: #94a3b8;
+    --text-dim: #64748b;
+    --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+    --font-mono: "SF Mono", "Consolas", monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    background-image: 
+      radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.15), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(6, 182, 212, 0.12), transparent 40%),
+      radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05), transparent 60%);
+  }
+
+  /* Top HUD Bar */
+  .hud-top-bar {
+    height: 56px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(10, 13, 20, 0.7);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--glass-border);
+    flex-shrink: 0;
+  }
+
+  .hud-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand-badge-icon {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent-violet), var(--accent-cyan));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 900; color: #fff;
+    box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+  }
+  .brand-text { font-size: 14px; font-weight: 800; }
+  .brand-sub { font-size: 10px; color: var(--text-sub); }
+
+  /* Navigation Tabs */
+  .hud-nav {
+    display: flex;
+    background: rgba(255,255,255,0.04);
+    padding: 3px;
+    border-radius: 30px;
+    border: 1px solid var(--glass-border);
+    gap: 2px;
+  }
+  .nav-tab {
+    background: transparent;
+    border: none;
+    color: var(--text-sub);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .nav-tab:hover { color: #fff; }
+  .nav-tab.active {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(6, 182, 212, 0.4));
+    color: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  }
+
+  /* Telemetry */
+  .telemetry-capsule {
+    background: var(--glass-surface);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 40px;
+    padding: 5px 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .capsule-stat { display: flex; align-items: center; gap: 5px; font-size: 11px; }
+  .stat-label { color: var(--text-dim); font-size: 9px; font-weight: 700; text-transform: uppercase; }
+  .stat-val { font-weight: 700; color: #fff; font-family: var(--font-mono); }
+  .pulse-indicator {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent-emerald);
+    box-shadow: 0 0 8px var(--accent-emerald);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{ opacity: 1; } 50%{ opacity: 0.4; } }
+
+  /* App Pages Stage */
+  .app-pages-stage {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .page-view {
+    flex: 1;
+    display: none;
+    height: 100%;
+    overflow: hidden;
+  }
+  .page-view.active-page {
+    display: flex;
+  }
+
+  /* Pinned Bottom Status Bar */
+  .hud-bottom-bar {
+    height: 32px;
+    background: rgba(10, 13, 20, 0.9);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+  .console-toggle-pill {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 9px;
+    font-weight: bold;
+  }
+  .console-toggle-pill:hover { background: rgba(255,255,255,0.12); }
+</style>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header class="hud-top-bar">
+    <div class="hud-brand">
+      <div class="brand-badge-icon">LA</div>
+      <div>
+        <div class="brand-text">Live Actions Pro HUD</div>
+        <div class="brand-sub">Ableton Live 12 Companion</div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="hud-nav">
+      <button class="nav-tab active" onclick="showAppPage('actions', this)">⚡ Catalog</button>
+      <button class="nav-tab" onclick="showAppPage('tools14', this)">🎛 All 14 Tools</button>
+      <button class="nav-tab" onclick="showAppPage('tool', this)">📋 Tool Detail</button>
+      <button class="nav-tab" onclick="showAppPage('genius', this)">🧠 Genius AI</button>
+      <button class="nav-tab" onclick="showAppPage('settings', this)">⚙ Settings</button>
+      <button class="nav-tab" onclick="showAppPage('webview', this)">📦 Webview</button>
+      <button class="nav-tab" onclick="showAppPage('console', this)">💻 Console</button>
+    </nav>
+
+    <!-- Telemetry -->
+    <div class="telemetry-capsule">
+      <div class="capsule-stat">
+        <span class="pulse-indicator"></span>
+        <span class="stat-val" style="color:var(--accent-emerald);">CONNECTED</span>
+      </div>
+      <div class="capsule-stat">
+        <span class="stat-label">BPM:</span>
+        <span class="stat-val" style="color:var(--accent-cyan)">126.00</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Pages Host -->
+  <main class="app-pages-stage">
+    <!-- View 1: Catalog -->
+    <iframe class="page-view active-page" id="page-actions" src="glass-1-actions-catalog.html" style="width:100%; border:none;"></iframe>
+
+    <!-- View 1.5: All 14 Tools Visual Explorer -->
+    <iframe class="page-view" id="page-tools14" src="glass-all-14-tools-explorer.html" style="width:100%; border:none;"></iframe>
+
+    <!-- View 2: Tool Detail -->
+    <iframe class="page-view" id="page-tool" src="glass-2-tool-detail.html" style="width:100%; border:none;"></iframe>
+
+    <!-- View 3: Genius AI -->
+    <iframe class="page-view" id="page-genius" src="glass-3-genius-ai.html" style="width:100%; border:none;"></iframe>
+
+    <!-- View 4: Settings -->
+    <iframe class="page-view" id="page-settings" src="glass-4-settings.html" style="width:100%; border:none;"></iframe>
+
+    <!-- View 5: Webview Dialogs -->
+    <iframe class="page-view" id="page-webview" src="glass-5-webview-dialogs.html" style="width:100%; border:none;"></iframe>
+
+    <!-- View 6: Console Drawer -->
+    <iframe class="page-view" id="page-console" src="glass-6-console-diagnostics.html" style="width:100%; border:none;"></iframe>
+  </main>
+
+  <!-- Bottom Bar -->
+  <footer class="hud-bottom-bar">
+    <div>
+      <span>OSC OUT: UDP 127.0.0.1:11924</span> · <span>IN: 11925</span> · <span style="color:var(--accent-emerald);">Ready</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <button class="console-toggle-pill" onclick="showAppPage('console')">▲ Toggle OSC Console</button>
+    </div>
+  </footer>
+
+  <script>
+    function showAppPage(pageId, btnEl) {
+      document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active-page'));
+      document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+
+      const target = document.getElementById(`page-${pageId}`);
+      if(target) target.classList.add('active-page');
+
+      if(btnEl) {
+        btnEl.classList.add('active');
+      } else {
+        const matching = Array.from(document.querySelectorAll('.nav-tab')).find(b => b.textContent.toLowerCase().includes(pageId));
+        if(matching) matching.classList.add('active');
+      }
+    }
+  </script>
+</body>
+</html>
